@@ -3,29 +3,40 @@
 /* Initialize pointers */
 void Game::initVars()
 {
-	this->window = nullptr;
+	window = nullptr;
 
 }
 
 /* Initialize windows */
 void Game::initWindow()
 {
-	this->vidMode.width = 800;
-	this->vidMode.height = 600;
-	this->window = new sf::RenderWindow(this->vidMode, "Demo", sf::Style::Titlebar | sf::Style::Close);
+	vidMode.width = 800;
+	vidMode.height = 600;
+	window = new sf::RenderWindow(vidMode, "Demo", sf::Style::Titlebar | sf::Style::Close);
+	window->setFramerateLimit(144);
+}
+
+void Game::initMobs()
+{
+	mob.setPosition(400.0, 300.0);
+	mob.setSize(sf::Vector2f(100.0, 100.0));
+	mob.setFillColor(sf::Color(220, 220, 170));
+	mob.setOutlineColor(sf::Color(108, 169, 155));
+	mob.setOutlineThickness(2.0);
 }
 
 /* Constructor */
 Game::Game()
 {
-	this->initVars();
-	this->initWindow();
+	initVars();
+	initWindow();
+	initMobs();
 }
 
 /* Destructor */
 Game::~Game()
 {
-	delete this->window;
+	delete window;
 }
 
 
@@ -33,7 +44,7 @@ Game::~Game()
 /* Returns true if window is open */
 const bool Game::running() const
 {
-	return this->window->isOpen();
+	return window->isOpen();
 }
 
 /*
@@ -41,16 +52,16 @@ const bool Game::running() const
  */
 void Game::pollEvents()
 {
-	while (this->window->pollEvent(this->ev))
+	while (window->pollEvent(ev))
 	{
-		switch (this->ev.type)
+		switch (ev.type)
 		{
 		case sf::Event::Closed:
-			this->window->close();
+			window->close();
 			break;
 		case sf::Event::KeyPressed:
-			if (this->ev.key.code == sf::Keyboard::Escape)
-				this->window->close();
+			if (ev.key.code == sf::Keyboard::Escape)
+				window->close();
 			break;
 		}
 	}
@@ -60,7 +71,12 @@ void Game::pollEvents()
 /* Updates game logic */
 void Game::update()
 {
-	this->pollEvents();
+	pollEvents();
+
+	//Update mouse position
+	///if(sf::Mouse::getPosition(*window).x > 0 && sf::Mouse::getPosition(*window).y > 0) //Might, but don't feel like it. For now.
+	std::cout << "Mouse Coor (" << sf::Mouse::getPosition(*window).x
+		<< ", " << sf::Mouse::getPosition(*window).y << ")\n";
 }
 
 /* 
@@ -69,9 +85,10 @@ void Game::update()
  */
 void Game::render()
 {
-	this->window->clear(sf::Color(30, 30, 30));
+	window->clear(sf::Color(30, 30, 30));
 
 	//Draw game Objects
+	window->draw(mob);
 
-	this->window->display();
+	window->display();
 }

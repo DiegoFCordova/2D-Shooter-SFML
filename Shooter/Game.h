@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
@@ -18,8 +20,12 @@ private:
 	sf::VideoMode vidMode;
 	sf::Event ev;
 
+	//Game Objects
+	sf::RectangleShape mob;
+
 	void initVars();
 	void initWindow();
+	void initMobs();
 
 public:
 	//-Constructor; Destructor
