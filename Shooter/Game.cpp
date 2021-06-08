@@ -19,6 +19,22 @@ void Game::initVars()
 	//enemies.reserve(maxEnemies);
 }
 
+/* Initializes Font */
+void Game::initFonts()
+{
+	if (!font.loadFromFile("Fonts/Consolas.ttf"))
+		std::cout << "Error: Font not loaded correctly." << "\n";
+}
+
+/* Initializes text properties */
+void Game::initText()
+{
+	text.setFont(font);
+	text.setCharacterSize(36);
+	text.setFillColor(sf::Color(218, 218, 218));
+	text.setString("TEXT GOES HERE");
+}
+
 /*
  * Called in constructor. Initialize windows, sets
  * titlebar and frames limit.
@@ -50,6 +66,8 @@ void Game::initMobs()
 Game::Game()
 {
 	initVars();
+	initFonts();
+	initText();
 	initWindow();
 	initMobs();
 }
@@ -75,6 +93,7 @@ void Game::update()
 {
 	pollEvents();
 	updateMousePos();
+	updateText();
 	updateEnemies();
 
 	//Update mouse position
@@ -113,6 +132,15 @@ void Game::updateMousePos()
 	mousePosView = window->mapPixelToCoords(mousePosWindow);
 }
 
+void Game::updateText()
+{
+	std::stringstream str;
+
+	str << "Points:" << points;
+
+	text.setString(str.str());
+}
+
 /* 
  * Calls spawnEnemy (below) when interval is met,
  * also moves all existing elements in "enemies"
@@ -133,19 +161,26 @@ void Game::updateEnemies()
 			enemySpawnTimer += 1.f;
 	}
 
-	//Move enemies
+	//Move enemies and delete if needed (Refactor)
 	for (int k = 0; k < enemies.size(); k++)
 	{
+		bool deleted = false;
+
 		enemies[k].move(0.f, 5.f);
 
 		//Check if clicked
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-		{
 			if (enemies[k].getGlobalBounds().contains(mousePosView))
 			{
-				enemies.erase(enemies.begin() + k);
+				deleted = true;
+				points += 10.f;
 			}
-		}
+
+		if (enemies[k].getPosition().y > window->getSize().y)
+			deleted = true;
+
+		if(deleted)
+			enemies.erase(enemies.begin() + k);
 	}
 
 	//for (auto& e : enemies)
@@ -177,7 +212,8 @@ void Game::render()
 
 	//Draw game Objects
 	//window->draw(mob);
-	renderEnemies();
+	renderEnemies(*window);
+	renderText(*window);
 
 	window->display();
 }
@@ -185,11 +221,17 @@ void Game::render()
 /*
  * Draw elements from vector "enemies" to window
  */
-void Game::renderEnemies()
+void Game::renderEnemies(sf::RenderTarget& target)
 {
 	//Move enemies
 	for (int k = 0; k < enemies.size(); k++)
-		window->draw(enemies[k]);
+		target.draw(enemies[k]);
 
 
+}
+
+/* Render Text */
+void Game::renderText(sf::RenderTarget& target)
+{
+	target.draw(text);
 }
