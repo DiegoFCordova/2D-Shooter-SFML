@@ -40,8 +40,8 @@ void Game::initMobs()
 	enemy.setPosition(400.0, 300.0);
 	enemy.setSize(sf::Vector2f(100.0, 100.0));
 	enemy.setFillColor(sf::Color(220, 220, 170));
-	enemy.setOutlineColor(sf::Color(108, 169, 155));
-	enemy.setOutlineThickness(2.0);
+	//enemy.setOutlineColor(sf::Color(108, 169, 155));
+	//enemy.setOutlineThickness(2.0);
 }
 
 /*
@@ -110,6 +110,7 @@ void Game::pollEvents()
 void Game::updateMousePos()
 {
 	mousePosWindow = sf::Mouse::getPosition(*window);
+	mousePosView = window->mapPixelToCoords(mousePosWindow);
 }
 
 /* 
@@ -133,11 +134,22 @@ void Game::updateEnemies()
 	}
 
 	//Move enemies
-//	for (int k = 0; k < maxEnemies; k++)
-		//enemies.at(k+1).move(0.f, 5.f);
+	for (int k = 0; k < enemies.size(); k++)
+	{
+		enemies[k].move(0.f, 5.f);
 
-	for (auto& e : enemies)
-		e.move(0.f, 5.f);
+		//Check if clicked
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+		{
+			if (enemies[k].getGlobalBounds().contains(mousePosView))
+			{
+				enemies.erase(enemies.begin() + k);
+			}
+		}
+	}
+
+	//for (auto& e : enemies)
+	//	e.move(0.f, 5.f);
 }
 
 /*

@@ -30,6 +30,7 @@ private:
 
 
 	sf::Vector2i mousePosWindow;
+	sf::Vector2f mousePosView;
 
 	//-Game Objects
 	std::vector<sf::RectangleShape> enemies;
