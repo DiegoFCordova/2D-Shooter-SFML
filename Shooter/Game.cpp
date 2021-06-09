@@ -96,9 +96,11 @@ void Game::update()
 	updateText();
 	updateEnemies();
 
+	player.update();
+
 	//Update mouse position
 	///if(mousePosWindow.x > 0 && mousePosWindow.y > 0) //Might, but don't feel like it. For now.
-	std::cout << "Mouse Coor (" << enemies.size() << ", " << maxEnemies << ")\n";
+	std::cout << "Mouse Coor (" << mousePosWindow.x << ", " << mousePosWindow.y << ")\n";
 }
 
 /*
@@ -213,6 +215,7 @@ void Game::render()
 	//Draw game Objects
 	//window->draw(mob);
 	renderEnemies(*window);
+	player.render(*window);
 	renderText(*window);
 
 	window->display();

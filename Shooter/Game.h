@@ -11,6 +11,8 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Network.hpp>
 
+#include "Player.h"
+
 /* 
  * "Game Engine". Wrapper Class.
  */
@@ -40,6 +42,7 @@ private:
 	sf::Vector2f mousePosView;
 
 	//-Game Objects
+	Player player;
 	std::vector<sf::RectangleShape> enemies;
 	sf::RectangleShape enemy;
 
