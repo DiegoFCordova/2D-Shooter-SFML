@@ -1,74 +1,72 @@
 #include "Game.h"
 
-/* 
- * Initialize Variables, called in constructor:
- * -Window
- * -Enemy spawn timer and limit
- * -Max enemy limit
- * -Points
- * --Reserve an size in the vector to avoid unnecesary copying--
- */
-void Game::initVars()
-{
-	window = nullptr;
-	enemySpawnTimerMax = 25.f;
-	enemySpawnTimer = enemySpawnTimerMax;
-	maxEnemies = 50;
-	points = 0;
-
-	//enemies.reserve(maxEnemies);
-}
-
-/* Initializes Font */
-void Game::initFonts()
-{
-	if (!font.loadFromFile("Fonts/Consolas.ttf"))
-		std::cout << "Error: Font not loaded correctly." << "\n";
-}
-
-/* Initializes text properties */
-void Game::initText()
-{
-	text.setFont(font);
-	text.setCharacterSize(36);
-	text.setFillColor(sf::Color(218, 218, 218));
-	text.setString("TEXT GOES HERE");
-}
-
 /*
- * Called in constructor. Initialize windows, sets
- * titlebar and frames limit.
+ * Initialize windows, sets
+ * titlebar, and frames limit.
+ *
+ * @author MellamoSteve
  */
 void Game::initWindow()
 {
-	vidMode.width = 800;
-	vidMode.height = 600;
+	vidMode.width = 1600;
+	vidMode.height = 900;
 	window = new sf::RenderWindow(vidMode, "Demo", sf::Style::Titlebar | sf::Style::Close);
 	window->setFramerateLimit(144);
 }
 
 /*
- * Called in constructor: Might refactor: Initializes "enemy" to certain
- * position colour, size, etc
+ * Initialize game logic variables.
  */
-void Game::initMobs()
+void Game::initVars()
 {
-	enemy.setPosition(400.0, 300.0);
-	enemy.setSize(sf::Vector2f(100.0, 100.0));
-	enemy.setFillColor(sf::Color(220, 220, 170));
-	//enemy.setOutlineColor(sf::Color(108, 169, 155));
-	//enemy.setOutlineThickness(2.0);
+	state = State::MainMenu;
+	tileSize = (float)(window->getSize().x) / 32;	//For  16:9 ratio
+
+	enemySpawnTimerMax = 25.f;
+	enemySpawnTimer = enemySpawnTimerMax;
+	maxEnemies = 50;
+	points = 0;
 }
 
 /*
- * Constructor. Calls 3 init functions, described above
+ * Initialize Player and a certain number of enemies.
+ * --Reserve an size in the vector to avoid unnecesary copying--
+ */
+void Game::initMobs()
+{
+	player = new Player(200, 200, 1);
+	enemy = new Enemy(500, 300);
+
+	//enemies.reserve(maxEnemies);
+
+}
+
+/* Debugging.
+ * Initializes font for text.
+ */
+void Game::initText()
+{
+	if (!font.loadFromFile("Fonts/Consolas.ttf"))
+	{
+		std::cout << "Error: Font not loaded correctly." << "\n";
+		return;
+	}
+
+	text.setFont(font);
+	text.setCharacterSize(tileSize*.85);
+	text.setFillColor(sf::Color(218, 218, 218));
+	text.setString("TEXT GOES HERE");
+}
+
+
+/*
+ * Constructor. Calls init methods, described above.
  */
 Game::Game()
 {
-	initVars();
-	initFonts();
-	initText();
 	initWindow();
+	initVars();
+	initText();
 	initMobs();
 }
 
@@ -76,9 +74,11 @@ Game::Game()
 Game::~Game()
 {
 	delete window;
+	delete player;
+	delete enemy;
 }
 
-//-System (Might choose another name for this group)
+
 /* Returns true if window is open */
 const bool Game::running() const
 {
@@ -86,25 +86,26 @@ const bool Game::running() const
 }
 
 /* 
- * Updates game logic:
- * Functions used are described below in order.
+ * Updates game logic for next frame.
+ * Rest of the methods are described below.
  */
 void Game::update()
 {
 	pollEvents();
 	updateMousePos();
-	updateText();
-	updateEnemies();
+	//if(state == State::Game)
+		updateMobs();
 
-	player.update();
+	//-Debug
+	updateDebug();
 
 	//Update mouse position
 	///if(mousePosWindow.x > 0 && mousePosWindow.y > 0) //Might, but don't feel like it. For now.
-	std::cout << "Mouse Coor (" << mousePosWindow.x << ", " << mousePosWindow.y << ")\n";
+//	std::cout << "Mouse Coor (" << mousePosWindow.x << ", " << mousePosWindow.y << ")\n";
 }
 
 /*
- * Event Polling loops:
+ * Event Polling loop:		///Might only use for UI or not at all besides window's interactions
  * -If windows is closed
  * -Gets what key is pressed
  */
@@ -118,7 +119,7 @@ void Game::pollEvents()
 			window->close();
 			break;
 		case sf::Event::KeyPressed:
-			if (ev.key.code == sf::Keyboard::Escape)
+			if (ev.key.code == sf::Keyboard::Escape)	//UI's Exit should trigger this
 				window->close();
 			break;
 		}
@@ -127,6 +128,7 @@ void Game::pollEvents()
 
 /*
  * Updates mouse position on game screen.
+ * ---Might implement later for UI interaction---
  */
 void Game::updateMousePos()
 {
@@ -134,107 +136,110 @@ void Game::updateMousePos()
 	mousePosView = window->mapPixelToCoords(mousePosWindow);
 }
 
-void Game::updateText()
-{
-	std::stringstream str;
-
-	str << "Points:" << points;
-
-	text.setString(str.str());
-}
-
 /* 
- * Calls spawnEnemy (below) when interval is met,
- * also moves all existing elements in "enemies"
- * vector downwards
+ * Updates Mobs movement only if state
+ * is "Game".
+ * Calculates intersection.
+ * ---Hitboxes not done yet---
  */
-void Game::updateEnemies()
+void Game::updateMobs()
 {
+	player->update(*window);
+	enemy->update(*window);
 
-	//updates the timer for enemy spawning
-	if (enemies.size() < maxEnemies)
-	{
-		if (enemySpawnTimer >= enemySpawnTimerMax)
-		{
-			spawnEnemy();
-			enemySpawnTimer = 0.f;
-		}
-		else
-			enemySpawnTimer += 1.f;
-	}
-
-	//Move enemies and delete if needed (Refactor)
-	for (int k = 0; k < enemies.size(); k++)
-	{
-		bool deleted = false;
-
-		enemies[k].move(0.f, 5.f);
-
-		//Check if clicked
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-			if (enemies[k].getGlobalBounds().contains(mousePosView))
-			{
-				deleted = true;
-				points += 10.f;
-			}
-
-		if (enemies[k].getPosition().y > window->getSize().y)
-			deleted = true;
-
-		if(deleted)
-			enemies.erase(enemies.begin() + k);
-	}
-
-	//for (auto& e : enemies)
-	//	e.move(0.f, 5.f);
+	//if (enemy->sprite.getGlobalBounds().contains(player->getPos()))
+	//	points++;
 }
 
 /*
- * Spawn enemy at a random x position and at the top of the screen
- */
-void Game::spawnEnemy()
-{
-	enemy.setPosition(static_cast<float>(rand() % static_cast<int>(window->getSize().x - enemy.getSize().x)),
-		0.f);			///Rewrite
-	//enemy.setFillColor(sf::Color(220, 220, 170));
-
-	enemies.push_back(enemy);			///Replace with emplace_back once enemy class is done
-}
-
-
-/*
- * Clears old frame, renders object,
- * and finally display new frame in window
- * Uses:
- * -renderEnemies
+ * Refreshes windows to next frame
+ * and render all active objects.
  */
 void Game::render()
 {
 	window->clear(sf::Color(30, 30, 30));
+	renderMobs();
 
-	//Draw game Objects
-	//window->draw(mob);
-	renderEnemies(*window);
-	player.render(*window);
-	renderText(*window);
+	//Debug
+	renderDebug(*window);
+	drawGrid();
 
 	window->display();
 }
 
-/*
- * Draw elements from vector "enemies" to window
- */
-void Game::renderEnemies(sf::RenderTarget& target)
+/* Render mobs after update is done */
+void Game::renderMobs()
 {
-	//Move enemies
-	for (int k = 0; k < enemies.size(); k++)
-		target.draw(enemies[k]);
-
-
+	player->render(*window);
+	enemy->render(*window);
 }
 
-/* Render Text */
-void Game::renderText(sf::RenderTarget& target)
+
+//-Debug
+
+/* Update debug components */
+void Game::updateDebug()
+{
+	std::stringstream str;
+
+	str << "Points:" << points
+		<< "\nX: " << player->getPos().x << " Y: " << player->getPos().y;
+
+	text.setString(str.str());
+}
+
+/* Render debug components after update is done */
+void Game::renderDebug(sf::RenderTarget& target)
 {
 	target.draw(text);
+}
+
+/*
+ * Draws grid for easy organization
+ */
+void Game::drawGrid()
+{
+	sf::VertexArray linesVertical(sf::Lines, 66);
+	sf::VertexArray linesHorizontal(sf::Lines, 36);
+
+	for (int k = 0; k < 66; k += 2)
+	{
+		//Middle
+		if (k == 32)
+		{
+			linesVertical[k].color = sf::Color::Red;
+			linesVertical[k + 1].color = sf::Color::Red;
+		}
+
+		//Quarter
+		else if (k % 8 == 0)
+		{
+			linesVertical[k].color = sf::Color::Yellow;
+			linesVertical[k + 1].color = sf::Color::Yellow;
+		}
+
+		linesVertical[k].position = sf::Vector2f(tileSize * (k / 2), 0);
+		linesVertical[k + 1].position = sf::Vector2f(tileSize * (k / 2), window->getSize().y);
+	}
+
+	for (int k = 0; k < 36; k += 2)
+	{
+		if (k == 18)
+		{
+			linesHorizontal[k].color = sf::Color::Red;
+			linesHorizontal[k + 1].color = sf::Color::Red;
+		}
+
+		else if (k % 6 == 0)
+		{
+			linesHorizontal[k].color = sf::Color::Yellow;
+			linesHorizontal[k + 1].color = sf::Color::Yellow;
+		}
+
+		linesHorizontal[k].position = sf::Vector2f(0, tileSize * (k / 2));
+		linesHorizontal[k + 1].position = sf::Vector2f(window->getSize().x, tileSize * (k / 2));
+	}
+
+	window->draw(linesVertical);
+	window->draw(linesHorizontal);
 }

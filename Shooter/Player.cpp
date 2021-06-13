@@ -1,61 +1,111 @@
 #include "Player.h"
 
+/*
+ * Initialize basic variables to default for player.
+ *
+ * @author MellamoSteve
+ */
 void Player::initVariables()
 {
-
+	bullet = new Bullet();
 }
 
-void Player::initShape()
+/*
+ * texture loads certain image and sets it for sprite.
+ * Checks if texture loading failed, if it does,
+ * print message and return.
+ */
+void Player::initSprite()
 {
-	body.setFillColor(sf::Color::Red);
-	body.setSize(sf::Vector2f(100.f, 100.f));
+	if (!texture.loadFromFile("Sprites/Test.png"))
+		std::cout << "Error loading Player Sprite.\n";
+	sprite.setTexture(texture);
 }
 
+/*
+ * Default constructor, will never be used
+ * but defined just in case.
+ */
 Player::Player()
 {
 	initVariables();
-	initShape();
+	initSprite();
 }
 
-Player::Player(float x, float y)
+/*
+ * Calls both init for sprite and basic parameters.
+ * Creates bullet at a specific place.
+ * ///Maybe make it so fire becomes true
+ */
+Player::Player(float x, float y, float scaling)
 {
-	body.setPosition(x, y);
-
 	initVariables();
-	initShape();
+	initSprite();
+	sprite.setPosition(x, y);
 }
 
+/*
+ * Destructor for pointers.
+ */
 Player::~Player()
 {
-
+	delete bullet;
 }
 
+/*
+ * sprite position getter.
+ * @return Vector2 containing x and y of sprite in the window.
+ */
+sf::Vector2<float> Player::getPos()
+{
+	return sprite.getPosition();
+}
+
+/*
+ * Update animations.
+ * ///Should use a for loop for bullets
+ */
 void Player::update(sf::RenderTarget& target)
 {
 	updateInput();
+	bullet->update(target);
 }
 
+/*
+ * "Translate" keyboard inputs into actions.
+ */
 void Player::updateInput()
 {
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 	{
-		body.move(-5.f, 0.f);
+		sprite.move(-5.f, 0.f);
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 	{
-		body.move(5.f, 0.f);
+		sprite.move(5.f, 0.f);
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 	{
-		body.move(0.f, -5.f);
+		sprite.move(0.f, -5.f);
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 	{
-		body.move(0.f, 5.f);
+		sprite.move(0.f, 5.f);
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) || sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+	{
+		bullet = new Bullet(sprite.getPosition().x, sprite.getPosition().y);
 	}
 }
 
+/*
+ * Draws sprite and its objects into target.
+ * 
+ * @param target: Destination of drawing.
+ */
 void Player::render(sf::RenderTarget& target)
 {
-	target.draw(body);
+	target.draw(sprite);
+
+	bullet->render(target);
 }

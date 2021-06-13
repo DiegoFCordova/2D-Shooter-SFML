@@ -12,61 +12,76 @@
 #include <SFML/Network.hpp>
 
 #include "Player.h"
+#include "Enemy.h"
 
 /* 
  * "Game Engine". Wrapper Class.
+ * 
+ * @author MellamoSteve
  */
 
 class Game
 {
+public:
+	///Will be used later for UI
+	enum class State
+	{
+		MainMenu, PauseMenu, Game
+	};
+
 private:
-	//-Variables
+	//-Essential Game Variables
 	sf::RenderWindow* window;
 	sf::VideoMode vidMode;
 	sf::Event ev;
+	State state;
 
 	//-Logic
+	float tileSize;
 	float enemySpawnTimer;
-	float enemySpawnTimerMax;		///Might delete
+	float enemySpawnTimerMax;		///Might delete and instead create a simple script for spawning
 	int maxEnemies;
 	int points;
 
-	//-Assets
-	sf::Font font;
-
-	//-Texts
-	sf::Text text;
-
-
+	//-Controls, Mouse (Might delete). Might add Keyboard for UI and such
 	sf::Vector2i mousePosWindow;
 	sf::Vector2f mousePosView;
 
 	//-Game Objects
-	Player player;
-	std::vector<sf::RectangleShape> enemies;
-	sf::RectangleShape enemy;
+	Player* player;
+	Enemy* enemy;
 
+	//-Debug
+	sf::Font font;
+	sf::Text text;
+
+
+	//-Basic
 	void initVars();
-	void initFonts();
-	void initText();
 	void initWindow();
 	void initMobs();
 
-public:
-	//-Constructor; Destructor
-	Game();
-	virtual ~Game();
+	//-Debug
+	void initText();
 
+public:
+	Game();
+	~Game();
+
+	//-Getters
 	const bool running() const;
+
+	//-Draw Components
 	void update();
 	void pollEvents();
-	void updateMousePos();
-	void updateText();
-	void updateEnemies();
-	void spawnEnemy();
-
+	void updateMousePos();	//Might delete entirely
+	void updateMobs();	//Need reworking
 	void render();
-	void renderEnemies(sf::RenderTarget& target);
-	void renderText(sf::RenderTarget& target);
+	void renderMobs();	//Need to add something to it
+
+	//-Debug
+	void updateDebug();
+	void renderDebug(sf::RenderTarget& target);
+	void drawGrid();
 };
 

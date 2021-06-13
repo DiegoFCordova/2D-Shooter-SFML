@@ -1,7 +1,11 @@
 #include <iostream>
 #include "Game.h"
 
-//using namespace sf;	//Use to make code more neat later
+/*
+ * Class to call ///Think on explanation for this
+ * 
+ * @author MellamoSteve
+ */
 
 int main()
 {

@@ -5,38 +5,41 @@
 #include <SFML/Audio.hpp>
 #include <iostream>
 
-#include "Bullet.h"
-
 /*
- * Player class for user.
+ * Base enemy class for mobs.
  * 
  * @author MellamoSteve
  */
 
-class Player
+class Enemy
 {
-private:
-	//-Stats
-	Bullet* bullet;
+	//Make Enum for Variation sprite
+public:
+	enum Type
+	{
+		Common, Strong, Fast
+	};
 
-	//-Basics
+private:
+	///Mostly for initial, don't forget there is already x and y in Shapes
+	int hp;
+	bool fall;
+
 	sf::Texture texture;
 	sf::Sprite sprite;
 
-	void initVariables();  
+	void initVariables();
 	void initSprite();
 
 public:
-	//-Constructors
-	Player();
-	Player(float x, float y, float scaling);
-	virtual ~Player();
-
-	//-Getters
-	sf::Vector2<float> getPos();
+	Enemy();
+	Enemy(float x, float y);
+	~Enemy();
 
 	//-Draw Components
 	void update(sf::RenderTarget& target);
-	void updateInput();
 	void render(sf::RenderTarget& target);
+
+
 };
+
