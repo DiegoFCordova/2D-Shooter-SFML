@@ -18,6 +18,10 @@ class Player
 private:
 	//-Stats
 	Bullet* bullet;
+	std::vector<Bullet*> bullets;
+	short shotRate;
+	short counter;
+	bool cooldown;
 
 	//-Basics
 	sf::Texture texture;
@@ -33,7 +37,13 @@ public:
 	virtual ~Player();
 
 	//-Getters
-	sf::Vector2<float> getPos();
+	sf::Vector2<float> getPos() const;
+	int bulletsCreated(); //Delete quick
+
+	//-Setters
+
+	//-Functions
+	bool attack();
 
 	//-Draw Components
 	void update(sf::RenderTarget& target);

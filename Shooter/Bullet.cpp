@@ -11,7 +11,7 @@ void Bullet::initVariables()
 	baseDamage = 3;
 	velocity = 5;
 	scaling = 3;
-	fire = false;
+	fire = true;
 }
 
 /*
@@ -91,9 +91,16 @@ Bullet::~Bullet()
 /*
  * @return true if fire is true.
  */
-bool Bullet::isActive()
+bool Bullet::isActive() const
 {
 	return fire;
+}
+/*
+ * Fires a bullet (Makes fire = true).
+ */
+void Bullet::activate()
+{
+	fire = true;
 }
 
 /*
@@ -105,18 +112,21 @@ bool Bullet::isActive()
  */
 void Bullet::update(sf::RenderTarget& target)
 {
-	float x = sprite.getPosition().x, y = sprite.getPosition().y,
-		width = sprite.getLocalBounds().width * scaling, height = sprite.getLocalBounds().height * scaling;
-	int targetWidth = target.getSize().x, targetHeight = target.getSize().y;
+	if (fire)
+	{
+		float x = sprite.getPosition().x, y = sprite.getPosition().y,
+			width = sprite.getLocalBounds().width * scaling, height = sprite.getLocalBounds().height * scaling;
+		int targetWidth = target.getSize().x, targetHeight = target.getSize().y;
 
-	if (y < 0 - height)
-		sprite.setPosition(x, targetHeight);
-	else if (x < 0 - width)
-		sprite.setPosition(targetWidth, y);
-	else if (x > targetWidth)
-		sprite.setPosition(0, y);
-	else
-		sprite.move(0, -velocity);
+		if (y < 0 - height)
+			sprite.setPosition(x, targetHeight);
+		else if (x < 0 - width)
+			sprite.setPosition(targetWidth, y);
+		else if (x > targetWidth)
+			sprite.setPosition(0, y);
+		else
+			sprite.move(0, -velocity);
+	}
 }
 
 /*

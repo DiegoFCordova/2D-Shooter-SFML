@@ -57,7 +57,10 @@ public:
 	~Bullet();
 
 	//-Getter
-	bool isActive();
+	bool isActive() const;
+
+	//-Setters()
+	void activate();
 
 	//-Draw components
 	void update(sf::RenderTarget& target);

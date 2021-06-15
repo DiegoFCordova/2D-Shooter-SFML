@@ -8,6 +8,10 @@
 void Player::initVariables()
 {
 	bullet = new Bullet();
+	bullets.reserve(100);
+	shotRate = 7;
+	counter = 0;
+	cooldown = false;
 }
 
 /*
@@ -50,15 +54,43 @@ Player::Player(float x, float y, float scaling)
 Player::~Player()
 {
 	delete bullet;
+	for (auto *k : bullets)
+		delete k;
 }
 
 /*
  * sprite position getter.
  * @return Vector2 containing x and y of sprite in the window.
  */
-sf::Vector2<float> Player::getPos()
+sf::Vector2<float> Player::getPos() const
 {
 	return sprite.getPosition();
+}
+
+int Player::bulletsCreated()
+{
+	return bullets.size();
+}
+/*
+ * Attacks if cooldown is false, then makes it true.
+ * If cooldown is true, counter increases.
+ * When counter reaches shotRate, player can attack again.
+ */
+bool Player::attack()
+{
+	if (cooldown)
+	{
+		if (counter >= shotRate)
+			cooldown = false;
+		return false;
+	}
+
+	else
+	{
+		cooldown = true;
+		counter = 0;
+		return true;
+	}
 }
 
 /*
@@ -67,8 +99,12 @@ sf::Vector2<float> Player::getPos()
  */
 void Player::update(sf::RenderTarget& target)
 {
+	if(cooldown)
+		counter++;
 	updateInput();
-	bullet->update(target);
+	//bullet->update(target);
+	for (auto* k : bullets)
+		k->update(target);
 }
 
 /*
@@ -94,7 +130,9 @@ void Player::updateInput()
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) || sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 	{
-		bullet = new Bullet(sprite.getPosition().x, sprite.getPosition().y);
+		//bullet = new Bullet(sprite.getPosition().x, sprite.getPosition().y);
+		if(attack())
+			bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y));
 	}
 }
 
@@ -107,5 +145,7 @@ void Player::render(sf::RenderTarget& target)
 {
 	target.draw(sprite);
 
-	bullet->render(target);
+	//bullet->render(target);
+	for (auto* k : bullets)
+		k->render(target);
 }

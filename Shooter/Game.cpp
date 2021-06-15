@@ -6,6 +6,10 @@
  *
  * @author MellamoSteve
  */
+
+///Quick dirty code to debug
+bool debug = false;
+
 void Game::initWindow()
 {
 	vidMode.width = 1600;
@@ -121,7 +125,13 @@ void Game::pollEvents()
 		case sf::Event::KeyPressed:
 			if (ev.key.code == sf::Keyboard::Escape)	//UI's Exit should trigger this
 				window->close();
-			break;
+			//else if (ev.key.code == sf::Keyboard::Z)		///Za Warudo, pero mejor le bajamos la velocidad a todos los mobs?
+			//	window->setFramerateLimit(60);
+
+			///Debug quick dirty code
+			else if (ev.key.code == sf::Keyboard::Z)
+				debug = !debug;
+				break;
 		}
 	}
 }
@@ -161,8 +171,11 @@ void Game::render()
 	renderMobs();
 
 	//Debug
-	renderDebug(*window);
-	drawGrid();
+	if (debug)
+	{
+		renderDebug(*window);
+		drawGrid();
+	}
 
 	window->display();
 }
@@ -183,7 +196,8 @@ void Game::updateDebug()
 	std::stringstream str;
 
 	str << "Points:" << points
-		<< "\nX: " << player->getPos().x << " Y: " << player->getPos().y;
+		<< "\nX: " << player->getPos().x << " Y: " << player->getPos().y
+		<< "\nBullets: " << player->bulletsCreated();
 
 	text.setString(str.str());
 }

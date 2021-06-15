@@ -67,7 +67,7 @@ void Enemy::update(sf::RenderTarget& target)
 	if (sprite.getPosition().x > target.getSize().x)
 		sprite.setPosition(0, sprite.getPosition().y);
 	else
-		sprite.move(5, 0);
+		sprite.move(0, 0);
 }
 
 /*
