@@ -26,7 +26,7 @@ private:
 	 * type: will decide the type of bullet
 	 * baseDamage: Base damage of common bullet
 	 * velocity: How fast it will go
-	 * direction?: will decide if its moving to the side or not
+	 * sway: positive go to right, negative left
 	 * scaling: How big it will be (Maybe make it bigger the stronger it is
 	 *								Keep in mind that this would involve basing hitbox in scale)
 	 * fire: indicates if bullet is being fired or not
@@ -37,7 +37,8 @@ private:
 	Type type;
 	float baseDamage;
 	float velocity;
-	float scaling;
+	float sway;
+	float scaling;	///Later
 	bool fire;
 
 	//-Basics
@@ -50,7 +51,7 @@ private:
 public:
 	Bullet();
 	///Delete Following 1 or add scaling parameter
-	Bullet(float x, float y);
+	Bullet(float x, float y, float sway);
 	///Think for later: Modifiers, multipliers, etc
 	Bullet(float x, float y, Type type);
 	Bullet(float x, float y, float scale, Type type);
@@ -58,6 +59,7 @@ public:
 
 	//-Getter
 	bool isActive() const;
+	sf::FloatRect bounds() const;
 
 	//-Setters()
 	void activate();

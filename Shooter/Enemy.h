@@ -36,6 +36,12 @@ public:
 	Enemy(float x, float y);
 	~Enemy();
 
+	//-Getters
+	sf::FloatRect bounds() const;
+
+	//-Functions
+
+
 	//-Draw Components
 	void update(sf::RenderTarget& target);
 	void render(sf::RenderTarget& target);

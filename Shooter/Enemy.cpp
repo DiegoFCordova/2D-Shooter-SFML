@@ -2,12 +2,10 @@
 
 /*
  * Initialize basic variables to default for common enemy.
- * 
- * @author MellamoSteve
  */
 void Enemy::initVariables()
 {
-	hp = 100;
+	hp = 10;
 	fall = false;
 }
 
@@ -22,7 +20,7 @@ void Enemy::initSprite()
 		std::cout << "Error loading Player Sprite.\n";
 	sprite.setTexture(texture);
 
-	sprite.scale(3, 3);
+	sprite.scale(2, 2);
 }
 
 /*
@@ -55,6 +53,14 @@ Enemy::Enemy(float x, float y)
 Enemy::~Enemy()
 {
 
+}
+
+/*
+ * @return sprite's global bounds.
+ */
+sf::FloatRect Enemy::bounds() const
+{
+	return sprite.getGlobalBounds();
 }
 
 /*

@@ -3,8 +3,6 @@
 /*
  * Initialize windows, sets
  * titlebar, and frames limit.
- *
- * @author MellamoSteve
  */
 
 ///Quick dirty code to debug
@@ -38,8 +36,8 @@ void Game::initVars()
  */
 void Game::initMobs()
 {
-	player = new Player(200, 200, 1);
-	enemy = new Enemy(500, 300);
+	player = new Player(tileSize*15.2, tileSize*15, 1);
+	enemies.reserve(maxEnemies);
 
 	//enemies.reserve(maxEnemies);
 
@@ -79,7 +77,8 @@ Game::~Game()
 {
 	delete window;
 	delete player;
-	delete enemy;
+	for (auto* k : enemies)
+		delete k;
 }
 
 
@@ -131,6 +130,8 @@ void Game::pollEvents()
 			///Debug quick dirty code
 			else if (ev.key.code == sf::Keyboard::Z)
 				debug = !debug;
+			else if (ev.key.code == sf::Keyboard::Q)
+				enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % vidMode.height));
 				break;
 		}
 	}
@@ -155,10 +156,27 @@ void Game::updateMousePos()
 void Game::updateMobs()
 {
 	player->update(*window);
-	enemy->update(*window);
 
-	//if (enemy->sprite.getGlobalBounds().contains(player->getPos()))
-	//	points++;
+	for (int e = 0; e < enemies.size(); e++)
+	{
+		bool defeated = false;
+		for (int k = 0; k < player->getBullets().size() && !defeated; k++)
+		{
+			if (enemies[e]->bounds().intersects(player->getBullets()[k]->bounds()))
+			{
+				delete enemies[e];
+				enemies.erase(enemies.begin() + e);
+				points++;
+
+				delete player->getBullets()[k];
+				player->getBullets().erase(player->getBullets().begin() + k);
+				defeated = true;
+			}
+		}
+
+		if(!defeated)
+			enemies[e]->update(*window);
+	}
 }
 
 /*
@@ -184,7 +202,8 @@ void Game::render()
 void Game::renderMobs()
 {
 	player->render(*window);
-	enemy->render(*window);
+	for (auto* k : enemies)
+		k->render(*window);
 }
 
 
@@ -197,9 +216,17 @@ void Game::updateDebug()
 
 	str << "Points:" << points
 		<< "\nX: " << player->getPos().x << " Y: " << player->getPos().y
-		<< "\nBullets: " << player->bulletsCreated();
+		<< "\nBullets: " << player->bulletsCreated()
+		<< "\nEnemies: " << enemies.size()
+		<< "\nSee? " << tileSize;
 
 	text.setString(str.str());
+
+	//int static c = 0;
+	//c++;
+
+	//if(c % 30 == 0)
+	//	enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % vidMode.height));
 }
 
 /* Render debug components after update is done */

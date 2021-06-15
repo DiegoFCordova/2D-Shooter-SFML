@@ -2,16 +2,17 @@
 
 /*
  * Initialize basic variables to default for player.
- *
- * @author MellamoSteve
  */
 void Player::initVariables()
 {
-	bullet = new Bullet();
-	bullets.reserve(100);
-	shotRate = 7;
+	bullets.reserve(10);
+	dir = Direction::Neutral;
+	shotRate = 14;
 	counter = 0;
 	cooldown = false;
+	velocity = 5;
+	sway = 0;
+	scaling = 1.5;
 }
 
 /*
@@ -21,9 +22,10 @@ void Player::initVariables()
  */
 void Player::initSprite()
 {
-	if (!texture.loadFromFile("Sprites/Test.png"))
+	if (!texture.loadFromFile("Sprites/Ship.png"))
 		std::cout << "Error loading Player Sprite.\n";
 	sprite.setTexture(texture);
+	sprite.scale(scaling, scaling);
 }
 
 /*
@@ -53,7 +55,6 @@ Player::Player(float x, float y, float scaling)
  */
 Player::~Player()
 {
-	delete bullet;
 	for (auto *k : bullets)
 		delete k;
 }
@@ -67,6 +68,30 @@ sf::Vector2<float> Player::getPos() const
 	return sprite.getPosition();
 }
 
+/*
+ * @return sprite's global bounds.
+ */
+sf::FloatRect Player::bounds() const
+{
+	return sprite.getGlobalBounds();
+}
+
+/*
+ * @return Player's bullets (Would it be better to make bullets public?)
+ */
+std::vector<Bullet*>& Player::getBullets()
+{
+	return bullets;
+}
+
+float Player::see()
+{
+	return sway;
+}
+
+/*
+ * @return Number of active bullets on screen.
+ */
 int Player::bulletsCreated()
 {
 	return bullets.size();
@@ -76,7 +101,7 @@ int Player::bulletsCreated()
  * If cooldown is true, counter increases.
  * When counter reaches shotRate, player can attack again.
  */
-bool Player::attack()
+bool Player::canAttack()
 {
 	if (cooldown)
 	{
@@ -95,16 +120,29 @@ bool Player::attack()
 
 /*
  * Update animations.
- * ///Should use a for loop for bullets
+ * Also loops player if he goes outside screen.
  */
 void Player::update(sf::RenderTarget& target)
 {
+	float x = sprite.getPosition().x, y = sprite.getPosition().y,
+		width = sprite.getLocalBounds().width * scaling, height = sprite.getLocalBounds().height * scaling;
+	int targetWidth = target.getSize().x, targetHeight = target.getSize().y;
+
 	if(cooldown)
 		counter++;
 	updateInput();
-	//bullet->update(target);
+
 	for (auto* k : bullets)
 		k->update(target);
+
+	if (y < 0 - height)
+		sprite.setPosition(x, targetHeight);
+	else if (y > targetHeight)
+		sprite.setPosition(x, 0 - height);
+	else if (x < 0 - width)
+		sprite.setPosition(targetWidth, y);
+	else if (x > targetWidth)
+		sprite.setPosition(0 - width, y);
 }
 
 /*
@@ -112,27 +150,56 @@ void Player::update(sf::RenderTarget& target)
  */
 void Player::updateInput()
 {
+	bool itMoved = false;
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 	{
-		sprite.move(-5.f, 0.f);
+		sprite.move(-velocity, 0.f);
+
+		if(sway > -velocity/4) 
+			sway -= .1;
+		itMoved = true;
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 	{
-		sprite.move(5.f, 0.f);
+		sprite.move(velocity, 0.f);
+
+		if (sway < velocity/4)
+			sway += .1;
+		itMoved = true;
 	}
+
+	if (!itMoved)
+	{
+		if (sway > -.1 && sway < .1)
+			sway = 0;
+		else
+			sway += (sway < 0) ? .1 : -.1;
+	}
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 	{
-		sprite.move(0.f, -5.f);
+		sprite.move(0.f, -velocity);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 	{
-		sprite.move(0.f, 5.f);
+		sprite.move(0.f, velocity);
 	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) || sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 	{
-		//bullet = new Bullet(sprite.getPosition().x, sprite.getPosition().y);
-		if(attack())
-			bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y));
+		if(canAttack())
+			bullets.emplace_back(new Bullet(sprite.getPosition().x + (sprite.getGlobalBounds().width/2), sprite.getPosition().y, sway));
+		//if(attack())
+		//	switch (dir)
+		//	{
+		//	case Direction::Left:
+		//		bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y, -(velocity / 5)));
+		//		break;
+		//	case Direction::Right:
+		//		bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y, (velocity / 5)));
+		//		break;
+		//	default:
+		//		bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y, 0));
+		//	}
 	}
 }
 

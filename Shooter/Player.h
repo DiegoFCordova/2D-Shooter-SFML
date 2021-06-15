@@ -15,10 +15,19 @@
 
 class Player
 {
+public:
+	enum class Direction
+	{
+		Left, Right, Neutral
+	};
+
 private:
 	//-Stats
-	Bullet* bullet;
 	std::vector<Bullet*> bullets;
+	Direction dir;
+	float scaling;
+	float velocity;
+	float sway;
 	short shotRate;
 	short counter;
 	bool cooldown;
@@ -38,12 +47,17 @@ public:
 
 	//-Getters
 	sf::Vector2<float> getPos() const;
+	sf::FloatRect bounds() const;
+	std::vector<Bullet*>& getBullets();
+
+
+	float see();
 	int bulletsCreated(); //Delete quick
 
 	//-Setters
 
 	//-Functions
-	bool attack();
+	bool canAttack();
 
 	//-Draw Components
 	void update(sf::RenderTarget& target);

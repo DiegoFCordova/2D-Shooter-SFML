@@ -49,7 +49,8 @@ private:
 
 	//-Game Objects
 	Player* player;
-	Enemy* enemy;
+	//Enemy* enemy;
+	std::vector<Enemy*> enemies;
 
 	//-Debug
 	sf::Font font;

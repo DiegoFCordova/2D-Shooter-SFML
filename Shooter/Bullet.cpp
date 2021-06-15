@@ -1,16 +1,21 @@
 #include "Bullet.h"
 
 /*
- * Initialize basic variables to default bullet value.
- *
- * @author MellamoSteve
+ * Initialize basic variables to default bullet value:
+ * -type: Decides what texture bullet will have.
+ * -baseDamage: How much damage it will deal.
+ * -velocity: How fast it moves vertically.
+ * -sway: How fast it moves horizontally.
+ * -scaling: How big it will be ///"Planned to increase when damage is bigger".
+ * -fire: true if bullet flying.
  */
 void Bullet::initVariables()
 {
 	type = Type::Common;
 	baseDamage = 3;
-	velocity = 5;
-	scaling = 3;
+	velocity = 3;
+	sway = 0;
+	scaling = 2;
 	fire = true;
 }
 
@@ -45,16 +50,17 @@ Bullet::Bullet()
 /*
  * Calls both init for sprite and basic parameters.
  * Creates bullet at a specific place.
- * ///Maybe make it so fire becomes true
  *
  * @param x: x coordinate.
  * @param y: y coordinate.
+ * @param sway: horizontal speed.
  */
-Bullet::Bullet(float x, float y)
+Bullet::Bullet(float x, float y, float sway)
 {
 	initVariables();
 	initSprite();
-	sprite.setPosition(x, y);
+	sprite.setPosition(x - sprite.getGlobalBounds().width/2, y - sprite.getGlobalBounds().height);
+	this->sway = sway;
 }
 
 /*
@@ -95,6 +101,15 @@ bool Bullet::isActive() const
 {
 	return fire;
 }
+
+/*
+ * @return sprite's global bounds.
+ */
+sf::FloatRect Bullet::bounds() const
+{
+	return sprite.getGlobalBounds();
+}
+
 /*
  * Fires a bullet (Makes fire = true).
  */
@@ -123,9 +138,9 @@ void Bullet::update(sf::RenderTarget& target)
 		else if (x < 0 - width)
 			sprite.setPosition(targetWidth, y);
 		else if (x > targetWidth)
-			sprite.setPosition(0, y);
+			sprite.setPosition(0 - width, y);
 		else
-			sprite.move(0, -velocity);
+			sprite.move(sway, -velocity);
 	}
 }
 
