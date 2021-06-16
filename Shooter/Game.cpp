@@ -38,9 +38,7 @@ void Game::initMobs()
 {
 	player = new Player(tileSize*15.2, tileSize*15, 1);
 	enemies.reserve(maxEnemies);
-
-	//enemies.reserve(maxEnemies);
-
+	death.reserve(maxEnemies);
 }
 
 /* Debugging.
@@ -79,6 +77,8 @@ Game::~Game()
 	delete player;
 	for (auto* k : enemies)
 		delete k;
+	for (auto* d : death)
+		delete d;
 }
 
 
@@ -132,6 +132,8 @@ void Game::pollEvents()
 				debug = !debug;
 			else if (ev.key.code == sf::Keyboard::Q)
 				enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % vidMode.height));
+			else if (ev.key.code == sf::Keyboard::R)
+				death.emplace_back(new DeathAni(rand() % vidMode.width, rand() % vidMode.height));
 				break;
 		}
 	}
@@ -164,9 +166,15 @@ void Game::updateMobs()
 		{
 			if (enemies[e]->bounds().intersects(player->getBullets()[k]->bounds()))
 			{
-				delete enemies[e];
-				enemies.erase(enemies.begin() + e);
-				points++;
+				enemies[e]->takeDamage(player->damageDealt(k));
+
+				if (!enemies[e]->isAlive())
+				{
+					death.emplace_back(new DeathAni(enemies[e]->getPos().x, enemies[e]->getPos().y));
+					delete enemies[e];
+					enemies.erase(enemies.begin() + e);
+					points++;
+				}
 
 				delete player->getBullets()[k];
 				player->getBullets().erase(player->getBullets().begin() + k);
@@ -176,6 +184,17 @@ void Game::updateMobs()
 
 		if(!defeated)
 			enemies[e]->update(*window);
+	}
+
+	for (int d = 0; d < death.size(); d++)
+	{
+		if (death[d]->isOver())
+		{
+			delete death[d];
+			death.erase(death.begin() + d);
+		}
+		else
+			death[d]->update(*window);
 	}
 }
 
@@ -204,6 +223,8 @@ void Game::renderMobs()
 	player->render(*window);
 	for (auto* k : enemies)
 		k->render(*window);
+	for (auto* d : death)
+		d->render(*window);
 }
 
 

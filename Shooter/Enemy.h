@@ -22,8 +22,9 @@ public:
 
 private:
 	///Mostly for initial, don't forget there is already x and y in Shapes
-	int hp;
-	bool fall;
+	float hp;
+	int maxHP;
+	bool alive;
 
 	sf::Texture texture;
 	sf::Sprite sprite;
@@ -37,10 +38,12 @@ public:
 	~Enemy();
 
 	//-Getters
+	sf::Vector2<float> getPos() const;
 	sf::FloatRect bounds() const;
+	bool isAlive();
 
 	//-Functions
-
+	void takeDamage(float dmg);
 
 	//-Draw Components
 	void update(sf::RenderTarget& target);

@@ -15,11 +15,11 @@
 class Bullet
 {
 	///Make Enum for Variation sprite. Prototype
-public:
-	enum class Type
-	{
-		Common, Strong, Fast
-	};
+//public:
+//	enum class Type
+//	{
+//		Common, Strong, Fast
+//	};
 
 private:
 	/*		///Might delete later
@@ -34,11 +34,11 @@ private:
 	 */
 
 	//-Attributes
-	Type type;
+	///Type type;
 	float baseDamage;
 	float velocity;
 	float sway;
-	float scaling;	///Later
+	float scaling;
 	bool fire;
 
 	//-Basics
@@ -53,12 +53,13 @@ public:
 	///Delete Following 1 or add scaling parameter
 	Bullet(float x, float y, float sway);
 	///Think for later: Modifiers, multipliers, etc
-	Bullet(float x, float y, Type type);
-	Bullet(float x, float y, float scale, Type type);
+	//Bullet(float x, float y, Type type);
+	//Bullet(float x, float y, float scale, Type type);
 	~Bullet();
 
 	//-Getter
 	bool isActive() const;
+	float atk() const;
 	sf::FloatRect bounds() const;
 
 	//-Setters()

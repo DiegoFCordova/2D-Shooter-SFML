@@ -2,7 +2,7 @@
 
 /*
  * Initialize basic variables to default bullet value:
- * -type: Decides what texture bullet will have.
+ * ----type: Decides what texture bullet will have.---
  * -baseDamage: How much damage it will deal.
  * -velocity: How fast it moves vertically.
  * -sway: How fast it moves horizontally.
@@ -11,7 +11,7 @@
  */
 void Bullet::initVariables()
 {
-	type = Type::Common;
+	///type = Type::Common;
 	baseDamage = 3;
 	velocity = 3;
 	sway = 0;
@@ -63,28 +63,28 @@ Bullet::Bullet(float x, float y, float sway)
 	this->sway = sway;
 }
 
-/*
- * Same as above, but this one specifies type of bullet.
- */
-Bullet::Bullet(float x, float y, Type type)
-{
-	this->type = type;
-	initVariables();
-	initSprite();
-	sprite.setPosition(x, y);
-}
-
-/*
- * Same as above, but this one also specifies scaling of sprite.
- */
-Bullet::Bullet(float x, float y, float scale, Type type)
-{
-	scaling = scale;
-	this->type = type;
-	initVariables();
-	initSprite();
-	sprite.setPosition(x, y);
-}
+///*
+// * Same as above, but this one specifies type of bullet.
+// */
+//Bullet::Bullet(float x, float y, Type type)
+//{
+//	this->type = type;
+//	initVariables();
+//	initSprite();
+//	sprite.setPosition(x, y);
+//}
+//
+///*
+// * Same as above, but this one also specifies scaling of sprite.
+// */
+//Bullet::Bullet(float x, float y, float scale, Type type)
+//{
+//	scaling = scale;
+//	this->type = type;
+//	initVariables();
+//	initSprite();
+//	sprite.setPosition(x, y);
+//}
 
 /*
  * Destructor for pointers if needed.
@@ -100,6 +100,11 @@ Bullet::~Bullet()
 bool Bullet::isActive() const
 {
 	return fire;
+}
+
+float Bullet::atk() const
+{
+	return baseDamage;
 }
 
 /*

@@ -5,13 +5,13 @@
  */
 void Player::initVariables()
 {
-	bullets.reserve(10);
-	dir = Direction::Neutral;
+	bullets.reserve(50);
 	shotRate = 14;
 	counter = 0;
 	cooldown = false;
 	velocity = 5;
 	sway = 0;
+	maxBullets = 10;
 	scaling = 1.5;
 }
 
@@ -103,6 +103,9 @@ int Player::bulletsCreated()
  */
 bool Player::canAttack()
 {
+	if (bullets.size() > maxBullets)
+		return false;
+
 	if (cooldown)
 	{
 		if (counter >= shotRate)
@@ -116,6 +119,14 @@ bool Player::canAttack()
 		counter = 0;
 		return true;
 	}
+}
+
+/*
+ * Calculates how much damage the bullet makes.
+ */
+float Player::damageDealt(int k)
+{
+	return bullets[k]->atk();		//Add damage multiplier later
 }
 
 /*
@@ -150,25 +161,26 @@ void Player::update(sf::RenderTarget& target)
  */
 void Player::updateInput()
 {
-	bool itMoved = false;
+	bool moving = false;
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 	{
 		sprite.move(-velocity, 0.f);
 
 		if(sway > -velocity/4) 
 			sway -= .1;
-		itMoved = true;
+		moving = true;
 	}
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 	{
 		sprite.move(velocity, 0.f);
 
 		if (sway < velocity/4)
 			sway += .1;
-		itMoved = true;
+		moving = true;
 	}
 
-	if (!itMoved)
+	if (!moving)
 	{
 		if (sway > -.1 && sway < .1)
 			sway = 0;
@@ -177,30 +189,14 @@ void Player::updateInput()
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-	{
 		sprite.move(0.f, -velocity);
-	}
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-	{
 		sprite.move(0.f, velocity);
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E) || sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-	{
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 		if(canAttack())
 			bullets.emplace_back(new Bullet(sprite.getPosition().x + (sprite.getGlobalBounds().width/2), sprite.getPosition().y, sway));
-		//if(attack())
-		//	switch (dir)
-		//	{
-		//	case Direction::Left:
-		//		bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y, -(velocity / 5)));
-		//		break;
-		//	case Direction::Right:
-		//		bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y, (velocity / 5)));
-		//		break;
-		//	default:
-		//		bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y, 0));
-		//	}
-	}
 }
 
 /*

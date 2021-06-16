@@ -6,7 +6,8 @@
 void Enemy::initVariables()
 {
 	hp = 10;
-	fall = false;
+	maxHP = hp;
+	alive = true;
 }
 
 /*
@@ -55,12 +56,39 @@ Enemy::~Enemy()
 
 }
 
+sf::Vector2<float> Enemy::getPos() const
+{
+	return sprite.getPosition();
+}
+
 /*
  * @return sprite's global bounds.
  */
 sf::FloatRect Enemy::bounds() const
 {
 	return sprite.getGlobalBounds();
+}
+
+/*
+ * @returns alive boolean in Enemy.
+ */
+bool Enemy::isAlive()
+{
+	return alive;
+}
+
+/*
+ * Used to calculate damage against enemy.
+ */
+void Enemy::takeDamage(float dmg)
+{
+	hp -= dmg;
+
+	if (hp < maxHP/3)
+		sprite.setColor(sf::Color::Red);
+
+	if (hp <= 0)
+		alive = false;
 }
 
 /*

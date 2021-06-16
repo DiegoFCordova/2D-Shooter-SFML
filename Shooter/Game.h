@@ -13,6 +13,7 @@
 
 #include "Player.h"
 #include "Enemy.h"
+#include "DeathAni.h"
 
 /* 
  * "Game Engine". Wrapper Class.
@@ -49,8 +50,8 @@ private:
 
 	//-Game Objects
 	Player* player;
-	//Enemy* enemy;
 	std::vector<Enemy*> enemies;
+	std::vector<DeathAni*> death;
 
 	//-Debug
 	sf::Font font;
