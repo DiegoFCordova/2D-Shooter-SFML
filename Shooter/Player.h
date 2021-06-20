@@ -18,12 +18,8 @@ class Player
 private:
 	//-Stats
 	std::vector<Bullet*> bullets;
-	float scaling;
-	float velocity;
-	float sway;
-	short shotRate;
-	short counter;
-	short maxBullets;
+	float scaling, velocity, sway;
+	short shotRate, cooldownCounter, maxBullets;
 	bool cooldown;
 
 	//-Basics
@@ -41,6 +37,7 @@ public:
 
 	//-Getters
 	sf::Vector2<float> getPos() const;
+	sf::Vector2<float> getCenter() const;
 	sf::FloatRect bounds() const;
 	std::vector<Bullet*>& getBullets();
 

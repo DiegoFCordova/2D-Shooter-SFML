@@ -5,6 +5,8 @@
 #include <SFML/Audio.hpp>
 #include <iostream>
 
+#include "Bullet.h"
+
 /*
  * Base enemy class for mobs.
  * 
@@ -21,9 +23,11 @@ public:
 	};
 
 private:
-	///Mostly for initial, don't forget there is already x and y in Shapes
+	///Mostly for initial, don't forget there is already x and y in sprite
+	std::vector<Bullet*> bullets;
 	float hp;
-	int maxHP;
+	float xTarget, yTarget;
+	int tick, maxHP, maxBullets;
 	bool alive;
 
 	sf::Texture texture;
@@ -39,11 +43,14 @@ public:
 
 	//-Getters
 	sf::Vector2<float> getPos() const;
+	sf::Vector2<float> getCenter() const;
 	sf::FloatRect bounds() const;
+	std::vector<Bullet*>& getBullets();
 	bool isAlive();
 
 	//-Functions
 	void takeDamage(float dmg);
+	void attack(float x, float y);
 
 	//-Draw Components
 	void update(sf::RenderTarget& target);

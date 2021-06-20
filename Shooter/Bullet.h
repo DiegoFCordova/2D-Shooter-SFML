@@ -15,15 +15,15 @@
 class Bullet
 {
 	///Make Enum for Variation sprite. Prototype
-//public:
-//	enum class Type
-//	{
-//		Common, Strong, Fast
-//	};
+public:
+	enum class Loop
+	{
+		None, Horizontal, Vertical, All
+	};
 
 private:
 	/*		///Might delete later
-	 * type: will decide the type of bullet
+	 * target: For homing bullets. Might need a boolean for chasers.
 	 * baseDamage: Base damage of common bullet
 	 * velocity: How fast it will go
 	 * sway: positive go to right, negative left
@@ -34,13 +34,13 @@ private:
 	 */
 
 	//-Attributes
-	///Type type;
-	float baseDamage;
-	float velocity;
-	float sway;
+	Loop loop;
+	sf::Vector2<float> target;
+	float baseDamage, velocity, sway;
 	float scaling;
 	bool fire;
 
+public:
 	//-Basics
 	sf::Texture texture;
 	sf::Sprite sprite;
@@ -48,7 +48,6 @@ private:
 	void initVariables();
 	void initSprite();
 
-public:
 	Bullet();
 	///Delete Following 1 or add scaling parameter
 	Bullet(float x, float y, float sway);
@@ -61,9 +60,18 @@ public:
 	bool isActive() const;
 	float atk() const;
 	sf::FloatRect bounds() const;
+	sf::Vector2<float> getTarget() const;
+	sf::Vector2<float> getPos() const;
 
-	//-Setters()
+	//-Setters
 	void activate();
+	void deactivate();
+	void setTarget(float x, float y);
+	void setVelocity(float x, float y);
+
+	//-Functions
+	void setEnemyBullet(float angle, float x, float y, bool side);	//Maybe add an enum for this
+
 
 	//-Draw components
 	void update(sf::RenderTarget& target);

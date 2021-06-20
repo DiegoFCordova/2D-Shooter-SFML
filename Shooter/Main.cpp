@@ -2,7 +2,8 @@
 #include "Game.h"
 
 /*
- * Class to call ///Think on explanation for this
+ * Class that calls a Game instance
+ * that takes care of simple parts of game.
  * 
  * @author MellamoSteve
  */

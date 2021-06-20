@@ -7,7 +7,7 @@ void Player::initVariables()
 {
 	bullets.reserve(50);
 	shotRate = 14;
-	counter = 0;
+	cooldownCounter = 0;
 	cooldown = false;
 	velocity = 5;
 	sway = 0;
@@ -41,7 +41,6 @@ Player::Player()
 /*
  * Calls both init for sprite and basic parameters.
  * Creates bullet at a specific place.
- * ///Maybe make it so fire becomes true
  */
 Player::Player(float x, float y, float scaling)
 {
@@ -66,6 +65,18 @@ Player::~Player()
 sf::Vector2<float> Player::getPos() const
 {
 	return sprite.getPosition();
+}
+
+/*
+ * Center of sprite position getter.
+ * @return Vector2 containing x and y of sprite's center in the window.
+ */
+sf::Vector2<float> Player::getCenter() const
+{
+	sf::Vector2<float> center;
+	center.x = sprite.getPosition().x + (sprite.getGlobalBounds().width / 2);
+	center.y = sprite.getPosition().y;
+	return center;
 }
 
 /*
@@ -108,7 +119,7 @@ bool Player::canAttack()
 
 	if (cooldown)
 	{
-		if (counter >= shotRate)
+		if (cooldownCounter >= shotRate)
 			cooldown = false;
 		return false;
 	}
@@ -116,7 +127,7 @@ bool Player::canAttack()
 	else
 	{
 		cooldown = true;
-		counter = 0;
+		cooldownCounter = 0;
 		return true;
 	}
 }
@@ -140,7 +151,7 @@ void Player::update(sf::RenderTarget& target)
 	int targetWidth = target.getSize().x, targetHeight = target.getSize().y;
 
 	if(cooldown)
-		counter++;
+		cooldownCounter++;
 	updateInput();
 
 	for (auto* k : bullets)
@@ -208,7 +219,6 @@ void Player::render(sf::RenderTarget& target)
 {
 	target.draw(sprite);
 
-	//bullet->render(target);
 	for (auto* k : bullets)
 		k->render(target);
 }

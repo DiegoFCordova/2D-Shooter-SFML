@@ -39,14 +39,8 @@ private:
 
 	//-Logic
 	float tileSize;
-	float enemySpawnTimer;
-	float enemySpawnTimerMax;		///Might delete and instead create a simple script for spawning
-	int maxEnemies;
-	int points;
-
-	//-Controls, Mouse (Might delete). Might add Keyboard for UI and such
-	sf::Vector2i mousePosWindow;
-	sf::Vector2f mousePosView;
+	float enemySpawnTimer, enemySpawnTimerMax;		///Might delete and instead create a simple script for spawning
+	int maxEnemies, points;
 
 	//-Game Objects
 	Player* player;

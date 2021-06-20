@@ -11,7 +11,9 @@
  */
 void Bullet::initVariables()
 {
-	///type = Type::Common;
+	loop = Loop::None;
+	target.x = -1;
+	target.y = -1;
 	baseDamage = 3;
 	velocity = 3;
 	sway = 0;
@@ -59,8 +61,10 @@ Bullet::Bullet(float x, float y, float sway)
 {
 	initVariables();
 	initSprite();
-	sprite.setPosition(x - sprite.getGlobalBounds().width/2, y - sprite.getGlobalBounds().height);
+	sprite.setPosition(x, y - sprite.getGlobalBounds().height/2);
 	this->sway = sway;
+
+	sprite.setOrigin(sprite.getOrigin().x + (sprite.getLocalBounds().width/2), sprite.getOrigin().y + (sprite.getLocalBounds().height/2));
 }
 
 ///*
@@ -116,11 +120,82 @@ sf::FloatRect Bullet::bounds() const
 }
 
 /*
+ * @return target with x and y float values.
+ */
+sf::Vector2<float> Bullet::getTarget() const
+{
+	return target;
+}
+
+/*
+ * @return Position of the Bullet.
+ */
+sf::Vector2<float> Bullet::getPos() const
+{
+	return sprite.getPosition();
+}
+
+/*
  * Fires a bullet (Makes fire = true).
  */
 void Bullet::activate()
 {
 	fire = true;
+}
+
+/*
+ * Deactivates bullet, mainly used for when its offscreen.
+ */
+void Bullet::deactivate()
+{
+	fire = false;
+}
+
+/*
+ * 
+ */
+void Bullet::setTarget(float x, float y)
+{
+	target.x = x;
+	target.y = y;
+}
+
+/*
+ * Change the velocity of the bullet.
+ * 
+ * @param x: for the X coordinate.
+ * @param y: for the Y coordinate.
+ */
+void Bullet::setVelocity(float x, float y)
+{
+	velocity = y;
+	sway = x;
+}
+
+/*
+ * Changes color to more redish.
+ * Rotates the sprite so that its aiming its target
+ * (Only when target its below. Might do for above later).
+ * 
+ * @param angle: Offset of the final angle calculation.
+ * @param x: Length of triangle.
+ * @param y: Height of triangle.
+ * @param side: important part for final angle calculation.
+ */
+void Bullet::setEnemyBullet(float angle, float x, float y, bool side)
+{
+	sprite.setColor(sf::Color::Red);
+
+	if (side && x > y)
+		angle += 180;
+	else if (side && y >= x)
+		angle = 270 - angle;
+	else if (!side && y > x)
+		angle = 90 + angle;
+	else if (!side && x >= y)
+		angle = -angle + 180;
+
+	sprite.setRotation(angle);
 }
 
 /*
@@ -139,11 +214,34 @@ void Bullet::update(sf::RenderTarget& target)
 		int targetWidth = target.getSize().x, targetHeight = target.getSize().y;
 
 		if (y < 0 - height)
-			sprite.setPosition(x, targetHeight);
+		{
+			if (loop == Loop::Vertical || loop == Loop::All)
+				sprite.setPosition(x, targetHeight);
+			else
+				fire = false;
+		}
+
+		else if (y > targetHeight + height / 2)
+		{
+			if (loop == Loop::Vertical || loop == Loop::All)
+				sprite.setPosition(x, 0 - height / 2);
+			else
+				fire = false;
+		}
 		else if (x < 0 - width)
-			sprite.setPosition(targetWidth, y);
-		else if (x > targetWidth)
-			sprite.setPosition(0 - width, y);
+		{
+			if (loop == Loop::Horizontal || loop == Loop::All)
+				sprite.setPosition(targetWidth, y);
+			else
+				fire = false;
+		}
+		else if (x > targetWidth + width / 2)
+		{
+			if (loop == Loop::Horizontal || loop == Loop::All)
+				sprite.setPosition(0 - width, y);
+			else
+				fire = false;
+		}
 		else
 			sprite.move(sway, -velocity);
 	}

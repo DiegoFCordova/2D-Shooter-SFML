@@ -75,8 +75,8 @@ Game::~Game()
 {
 	delete window;
 	delete player;
-	for (auto* k : enemies)
-		delete k;
+	for (auto* e : enemies)
+		delete e;
 	for (auto* d : death)
 		delete d;
 }
@@ -101,10 +101,6 @@ void Game::update()
 
 	//-Debug
 	updateDebug();
-
-	//Update mouse position
-	///if(mousePosWindow.x > 0 && mousePosWindow.y > 0) //Might, but don't feel like it. For now.
-//	std::cout << "Mouse Coor (" << mousePosWindow.x << ", " << mousePosWindow.y << ")\n";
 }
 
 /*
@@ -131,22 +127,19 @@ void Game::pollEvents()
 			else if (ev.key.code == sf::Keyboard::Z)
 				debug = !debug;
 			else if (ev.key.code == sf::Keyboard::Q)
-				enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % vidMode.height));
+				enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % (vidMode.height/2)));
+			else if (ev.key.code == sf::Keyboard::E)
+				enemies.emplace_back(new Enemy(vidMode.width / 2, vidMode.height / 2));
 			else if (ev.key.code == sf::Keyboard::R)
 				death.emplace_back(new DeathAni(rand() % vidMode.width, rand() % vidMode.height));
+			else if (ev.key.code == sf::Keyboard::F)
+				for (auto *e : enemies)
+				{
+					e->attack(player->getCenter().x, player->getCenter().y);
+				}
 				break;
 		}
 	}
-}
-
-/*
- * Updates mouse position on game screen.
- * ---Might implement later for UI interaction---
- */
-void Game::updateMousePos()
-{
-	mousePosWindow = sf::Mouse::getPosition(*window);
-	mousePosView = window->mapPixelToCoords(mousePosWindow);
 }
 
 /* 
@@ -164,7 +157,11 @@ void Game::updateMobs()
 		bool defeated = false;
 		for (int k = 0; k < player->getBullets().size() && !defeated; k++)
 		{
-			if (enemies[e]->bounds().intersects(player->getBullets()[k]->bounds()))
+			bool bulletGone = false;
+			if (!player->getBullets()[k]->isActive())
+				bulletGone = true;
+
+			else if (enemies[e]->bounds().intersects(player->getBullets()[k]->bounds()))
 			{
 				enemies[e]->takeDamage(player->damageDealt(k));
 
@@ -176,14 +173,33 @@ void Game::updateMobs()
 					points++;
 				}
 
+				bulletGone = true;
+				defeated = true;
+			}
+			
+			if (bulletGone)
+			{
 				delete player->getBullets()[k];
 				player->getBullets().erase(player->getBullets().begin() + k);
-				defeated = true;
 			}
 		}
 
-		if(!defeated)
+		//Somewhere around here, check enemy bullets
+
+		if (!defeated)
+		{
 			enemies[e]->update(*window);
+
+			for (int k = 0; k < enemies[e]->getBullets().size(); k++)
+			{
+				bool bulletGone = false;
+				if (!enemies[e]->getBullets()[k]->isActive())
+				{
+					delete enemies[e]->getBullets()[k];
+					enemies[e]->getBullets().erase(enemies[e]->getBullets().begin() + k);
+				}
+			}
+		}
 	}
 
 	for (int d = 0; d < death.size(); d++)
@@ -243,11 +259,19 @@ void Game::updateDebug()
 
 	text.setString(str.str());
 
+
+	///Trash code to check all enemies shooting per c frames.
 	//int static c = 0;
 	//c++;
 
-	//if(c % 30 == 0)
-	//	enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % vidMode.height));
+	//if (c % 20 == 0)
+	//{
+	//	for (auto* e : enemies)
+	//	{
+	//		e->attack(player->getCenter().x, player->getCenter().y);
+	//	}
+	//}
+		//enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % vidMode.height));
 }
 
 /* Render debug components after update is done */
