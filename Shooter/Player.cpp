@@ -9,8 +9,11 @@ void Player::initVariables()
 	shotRate = 14;
 	cooldownCounter = 0;
 	cooldown = false;
-	velocity = 5;
+	alive = true;
+	velocity = 4;
 	sway = 0;
+	maxHP = 100;
+	hp = maxHP;
 	maxBullets = 10;
 	scaling = 1.5;
 }
@@ -46,20 +49,46 @@ Player::Player(float x, float y, float scaling)
 {
 	initVariables();
 	initSprite();
+
+	/*
+	* 	sf::Vector2<float> center;
+	center.x = sprite.getPosition().x + (sprite.getGlobalBounds().width / 2);
+	center.y = sprite.getPosition().y + (sprite.getGlobalBounds().height / 2);
+	return center;
+	*/
+	sprite.setOrigin(sprite.getPosition().x + (sprite.getLocalBounds().width / 2), sprite.getPosition().y + (sprite.getLocalBounds().height / 2));
+
 	sprite.setPosition(x, y);
 }
 
-/*
- * Destructor for pointers.
- */
+/* Destructor for pointers. */
 Player::~Player()
 {
 	for (auto *k : bullets)
 		delete k;
 }
 
+/* @return Remaining HP of player. */
+float Player::getHP() const
+{
+	return hp;
+}
+
+/* @return Max HP of player. */
+short Player::getMaxHP() const
+{
+	return maxHP;
+}
+
+/* @return true if player is alive. */
+bool Player::isAlive() const
+{
+	return alive;
+}
+
 /*
  * sprite position getter.
+ * 
  * @return Vector2 containing x and y of sprite in the window.
  */
 sf::Vector2<float> Player::getPos() const
@@ -69,19 +98,18 @@ sf::Vector2<float> Player::getPos() const
 
 /*
  * Center of sprite position getter.
+ * 
  * @return Vector2 containing x and y of sprite's center in the window.
  */
 sf::Vector2<float> Player::getCenter() const
 {
 	sf::Vector2<float> center;
 	center.x = sprite.getPosition().x + (sprite.getGlobalBounds().width / 2);
-	center.y = sprite.getPosition().y;
+	center.y = sprite.getPosition().y + (sprite.getGlobalBounds().height / 2);
 	return center;
 }
 
-/*
- * @return sprite's global bounds.
- */
+/* @return sprite's global bounds. */
 sf::FloatRect Player::bounds() const
 {
 	return sprite.getGlobalBounds();
@@ -134,10 +162,28 @@ bool Player::canAttack()
 
 /*
  * Calculates how much damage the bullet makes.
+ * 
+ * @param k: Index of Bullet in bullets vector.
  */
 float Player::damageDealt(int k)
 {
-	return bullets[k]->atk();		//Add damage multiplier later
+	return bullets[k]->atk();		///Add damage multiplier later
+}
+
+/*
+ * Called when player takes damage.
+ * If hp falls below 0, bool alive = false.
+ * 
+ * @param dmg: damage taken.
+ * 
+ * ///Maybe add an afterdamage invul frames
+ */
+void Player::takeDamage(float dmg)
+{
+	hp -= dmg;
+
+	if (hp < 0)
+		alive = false;
 }
 
 /*
@@ -147,7 +193,7 @@ float Player::damageDealt(int k)
 void Player::update(sf::RenderTarget& target)
 {
 	float x = sprite.getPosition().x, y = sprite.getPosition().y,
-		width = sprite.getLocalBounds().width * scaling, height = sprite.getLocalBounds().height * scaling;
+		width = sprite.getGlobalBounds().width, height = sprite.getGlobalBounds().height;
 	int targetWidth = target.getSize().x, targetHeight = target.getSize().y;
 
 	if(cooldown)
@@ -157,14 +203,14 @@ void Player::update(sf::RenderTarget& target)
 	for (auto* k : bullets)
 		k->update(target);
 
-	if (y < 0 - height)
+	if (y < 0)
 		sprite.setPosition(x, targetHeight);
 	else if (y > targetHeight)
-		sprite.setPosition(x, 0 - height);
-	else if (x < 0 - width)
+		sprite.setPosition(x, 0);
+	else if (x < 0)
 		sprite.setPosition(targetWidth, y);
 	else if (x > targetWidth)
-		sprite.setPosition(0 - width, y);
+		sprite.setPosition(0, y);
 }
 
 /*
@@ -207,7 +253,7 @@ void Player::updateInput()
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 		if(canAttack())
-			bullets.emplace_back(new Bullet(sprite.getPosition().x + (sprite.getGlobalBounds().width/2), sprite.getPosition().y, sway));
+			bullets.emplace_back(new Bullet(sprite.getPosition().x , sprite.getPosition().y - sprite.getGlobalBounds().height/2, sway));
 }
 
 /*

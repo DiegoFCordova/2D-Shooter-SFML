@@ -70,7 +70,6 @@ public:
 	//-Draw Components
 	void update();
 	void pollEvents();
-	void updateMousePos();	//Might delete entirely
 	void updateMobs();	//Need reworking
 	void render();
 	void renderMobs();	//Need to add something to it

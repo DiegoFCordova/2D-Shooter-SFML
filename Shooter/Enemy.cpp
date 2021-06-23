@@ -49,6 +49,9 @@ Enemy::Enemy(float x, float y)
 {
 	initVariables();
 	initSprite();
+
+	sprite.setOrigin(sprite.getOrigin().x + (sprite.getLocalBounds().width / 2), sprite.getOrigin().y + (sprite.getLocalBounds().height / 2));
+
 	sprite.setPosition(x, y);
 }
 
@@ -117,6 +120,17 @@ void Enemy::takeDamage(float dmg)
 	if (hp <= 0)
 		alive = false;
 }
+
+/*
+ * Calculates how much damage the bullet makes.
+ *
+ * @param k: Index of Bullet in bullets vector.
+ */
+float Enemy::damageDealt(int k)
+{
+	return bullets[k]->atk();		///Add damage multiplier later
+}
+
 /*
  * Shoots bullet to specific direction.
  * 
@@ -126,7 +140,7 @@ void Enemy::takeDamage(float dmg)
 void Enemy::attack(float x, float y)
 {
 	//if maxBullets
-	bullets.emplace_back(new Bullet(sprite.getPosition().x + (sprite.getGlobalBounds().width / 2), sprite.getPosition().y + sprite.getGlobalBounds().height/2*3, 0));
+	bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y + sprite.getGlobalBounds().height/2, 0));
 
 	for (auto* b : bullets)
 	{

@@ -17,7 +17,7 @@ void Bullet::initVariables()
 	baseDamage = 3;
 	velocity = 3;
 	sway = 0;
-	scaling = 2;
+	scaling = .5; ///2
 	fire = true;
 }
 

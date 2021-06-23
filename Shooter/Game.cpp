@@ -36,7 +36,7 @@ void Game::initVars()
  */
 void Game::initMobs()
 {
-	player = new Player(tileSize*15.2, tileSize*15, 1);
+	player = new Player(tileSize*16, tileSize*15, 1);
 	enemies.reserve(maxEnemies);
 	death.reserve(maxEnemies);
 }
@@ -95,7 +95,6 @@ const bool Game::running() const
 void Game::update()
 {
 	pollEvents();
-	updateMousePos();
 	//if(state == State::Game)
 		updateMobs();
 
@@ -135,7 +134,7 @@ void Game::pollEvents()
 			else if (ev.key.code == sf::Keyboard::F)
 				for (auto *e : enemies)
 				{
-					e->attack(player->getCenter().x, player->getCenter().y);
+					e->attack(player->getPos().x, player->getPos().y);
 				}
 				break;
 		}
@@ -152,54 +151,71 @@ void Game::updateMobs()
 {
 	player->update(*window);
 
+	//Loop for player bullets against enemies
+	for (int k = 0; k < player->getBullets().size(); k++)
+	{
+		if (!player->getBullets()[k]->isActive())
+		{
+			delete player->getBullets()[k];
+			player->getBullets().erase(player->getBullets().begin() + k);
+		}
+
+		else
+		{
+			for (int e = 0; e < enemies.size() && enemies[e]->isAlive(); e++)
+			{
+
+				if (enemies[e]->bounds().intersects(player->getBullets()[k]->bounds()))
+				{
+					enemies[e]->takeDamage(player->damageDealt(k));
+					player->getBullets()[k]->deactivate();
+
+					if (!enemies[e]->isAlive())
+					{
+						death.emplace_back(new DeathAni(enemies[e]->getPos().x, enemies[e]->getPos().y));
+						delete enemies[e];
+						enemies.erase(enemies.begin() + e);
+
+						///Maybe do a bullet hit explotion animation
+						delete player->getBullets()[k];
+						player->getBullets().erase(player->getBullets().begin() + k);
+
+						points++;
+					}
+				}
+			}
+		}
+	}
+
+	//Loop for enemies update and their bullets against player
 	for (int e = 0; e < enemies.size(); e++)
 	{
-		bool defeated = false;
-		for (int k = 0; k < player->getBullets().size() && !defeated; k++)
+		enemies[e]->update(*window);
+
+		for (int k = 0; k < enemies[e]->getBullets().size(); k++)
 		{
-			bool bulletGone = false;
-			if (!player->getBullets()[k]->isActive())
-				bulletGone = true;
-
-			else if (enemies[e]->bounds().intersects(player->getBullets()[k]->bounds()))
+			if (!enemies[e]->getBullets()[k]->isActive())
 			{
-				enemies[e]->takeDamage(player->damageDealt(k));
+				delete enemies[e]->getBullets()[k];
+				enemies[e]->getBullets().erase(enemies[e]->getBullets().begin() + k);
+			}
 
-				if (!enemies[e]->isAlive())
+			else if (player->isAlive() && player->bounds().intersects(enemies[e]->getBullets()[k]->bounds()))
+			{
+				player->takeDamage(enemies[e]->damageDealt(k));
+
+				if (!player->isAlive())
 				{
-					death.emplace_back(new DeathAni(enemies[e]->getPos().x, enemies[e]->getPos().y));
-					delete enemies[e];
-					enemies.erase(enemies.begin() + e);
-					points++;
+					death.emplace_back(new DeathAni(player->getPos().x, player->getPos().y));
+					//Lifes--, respawn animations and such.
 				}
 
-				bulletGone = true;
-				defeated = true;
-			}
-			
-			if (bulletGone)
-			{
-				delete player->getBullets()[k];
-				player->getBullets().erase(player->getBullets().begin() + k);
+				///Same as before, if you do Bullet explotion animation, add it here as well.
+				delete enemies[e]->getBullets()[k];
+				enemies[e]->getBullets().erase(enemies[e]->getBullets().begin() + k);
 			}
 		}
 
-		//Somewhere around here, check enemy bullets
-
-		if (!defeated)
-		{
-			enemies[e]->update(*window);
-
-			for (int k = 0; k < enemies[e]->getBullets().size(); k++)
-			{
-				bool bulletGone = false;
-				if (!enemies[e]->getBullets()[k]->isActive())
-				{
-					delete enemies[e]->getBullets()[k];
-					enemies[e]->getBullets().erase(enemies[e]->getBullets().begin() + k);
-				}
-			}
-		}
 	}
 
 	for (int d = 0; d < death.size(); d++)
@@ -255,22 +271,27 @@ void Game::updateDebug()
 		<< "\nX: " << player->getPos().x << " Y: " << player->getPos().y
 		<< "\nBullets: " << player->bulletsCreated()
 		<< "\nEnemies: " << enemies.size()
-		<< "\nSee? " << tileSize;
+		<< "\nTileSize: " << tileSize
+		<< "\nPlayer hp: " << player->getHP() << ", alive: " << player->isAlive()
+		<< "\nCenter X: " << player->getCenter().x << "\nCenter Y: " << player->getCenter().y
+		<< "\nWidth (Local): " << player->sprite.getLocalBounds().width
+		<< "\nWidth (Local): " << player->sprite.getLocalBounds().height
+		<< "\nWidth (Global): " << player->sprite.getGlobalBounds().width
+		<< "\nWidth (Global): " << player->sprite.getGlobalBounds().height;
 
 	text.setString(str.str());
 
 
 	///Trash code to check all enemies shooting per c frames.
-	//int static c = 0;
-	//c++;
-
-	//if (c % 20 == 0)
-	//{
-	//	for (auto* e : enemies)
-	//	{
-	//		e->attack(player->getCenter().x, player->getCenter().y);
-	//	}
-	//}
+	int static c = 0;
+	c++;
+	if (c % 20 == 0)
+	{
+		for (auto* e : enemies)
+		{
+			e->attack(player->getPos().x, player->getPos().y);
+		}
+	}
 		//enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % vidMode.height));
 }
 

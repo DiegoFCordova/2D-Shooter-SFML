@@ -50,6 +50,7 @@ public:
 
 	//-Functions
 	void takeDamage(float dmg);
+	float damageDealt(int k);
 	void attack(float x, float y);
 
 	//-Draw Components
