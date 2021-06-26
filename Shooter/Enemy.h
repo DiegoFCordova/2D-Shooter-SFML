@@ -10,7 +10,7 @@
 /*
  * Base enemy class for mobs.
  * 
- * @author MellamoSteve
+ * @author Diego Cordova
  */
 
 class Enemy

@@ -10,7 +10,7 @@
 /*
  * Player class for user.
  * 
- * @author MellamoSteve
+ * @author Diego Cordova
  */
 
 class Player

@@ -9,7 +9,7 @@
  * Base bullet class for game's projectiles.
  * ///Might make it into a base class and variations into sub
  * 
- * @author MellamoSteve
+ * @author Diego Cordova
  */
 
 class Bullet

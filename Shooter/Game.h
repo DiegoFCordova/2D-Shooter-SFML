@@ -18,7 +18,7 @@
 /* 
  * "Game Engine". Wrapper Class.
  * 
- * @author MellamoSteve
+ * @author Diego Cordova
  */
 
 class Game

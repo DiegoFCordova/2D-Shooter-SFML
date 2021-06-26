@@ -9,7 +9,7 @@
  * Simple Death Animation class for when an enemy
  * is defeated.
  * 
- * @author MellamoSteve
+ * @author Diego Cordova
  */
 
 class DeathAni
