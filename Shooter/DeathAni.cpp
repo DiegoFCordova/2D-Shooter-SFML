@@ -30,8 +30,7 @@ void DeathAni::init()
  * This method assumes that all sprites original
  * resolution is the same for both width and height.
  * 
- * @param width: Width of give object (Global).
- * @param height: Height of given object (Global).
+ * @param side: used for calculation of scale.
  * @return scale to set sprite to.
  */
 float DeathAni::getFitScale(float side) const
@@ -54,8 +53,7 @@ DeathAni::DeathAni()
  * 
  * @param x: X position.
  * @param y: Y position.
- * @param width: Some object width.
- * @param height: Some object height.
+ * @param side: used for getFitScale.
  */
 DeathAni::DeathAni(float x, float y, float side)
 {
