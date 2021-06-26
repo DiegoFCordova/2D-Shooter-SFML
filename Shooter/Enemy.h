@@ -17,18 +17,29 @@ class Enemy
 {
 	//Make Enum for Variation sprite
 public:
-	enum Type
+	enum class Type
 	{
 		Common, Strong, Fast
+	};
+
+	/*
+ 	 * States for easier enemy control:
+	 *	  Alive: Enemy can move and shoot.
+	 *	  WaitingDisposal: Only bullets move.
+	 *	  Death: If no more bullets in the field and enemy is death.
+	 */
+	enum class State
+	{
+		Alive, WaitingDisposal, Death
 	};
 
 private:
 	///Mostly for initial, don't forget there is already x and y in sprite
 	std::vector<Bullet*> bullets;
+	State state;
 	float hp;
 	float xTarget, yTarget;
 	int tick, maxHP, maxBullets;
-	bool alive;
 
 	sf::Texture texture;
 	sf::Sprite sprite;
@@ -45,13 +56,15 @@ public:
 	sf::Vector2<float> getPos() const;
 	sf::FloatRect bounds() const;
 	std::vector<Bullet*>& getBullets();
-	bool isAlive();
+	bool isAlive() const;
 
 	//-Functions
-	void takeDamage(float dmg);
-	float damageDealt(int k);
-	void attack(float x, float y);
 	float getLargestSide();
+	float damageDealt(int k);
+	int bulletsInScreen();
+	void attack(float x, float y);
+	void takeDamage(float dmg);
+	void setWaitForDisposal();
 
 	//-Draw Components
 	void update(sf::RenderTarget& target);

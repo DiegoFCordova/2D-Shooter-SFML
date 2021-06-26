@@ -5,7 +5,7 @@
  * Class that calls a Game instance
  * that takes care of simple parts of game.
  * 
- * @author MellamoSteve
+ * @author Diego Cordova
  */
 
 int main()

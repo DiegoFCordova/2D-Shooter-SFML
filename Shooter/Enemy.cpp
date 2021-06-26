@@ -9,9 +9,9 @@ void Enemy::initVariables()
 	hp = 10;
 	xTarget = -1;
 	yTarget = -1;
-	maxHP = hp;
+	maxHP = (int) hp;
 	maxBullets = 10;
-	alive = true;
+	state = State::Alive;
 }
 
 /*
@@ -90,23 +90,20 @@ std::vector<Bullet*>& Enemy::getBullets()
 /*
  * @returns alive boolean in Enemy.
  */
-bool Enemy::isAlive()
+bool Enemy::isAlive() const
 {
-	return alive;
+	return (state == State::Alive);
 }
 
 /*
- * Used to calculate damage against enemy.
+ * Method to save a few accesses for death
+ * animation.
+ *
+ * @return width/height of sprite (Global)
  */
-void Enemy::takeDamage(float dmg)
+float Enemy::getLargestSide()
 {
-	hp -= dmg;
-
-	if (hp < maxHP/3)
-		sprite.setColor(sf::Color::Red);
-
-	if (hp <= 0)
-		alive = false;
+	return (sprite.getGlobalBounds().width > sprite.getGlobalBounds().height) ? sprite.getGlobalBounds().width : sprite.getGlobalBounds().height;
 }
 
 /*
@@ -117,6 +114,15 @@ void Enemy::takeDamage(float dmg)
 float Enemy::damageDealt(int k)
 {
 	return bullets[k]->atk();		///Add damage multiplier later
+}
+
+/*
+ * Used to ultimately delete mob after all bullets are gone.
+ * @return Number of bullets left in screen.
+ */
+int Enemy::bulletsInScreen()
+{
+	return bullets.size();
 }
 
 /*
@@ -144,7 +150,7 @@ void Enemy::attack(float x, float y)
 			vY = (y - b->getPos().y) / distance * bulletVel;
 			diffX = (x > b->getPos().x) ? x - b->getPos().x : b->getPos().x - x;
 			diffY = (y > b->getPos().y) ? y - b->getPos().y : b->getPos().y - y;
-			angle = atan((diffX > diffY) ? diffX / diffY : diffY / diffX) * 180.0 / 3.14159265;
+			angle = (float) atan((diffX > diffY) ? diffX / diffY : diffY / diffX) * 180.f / 3.14159265f;
 
 			b->setVelocity(vX, -vY);
 			b->setEnemyBullet(angle, diffX, diffY, rightSide);
@@ -156,27 +162,45 @@ void Enemy::attack(float x, float y)
 }
 
 /*
- * Method to save a few accesses for death
- * animation.
- * 
- * @return width/height of sprite (Global)
+ * Used to calculate damage against enemy.
  */
-float Enemy::getLargestSide()
+void Enemy::takeDamage(float dmg)
 {
-	return (sprite.getGlobalBounds().width > sprite.getGlobalBounds().height) ? sprite.getGlobalBounds().width : sprite.getGlobalBounds().height;
+	hp -= dmg;
+
+	if (hp < maxHP / 3)
+		sprite.setColor(sf::Color::Red);
+
+	if (hp <= 0)
+	{
+		if (bullets.size() == 0)
+			state = State::Death;
+		else
+			state = State::WaitingDisposal;
+	}
 }
 
 /*
- * If fall is true, enemy will start moving on its velocity.
+ * Called from Game when enemy has no
+ * bullets left in the field.
+ */
+void Enemy::setWaitForDisposal()
+{
+	sprite.setColor(sf::Color(0, 0, 0, 0));
+}
+
+/*
+ * ///If fall is true, enemy will start moving on its velocity.
  * 
  * @param target: Used to get window's bounds.
  */
 void Enemy::update(sf::RenderTarget& target)
 {
-	if (sprite.getPosition().x > target.getSize().x)
+	///movement of enemy goes here
+	/*if (sprite.getPosition().x > target.getSize().x)
 		sprite.setPosition(0, sprite.getPosition().y);
 	else
-		sprite.move(0, 0);
+		sprite.move(0, 0);*/
 
 	for (auto* k : bullets)
 		k->update(target);

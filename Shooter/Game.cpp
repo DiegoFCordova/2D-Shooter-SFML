@@ -134,7 +134,8 @@ void Game::pollEvents()
 			else if (ev.key.code == sf::Keyboard::F)
 				for (auto *e : enemies)
 				{
-					e->attack(player->getPos().x, player->getPos().y);
+					if(e->isAlive())
+						e->attack(player->getPos().x, player->getPos().y);
 				}
 				break;
 		}
@@ -143,9 +144,12 @@ void Game::pollEvents()
 
 /* 
  * Updates Mobs movement only if state
- * is "Game".
- * Calculates intersection.
- * ---Hitboxes not done yet---
+ * is "Game", calculates intersection and
+ * others in the follwing order:
+ *	-Updates Player.
+ *  -Check all bullets: If they are off-screen or hit an active enemy.
+ *  -Check all enemies: Updates them and check their bullets if they hit player.
+ *  -Update all death animations if any and erase them once they are finish.
  */
 void Game::updateMobs()
 {
@@ -162,10 +166,10 @@ void Game::updateMobs()
 
 		else
 		{
-			for (int e = 0; e < enemies.size() && enemies[e]->isAlive(); e++)
+			for (int e = 0; e < enemies.size(); e++)
 			{
 
-				if (enemies[e]->bounds().intersects(player->getBullets()[k]->bounds()))
+				if (enemies[e]->isAlive() && enemies[e]->bounds().intersects(player->getBullets()[k]->bounds()))
 				{
 					enemies[e]->takeDamage(player->damageDealt(k));
 					player->getBullets()[k]->deactivate();
@@ -173,15 +177,22 @@ void Game::updateMobs()
 					if (!enemies[e]->isAlive())
 					{
 						death.emplace_back(new DeathAni(enemies[e]->getPos().x, enemies[e]->getPos().y, enemies[e]->getLargestSide()));
-						delete enemies[e];
-						enemies.erase(enemies.begin() + e);
+						
+						if (enemies[e]->bulletsInScreen() == 0)
+						{
+							delete enemies[e];
+							enemies.erase(enemies.begin() + e);
+						}
 
-						///Maybe do a bullet hit explotion animation
-						delete player->getBullets()[k];
-						player->getBullets().erase(player->getBullets().begin() + k);
-
+						else
+							enemies[e]->setWaitForDisposal();
 						points++;
 					}
+
+					///Maybe do a bullet hit explotion animation
+					delete player->getBullets()[k];
+					player->getBullets().erase(player->getBullets().begin() + k);
+
 					break;
 				}
 			}
@@ -190,33 +201,41 @@ void Game::updateMobs()
 
 	//Loop for enemies update and their bullets against player
 	for (int e = 0; e < enemies.size(); e++)
-	{
-		enemies[e]->update(*window);
-
-		for (int k = 0; k < enemies[e]->getBullets().size(); k++)
+	{							//Check for dead and not bullets on field here.
+		if (!enemies[e]->isAlive() && enemies[e]->bulletsInScreen() == 0)
 		{
-			if (!enemies[e]->getBullets()[k]->isActive())
-			{
-				delete enemies[e]->getBullets()[k];
-				enemies[e]->getBullets().erase(enemies[e]->getBullets().begin() + k);
-			}
-
-			else if (player->isAlive() && player->bounds().intersects(enemies[e]->getBullets()[k]->bounds()))
-			{
-				player->takeDamage(enemies[e]->damageDealt(k));
-
-				if (!player->isAlive())
-				{
-					death.emplace_back(new DeathAni(player->getPos().x, player->getPos().y, player->getLargestSide()));
-					//Lifes--, respawn animations and such.
-				}
-
-				///Same as before, if you do Bullet explotion animation, add it here as well.
-				delete enemies[e]->getBullets()[k];
-				enemies[e]->getBullets().erase(enemies[e]->getBullets().begin() + k);
-			}
+			delete enemies[e];
+			enemies.erase(enemies.begin() + e);
 		}
 
+		else
+		{
+			enemies[e]->update(*window);
+
+			for (int k = 0; k < enemies[e]->getBullets().size(); k++)
+			{
+				if (!enemies[e]->getBullets()[k]->isActive())
+				{
+					delete enemies[e]->getBullets()[k];
+					enemies[e]->getBullets().erase(enemies[e]->getBullets().begin() + k);
+				}
+
+				else if (player->isAlive() && player->bounds().intersects(enemies[e]->getBullets()[k]->bounds()))
+				{
+					player->takeDamage(enemies[e]->damageDealt(k));
+
+					if (!player->isAlive())
+					{
+						death.emplace_back(new DeathAni(player->getPos().x, player->getPos().y, player->getLargestSide()));
+						//Lifes--, respawn animations and such.
+					}
+
+					///Same as before, if you do Bullet explotion animation, add it here as well.
+					delete enemies[e]->getBullets()[k];
+					enemies[e]->getBullets().erase(enemies[e]->getBullets().begin() + k);
+				}
+			}
+		}
 	}
 
 	for (int d = 0; d < death.size(); d++)
@@ -289,7 +308,8 @@ void Game::updateDebug()
 	{
 		for (auto* e : enemies)
 		{
-			e->attack(player->getPos().x, player->getPos().y);
+			if(e->isAlive())
+				e->attack(player->getPos().x, player->getPos().y);
 		}
 	}
 		//enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % vidMode.height));
