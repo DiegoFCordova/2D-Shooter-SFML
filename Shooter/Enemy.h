@@ -43,7 +43,6 @@ public:
 
 	//-Getters
 	sf::Vector2<float> getPos() const;
-	sf::Vector2<float> getCenter() const;
 	sf::FloatRect bounds() const;
 	std::vector<Bullet*>& getBullets();
 	bool isAlive();
@@ -52,6 +51,7 @@ public:
 	void takeDamage(float dmg);
 	float damageDealt(int k);
 	void attack(float x, float y);
+	float getLargestSide();
 
 	//-Draw Components
 	void update(sf::RenderTarget& target);

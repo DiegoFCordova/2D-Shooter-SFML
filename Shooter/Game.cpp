@@ -130,7 +130,7 @@ void Game::pollEvents()
 			else if (ev.key.code == sf::Keyboard::E)
 				enemies.emplace_back(new Enemy(vidMode.width / 2, vidMode.height / 2));
 			else if (ev.key.code == sf::Keyboard::R)
-				death.emplace_back(new DeathAni(rand() % vidMode.width, rand() % vidMode.height));
+				death.emplace_back(new DeathAni(rand() % vidMode.width, rand() % vidMode.height, 10));
 			else if (ev.key.code == sf::Keyboard::F)
 				for (auto *e : enemies)
 				{
@@ -172,7 +172,7 @@ void Game::updateMobs()
 
 					if (!enemies[e]->isAlive())
 					{
-						death.emplace_back(new DeathAni(enemies[e]->getPos().x, enemies[e]->getPos().y));
+						death.emplace_back(new DeathAni(enemies[e]->getPos().x, enemies[e]->getPos().y, enemies[e]->getLargestSide()));
 						delete enemies[e];
 						enemies.erase(enemies.begin() + e);
 
@@ -182,6 +182,7 @@ void Game::updateMobs()
 
 						points++;
 					}
+					break;
 				}
 			}
 		}
@@ -206,7 +207,7 @@ void Game::updateMobs()
 
 				if (!player->isAlive())
 				{
-					death.emplace_back(new DeathAni(player->getPos().x, player->getPos().y));
+					death.emplace_back(new DeathAni(player->getPos().x, player->getPos().y, player->getLargestSide()));
 					//Lifes--, respawn animations and such.
 				}
 
@@ -273,11 +274,10 @@ void Game::updateDebug()
 		<< "\nEnemies: " << enemies.size()
 		<< "\nTileSize: " << tileSize
 		<< "\nPlayer hp: " << player->getHP() << ", alive: " << player->isAlive()
-		<< "\nCenter X: " << player->getCenter().x << "\nCenter Y: " << player->getCenter().y
 		<< "\nWidth (Local): " << player->sprite.getLocalBounds().width
-		<< "\nWidth (Local): " << player->sprite.getLocalBounds().height
+		<< "\nHeight (Local): " << player->sprite.getLocalBounds().height
 		<< "\nWidth (Global): " << player->sprite.getGlobalBounds().width
-		<< "\nWidth (Global): " << player->sprite.getGlobalBounds().height;
+		<< "\nHeight (Global): " << player->sprite.getGlobalBounds().height;
 
 	text.setString(str.str());
 

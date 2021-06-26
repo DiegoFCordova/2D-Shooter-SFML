@@ -12,7 +12,7 @@ void Player::initVariables()
 	alive = true;
 	velocity = 4;
 	sway = 0;
-	maxHP = 100;
+	maxHP = 10;
 	hp = maxHP;
 	maxBullets = 10;
 	scaling = 1.5;
@@ -96,19 +96,6 @@ sf::Vector2<float> Player::getPos() const
 	return sprite.getPosition();
 }
 
-/*
- * Center of sprite position getter.
- * 
- * @return Vector2 containing x and y of sprite's center in the window.
- */
-sf::Vector2<float> Player::getCenter() const
-{
-	sf::Vector2<float> center;
-	center.x = sprite.getPosition().x + (sprite.getGlobalBounds().width / 2);
-	center.y = sprite.getPosition().y + (sprite.getGlobalBounds().height / 2);
-	return center;
-}
-
 /* @return sprite's global bounds. */
 sf::FloatRect Player::bounds() const
 {
@@ -184,6 +171,17 @@ void Player::takeDamage(float dmg)
 
 	if (hp < 0)
 		alive = false;
+}
+
+/*
+ * Method to save a few accesses for death
+ * animation.
+ *
+ * @return width/height of sprite (Global)
+ */
+float Player::getLargestSide()
+{
+	return (sprite.getGlobalBounds().width > sprite.getGlobalBounds().height) ? sprite.getGlobalBounds().width : sprite.getGlobalBounds().height;
 }
 
 /*

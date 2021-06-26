@@ -72,18 +72,6 @@ sf::Vector2<float> Enemy::getPos() const
 }
 
 /*
- * Get center of sprite.
- * ///Might need to take in consideration scaling.
- */
-sf::Vector2<float> Enemy::getCenter() const
-{
-	sf::Vector2<float> center;
-	center.x = sprite.getPosition().x + (sprite.getGlobalBounds().width / 2);
-	center.y = sprite.getPosition().y;
-	return center;
-}
-
-/*
  * @return sprite's global bounds.
  */
 sf::FloatRect Enemy::bounds() const
@@ -165,6 +153,17 @@ void Enemy::attack(float x, float y)
 	//			sprite.move(sway, -velocity);
 	//if (canAttack())
 //		bullets.emplace_back(new Bullet(sprite.getPosition().x + (sprite.getGlobalBounds().width / 2), sprite.getPosition().y, sway));
+}
+
+/*
+ * Method to save a few accesses for death
+ * animation.
+ * 
+ * @return width/height of sprite (Global)
+ */
+float Enemy::getLargestSide()
+{
+	return (sprite.getGlobalBounds().width > sprite.getGlobalBounds().height) ? sprite.getGlobalBounds().width : sprite.getGlobalBounds().height;
 }
 
 /*

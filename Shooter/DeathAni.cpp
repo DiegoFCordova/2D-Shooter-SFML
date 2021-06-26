@@ -1,7 +1,9 @@
 #include "DeathAni.h"
 
 /*
- * Initiates basic variables.
+ * Initiates basic variables:
+ * All sprites that will be used for the animation, sets
+ * first texture as sprite, frames to 0, and done to false.
  */
 void DeathAni::init()
 {
@@ -18,14 +20,28 @@ void DeathAni::init()
 		std::cout << "Error loading DeathAni Sprite 4.\n"; 
 	
 	sprite.setTexture(tex1);
-	sprite.scale(2, 2);
 	frames = 0;
 	done = false;
 }
 
+/*
+ * Method to get explosion scale to the biggest side of 
+ * given object.
+ * This method assumes that all sprites original
+ * resolution is the same for both width and height.
+ * 
+ * @param width: Width of give object (Global).
+ * @param height: Height of given object (Global).
+ * @return scale to set sprite to.
+ */
+float DeathAni::getFitScale(float side) const
+{
+	return side / sprite.getLocalBounds().height;
+}
+
 
 /*
- * Most likely never used, but here just in case.
+ * Should never used, but here just in case.
  */
 DeathAni::DeathAni()
 {
@@ -33,12 +49,27 @@ DeathAni::DeathAni()
 }
 
 /*
- * Constuctor
+ * Constuctor. Sets sprite origin to center,
+ * Scale depending on third and fourth variable.
+ * 
+ * @param x: X position.
+ * @param y: Y position.
+ * @param width: Some object width.
+ * @param height: Some object height.
  */
-DeathAni::DeathAni(float x, float y)
+DeathAni::DeathAni(float x, float y, float side)
 {
 	init();
+	scale = getFitScale(side) * 1.2;
+	sprite.setOrigin(sprite.getPosition().x + (sprite.getLocalBounds().width / 2), sprite.getPosition().y + (sprite.getLocalBounds().height / 2));
+	sprite.setScale(scale, scale);
 	sprite.setPosition(x, y);
+}
+
+/* Use if using pointers. */
+DeathAni::~DeathAni()
+{
+
 }
 
 /*

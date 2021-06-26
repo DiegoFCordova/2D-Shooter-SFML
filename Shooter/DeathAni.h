@@ -8,22 +8,31 @@
 /*
  * Simple Death Animation class for when an enemy
  * is defeated.
+ * 
+ * @author MellamoSteve
  */
 
 class DeathAni
 {
-public:
+private:
 	sf::Texture tex1, tex2, tex3, tex4;
 	sf::Sprite sprite;
+	float scale;
 	int frames;
 	bool done;
 
+public:
+	//-Constructors and Destructors
 	DeathAni();
-	DeathAni(float x, float y);
+	DeathAni(float x, float y, float side);
+	~DeathAni();
 
+	//-Getters
 	bool isOver() const;
 
+	//-Functions
 	void init();
+	float getFitScale(float side) const;
 
 	void update(sf::RenderTarget& target);
 	void render(sf::RenderTarget& target);
