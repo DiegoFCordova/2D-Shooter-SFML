@@ -9,6 +9,7 @@ void Player::initVariables()
 	shotRate = 14;
 	cooldownCounter = 0;
 	cooldown = false;
+	frame = 0;
 	alive = true;
 	velocity = 4;
 	sway = 0;
@@ -25,9 +26,11 @@ void Player::initVariables()
  */
 void Player::initSprite()
 {
-	if (!texture.loadFromFile("Sprites/Ship.png"))
-		std::cout << "Error loading Player Sprite.\n";
-	sprite.setTexture(texture);
+	if (!tex1.loadFromFile("Sprites/Ship0.png"))
+		std::cout << "Error loading Player Sprite 1.\n";
+	if (!tex2.loadFromFile("Sprites/Ship1.png"))
+		std::cout << "Error loading Player Sprite 2.\n";
+	sprite.setTexture(tex1);
 	sprite.scale(scaling, scaling);
 }
 
@@ -110,6 +113,7 @@ std::vector<Bullet*>& Player::getBullets()
 	return bullets;
 }
 
+/// Delete later
 float Player::see()
 {
 	return sway;
@@ -194,6 +198,15 @@ void Player::update(sf::RenderTarget& target)
 		width = sprite.getGlobalBounds().width, height = sprite.getGlobalBounds().height;
 	int targetWidth = target.getSize().x, targetHeight = target.getSize().y;
 
+	frame++;
+	if (frame == 60)
+	{
+		sprite.setTexture(tex2);
+		frame = -60;
+	}
+	else if (frame == 0)
+		sprite.setTexture(tex1);
+
 	if(cooldown)
 		cooldownCounter++;
 	updateInput();
@@ -201,14 +214,14 @@ void Player::update(sf::RenderTarget& target)
 	for (auto* k : bullets)
 		k->update(target);
 
-	if (y < 0)
-		sprite.setPosition(x, targetHeight);
-	else if (y > targetHeight)
-		sprite.setPosition(x, 0);
-	else if (x < 0)
-		sprite.setPosition(targetWidth, y);
-	else if (x > targetWidth)
-		sprite.setPosition(0, y);
+	if (y < 0 - height / 2)
+		sprite.setPosition(x, targetHeight + height / 2);
+	else if (y > targetHeight + height / 2)
+		sprite.setPosition(x, 0 - height / 2);
+	else if (x < 0 - width / 2)
+		sprite.setPosition(targetWidth + width / 2, y);
+	else if (x > targetWidth + width / 2)
+		sprite.setPosition(0 - width / 2, y);
 }
 
 /*

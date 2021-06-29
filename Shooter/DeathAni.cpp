@@ -7,19 +7,32 @@
  */
 void DeathAni::init()
 {
-	if (!tex1.loadFromFile("Sprites/Death1.png"))
-		std::cout << "Error loading DeathAni Sprite 1.\n";
+	aniSpeed = 5;
+	currentFrame = 0;
 
-	if (!tex2.loadFromFile("Sprites/Death2.png"))
-		std::cout << "Error loading DeathAni Sprite 2.\n";
+	std::stringstream path;
 
-	if (!tex3.loadFromFile("Sprites/Death3.png"))
-		std::cout << "Error loading DeathAni Sprite 3.\n";
+	switch (type)
+	{
+	case DeathAni::Type::Enemy:
+		path << "Sprites/Death";
+		loadTextures(4, path);
+		break;
 
-	if (!tex4.loadFromFile("Sprites/Death4.png"))
-		std::cout << "Error loading DeathAni Sprite 4.\n"; 
+	case DeathAni::Type::Bullet:
+		break;
 	
-	sprite.setTexture(tex1);
+	case DeathAni::Type::Player:
+		path << "Sprites/ShipDeath";
+		loadTextures(6, path);
+		break;
+	
+	default:
+		std::cout << "Should never get to here on DeathAni's init\n";
+		break;
+	}
+
+	sprite.setTexture(*textures[0]);
 	frames = 0;
 	done = false;
 }
@@ -38,6 +51,26 @@ float DeathAni::getFitScale(float side) const
 	return side / sprite.getLocalBounds().height;
 }
 
+/*
+ * Creates n number of textures to load them up.
+ * 
+ * @param n: Number of frames for animation.
+ * @param str: Beginning of the path for loading animation.
+ */
+void DeathAni::loadTextures(int n, const std::stringstream& str)
+{
+	std::stringstream result;
+	for (int k = 0; k < n; k++)
+	{
+		textures.emplace_back(new sf::Texture());
+		result << str.str() << k << ".png";
+
+		if (!textures[k]->loadFromFile(result.str()))
+			std::cout << "Error loading " << result.str() << ".\n";
+
+		result.str(std::string());
+	}
+}
 
 /*
  * Should never used, but here just in case.
@@ -54,11 +87,13 @@ DeathAni::DeathAni()
  * @param x: X position.
  * @param y: Y position.
  * @param side: used for getFitScale.
+ * @param t: Will decide which textures are loaded.
  */
-DeathAni::DeathAni(float x, float y, float side)
+DeathAni::DeathAni(float x, float y, float side, Type t)
 {
+	type = t;
 	init();
-	scale = getFitScale(side) * 1.2;
+	scale = getFitScale(side) * 1.2f;
 	sprite.setOrigin(sprite.getPosition().x + (sprite.getLocalBounds().width / 2), sprite.getPosition().y + (sprite.getLocalBounds().height / 2));
 	sprite.setScale(scale, scale);
 	sprite.setPosition(x, y);
@@ -67,7 +102,8 @@ DeathAni::DeathAni(float x, float y, float side)
 /* Use if using pointers. */
 DeathAni::~DeathAni()
 {
-
+	for (auto* t : textures)
+		delete t;
 }
 
 /*
@@ -81,14 +117,14 @@ bool DeathAni::isOver() const
 
 void DeathAni::update(sf::RenderTarget& target)
 {
-	if (frames > 20)
-		done = true;
-	else if (frames > 15)
-		sprite.setTexture(tex4);
-	else if (frames > 10)
-		sprite.setTexture(tex3);
-	else if (frames > 5)
-		sprite.setTexture(tex2);
+	if (frames > 5 * (currentFrame + 1))
+	{
+		currentFrame++;
+		if (currentFrame == textures.size())
+			done = true;
+		else
+			sprite.setTexture(*textures[currentFrame]);
+	}
 
 	frames++;
 }

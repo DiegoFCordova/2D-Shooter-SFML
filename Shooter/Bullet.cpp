@@ -213,10 +213,10 @@ void Bullet::update(sf::RenderTarget& target)
 			width = sprite.getLocalBounds().width * scaling, height = sprite.getLocalBounds().height * scaling;
 		int targetWidth = target.getSize().x, targetHeight = target.getSize().y;
 
-		if (y < 0 - height)
+		if (y < 0 - height/2)
 		{
 			if (loop == Loop::Vertical || loop == Loop::All)
-				sprite.setPosition(x, targetHeight);
+				sprite.setPosition(x, targetHeight + height / 2);
 			else
 				fire = false;
 		}
@@ -228,17 +228,17 @@ void Bullet::update(sf::RenderTarget& target)
 			else
 				fire = false;
 		}
-		else if (x < 0 - width)
+		else if (x < 0 - width/2)
 		{
 			if (loop == Loop::Horizontal || loop == Loop::All)
-				sprite.setPosition(targetWidth, y);
+				sprite.setPosition(targetWidth + width/2, y);
 			else
 				fire = false;
 		}
 		else if (x > targetWidth + width / 2)
 		{
 			if (loop == Loop::Horizontal || loop == Loop::All)
-				sprite.setPosition(0 - width, y);
+				sprite.setPosition(0 - width/2, y);
 			else
 				fire = false;
 		}

@@ -19,12 +19,13 @@ private:
 	//-Stats
 	std::vector<Bullet*> bullets;
 	float scaling, velocity, sway, hp;
-	short shotRate, cooldownCounter, maxBullets,
-			maxHP;
+	short shotRate, cooldownCounter, frame,
+		maxBullets,	maxHP;
 	bool cooldown, alive;
 
 	//-Basics
-	sf::Texture texture;
+	sf::Texture tex1;
+	sf::Texture tex2;
 	//sf::Sprite sprite;
 
 	void initVariables();  

@@ -226,7 +226,7 @@ void Game::updateMobs()
 
 					if (!player->isAlive())
 					{
-						death.emplace_back(new DeathAni(player->getPos().x, player->getPos().y, player->getLargestSide()));
+						death.emplace_back(new DeathAni(player->getPos().x, player->getPos().y, player->getLargestSide(), DeathAni::Type::Player));
 						//Lifes--, respawn animations and such.
 					}
 

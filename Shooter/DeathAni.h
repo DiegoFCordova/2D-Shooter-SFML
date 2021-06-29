@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Audio.hpp>
+#include <sstream>
 #include <iostream>
 
 /*
@@ -14,17 +15,27 @@
 
 class DeathAni
 {
+public:
+	enum class Type
+	{
+		Enemy, Bullet, Player
+	};
+
 private:
-	sf::Texture tex1, tex2, tex3, tex4;
+	std::vector <sf::Texture*> textures;
+	//sf::Texture t1, t2, t3, t4;
 	sf::Sprite sprite;
+	Type type;
 	float scale;
-	int frames;
+	short frames, aniSpeed, currentFrame;
 	bool done;
+
+	void loadTextures(int n, const std::stringstream& str);
 
 public:
 	//-Constructors and Destructors
 	DeathAni();
-	DeathAni(float x, float y, float side);
+	DeathAni(float x, float y, float side, Type t = Type::Enemy);
 	~DeathAni();
 
 	//-Getters
