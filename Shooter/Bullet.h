@@ -71,6 +71,7 @@ public:
 
 	//-Functions
 	void setEnemyBullet(float angle, float x, float y, bool side);	//Maybe add an enum for this
+	float getLargestSide();
 
 
 	//-Draw components

@@ -17,7 +17,7 @@ void Bullet::initVariables()
 	baseDamage = 3;
 	velocity = 3;
 	sway = 0;
-	scaling = .5; ///2
+	scaling = 1.5; ///2
 	fire = true;
 }
 
@@ -196,6 +196,17 @@ void Bullet::setEnemyBullet(float angle, float x, float y, bool side)
 		angle = -angle + 180;
 
 	sprite.setRotation(angle);
+}
+
+/*
+ * Method to save a few accesses for death
+ * animation.
+ *
+ * @return width/height of sprite (Global)
+ */
+float Bullet::getLargestSide()
+{
+	return (sprite.getGlobalBounds().width > sprite.getGlobalBounds().height) ? sprite.getGlobalBounds().width : sprite.getGlobalBounds().height;
 }
 
 /*

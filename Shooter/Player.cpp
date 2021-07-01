@@ -174,7 +174,10 @@ void Player::takeDamage(float dmg)
 	hp -= dmg;
 
 	if (hp < 0)
+	{
 		alive = false;
+		//sprite.setColor(sf::Color(0, 0, 0, 0));
+	}
 }
 
 /*

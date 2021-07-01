@@ -189,7 +189,7 @@ void Game::updateMobs()
 						points++;
 					}
 
-					///Maybe do a bullet hit explotion animation
+					death.emplace_back(new DeathAni(player->getBullets()[k]->getPos().x, player->getBullets()[k]->getPos().y, player->getBullets()[k]->getLargestSide()*2, DeathAni::Type::Bullet));
 					delete player->getBullets()[k];
 					player->getBullets().erase(player->getBullets().begin() + k);
 

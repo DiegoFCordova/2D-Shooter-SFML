@@ -20,6 +20,8 @@ void DeathAni::init()
 		break;
 
 	case DeathAni::Type::Bullet:
+		path << "Sprites/BulletImpact";
+		loadTextures(4, path);
 		break;
 	
 	case DeathAni::Type::Player:

@@ -17,6 +17,7 @@ class Enemy
 {
 	//Make Enum for Variation sprite
 public:
+	/* Used for Enemy Type */
 	enum class Type
 	{
 		Common, Strong, Fast
