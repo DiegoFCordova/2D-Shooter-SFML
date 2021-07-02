@@ -1,11 +1,6 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Audio.hpp>
-#include <iostream>
-
-#include "Bullet.h"
+#include "Mob.h"
 
 /*
  * Base enemy class for mobs.
@@ -13,7 +8,7 @@
  * @author Diego Cordova
  */
 
-class Enemy
+class Enemy : public Mob
 {
 	//Make Enum for Variation sprite
 public:
@@ -36,14 +31,7 @@ public:
 
 private:
 	///Mostly for initial, don't forget there is already x and y in sprite
-	std::vector<Bullet*> bullets;
 	State state;
-	float hp;
-	float xTarget, yTarget;
-	int tick, maxHP, maxBullets;
-
-	sf::Texture texture;
-	sf::Sprite sprite;
 
 	void initVariables();
 	void initSprite();
@@ -54,22 +42,15 @@ public:
 	~Enemy();
 
 	//-Getters
-	sf::Vector2<float> getPos() const;
-	sf::FloatRect bounds() const;
-	std::vector<Bullet*>& getBullets();
-	bool isAlive() const;
+	bool isActive() const override;
 
 	//-Functions
-	float getLargestSide();
-	float damageDealt(int k);
-	int bulletsInScreen();
-	void attack(float x, float y);
-	void takeDamage(float dmg);
+	void takeDamage(float dmg) override;
 	void setWaitForDisposal();
 
 	//-Draw Components
-	void update(sf::RenderTarget& target);
-	void render(sf::RenderTarget& target);
+	void update(sf::RenderTarget& target) override;
+	void render(sf::RenderTarget& target) override;
 
 
 };

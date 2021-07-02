@@ -134,8 +134,8 @@ void Game::pollEvents()
 			else if (ev.key.code == sf::Keyboard::F)
 				for (auto *e : enemies)
 				{
-					if(e->isAlive())
-						e->attack(player->getPos().x, player->getPos().y);
+					if(e->isActive())
+						e->attackTo(player->getPos().x, player->getPos().y);
 				}
 				break;
 		}
@@ -169,16 +169,16 @@ void Game::updateMobs()
 			for (int e = 0; e < enemies.size(); e++)
 			{
 
-				if (enemies[e]->isAlive() && enemies[e]->bounds().intersects(player->getBullets()[k]->bounds()))
+				if (enemies[e]->isActive() && enemies[e]->bounds().intersects(player->getBullets()[k]->bounds()))
 				{
 					enemies[e]->takeDamage(player->damageDealt(k));
 					player->getBullets()[k]->deactivate();
 
-					if (!enemies[e]->isAlive())
+					if (!enemies[e]->isActive())
 					{
 						death.emplace_back(new DeathAni(enemies[e]->getPos().x, enemies[e]->getPos().y, enemies[e]->getLargestSide()));
 						
-						if (enemies[e]->bulletsInScreen() == 0)
+						if (enemies[e]->activeBullets() == 0)
 						{
 							delete enemies[e];
 							enemies.erase(enemies.begin() + e);
@@ -202,7 +202,7 @@ void Game::updateMobs()
 	//Loop for enemies update and their bullets against player
 	for (int e = 0; e < enemies.size(); e++)
 	{							//Check for dead and not bullets on field here.
-		if (!enemies[e]->isAlive() && enemies[e]->bulletsInScreen() == 0)
+		if (!enemies[e]->isActive() && enemies[e]->activeBullets() == 0)
 		{
 			delete enemies[e];
 			enemies.erase(enemies.begin() + e);
@@ -220,11 +220,11 @@ void Game::updateMobs()
 					enemies[e]->getBullets().erase(enemies[e]->getBullets().begin() + k);
 				}
 
-				else if (player->isAlive() && player->bounds().intersects(enemies[e]->getBullets()[k]->bounds()))
+				else if (player->isActive() && player->bounds().intersects(enemies[e]->getBullets()[k]->bounds()))
 				{
 					player->takeDamage(enemies[e]->damageDealt(k));
 
-					if (!player->isAlive())
+					if (!player->isActive())
 					{
 						death.emplace_back(new DeathAni(player->getPos().x, player->getPos().y, player->getLargestSide(), DeathAni::Type::Player));
 						//Lifes--, respawn animations and such.
@@ -289,14 +289,12 @@ void Game::updateDebug()
 
 	str << "Points:" << points
 		<< "\nX: " << player->getPos().x << " Y: " << player->getPos().y
-		<< "\nBullets: " << player->bulletsCreated()
+		<< "\nBullets: " << player->activeBullets()
 		<< "\nEnemies: " << enemies.size()
 		<< "\nTileSize: " << tileSize
-		<< "\nPlayer hp: " << player->getHP() << ", alive: " << player->isAlive()
-		<< "\nWidth (Local): " << player->sprite.getLocalBounds().width
-		<< "\nHeight (Local): " << player->sprite.getLocalBounds().height
-		<< "\nWidth (Global): " << player->sprite.getGlobalBounds().width
-		<< "\nHeight (Global): " << player->sprite.getGlobalBounds().height;
+		<< "\nPlayer hp: " << player->getCurrentHP() << ", alive: " << player->isActive()
+		<< "\nWidth (Global): " << player->bounds().width
+		<< "\nHeight (Global): " << player->bounds().height;
 
 	text.setString(str.str());
 
@@ -308,8 +306,8 @@ void Game::updateDebug()
 	{
 		for (auto* e : enemies)
 		{
-			if(e->isAlive())
-				e->attack(player->getPos().x, player->getPos().y);
+			if(e->isActive())
+				e->attackTo(player->getPos().x, player->getPos().y);
 		}
 	}
 		//enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % vidMode.height));

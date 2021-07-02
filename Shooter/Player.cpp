@@ -6,17 +6,18 @@
 void Player::initVariables()
 {
 	bullets.reserve(50);
-	shotRate = 14;
+	shotRate = 4;
 	cooldownCounter = 0;
 	cooldown = false;
 	frame = 0;
+	aniSpeed = 60;
 	alive = true;
 	velocity = 4;
 	sway = 0;
 	maxHP = 10;
 	hp = maxHP;
-	maxBullets = 10;
-	scaling = 1.5;
+	maxBullets = 100;
+	scale = 1.5;
 }
 
 /*
@@ -26,12 +27,15 @@ void Player::initVariables()
  */
 void Player::initSprite()
 {
-	if (!tex1.loadFromFile("Sprites/Ship0.png"))
+	textures.emplace_back(new sf::Texture());
+	textures.emplace_back(new sf::Texture());
+
+	if (!textures[0]->loadFromFile("Sprites/Ship0.png"))
 		std::cout << "Error loading Player Sprite 1.\n";
-	if (!tex2.loadFromFile("Sprites/Ship1.png"))
+	if (!textures[1]->loadFromFile("Sprites/Ship1.png"))
 		std::cout << "Error loading Player Sprite 2.\n";
-	sprite.setTexture(tex1);
-	sprite.scale(scaling, scaling);
+	sprite.setTexture(*textures[0]);
+	sprite.scale(scale, scale);
 }
 
 /*
@@ -48,19 +52,12 @@ Player::Player()
  * Calls both init for sprite and basic parameters.
  * Creates bullet at a specific place.
  */
-Player::Player(float x, float y, float scaling)
+Player::Player(float x, float y, float scale)
 {
 	initVariables();
 	initSprite();
 
-	/*
-	* 	sf::Vector2<float> center;
-	center.x = sprite.getPosition().x + (sprite.getGlobalBounds().width / 2);
-	center.y = sprite.getPosition().y + (sprite.getGlobalBounds().height / 2);
-	return center;
-	*/
 	sprite.setOrigin(sprite.getPosition().x + (sprite.getLocalBounds().width / 2), sprite.getPosition().y + (sprite.getLocalBounds().height / 2));
-
 	sprite.setPosition(x, y);
 }
 
@@ -69,104 +66,29 @@ Player::~Player()
 {
 	for (auto *k : bullets)
 		delete k;
-}
 
-/* @return Remaining HP of player. */
-float Player::getHP() const
-{
-	return hp;
-}
-
-/* @return Max HP of player. */
-short Player::getMaxHP() const
-{
-	return maxHP;
+	for (auto* t : textures)
+		delete t;
 }
 
 /* @return true if player is alive. */
-bool Player::isAlive() const
+bool Player::isActive() const
 {
 	return alive;
 }
 
-/*
- * sprite position getter.
- * 
- * @return Vector2 containing x and y of sprite in the window.
- */
-sf::Vector2<float> Player::getPos() const
-{
-	return sprite.getPosition();
-}
-
-/* @return sprite's global bounds. */
-sf::FloatRect Player::bounds() const
-{
-	return sprite.getGlobalBounds();
-}
-
-/*
- * @return Player's bullets (Would it be better to make bullets public?)
- */
-std::vector<Bullet*>& Player::getBullets()
-{
-	return bullets;
-}
-
 /// Delete later
-float Player::see()
+float Player::getSway()
 {
 	return sway;
 }
 
 /*
- * @return Number of active bullets on screen.
- */
-int Player::bulletsCreated()
-{
-	return bullets.size();
-}
-/*
- * Attacks if cooldown is false, then makes it true.
- * If cooldown is true, counter increases.
- * When counter reaches shotRate, player can attack again.
- */
-bool Player::canAttack()
-{
-	if (bullets.size() > maxBullets)
-		return false;
-
-	if (cooldown)
-	{
-		if (cooldownCounter >= shotRate)
-			cooldown = false;
-		return false;
-	}
-
-	else
-	{
-		cooldown = true;
-		cooldownCounter = 0;
-		return true;
-	}
-}
-
-/*
- * Calculates how much damage the bullet makes.
- * 
- * @param k: Index of Bullet in bullets vector.
- */
-float Player::damageDealt(int k)
-{
-	return bullets[k]->atk();		///Add damage multiplier later
-}
-
-/*
  * Called when player takes damage.
  * If hp falls below 0, bool alive = false.
- * 
+ *
  * @param dmg: damage taken.
- * 
+ *
  * ///Maybe add an afterdamage invul frames
  */
 void Player::takeDamage(float dmg)
@@ -181,17 +103,6 @@ void Player::takeDamage(float dmg)
 }
 
 /*
- * Method to save a few accesses for death
- * animation.
- *
- * @return width/height of sprite (Global)
- */
-float Player::getLargestSide()
-{
-	return (sprite.getGlobalBounds().width > sprite.getGlobalBounds().height) ? sprite.getGlobalBounds().width : sprite.getGlobalBounds().height;
-}
-
-/*
  * Update animations.
  * Also loops player if he goes outside screen.
  */
@@ -202,13 +113,13 @@ void Player::update(sf::RenderTarget& target)
 	int targetWidth = target.getSize().x, targetHeight = target.getSize().y;
 
 	frame++;
-	if (frame == 60)
+	if (frame == aniSpeed)
 	{
-		sprite.setTexture(tex2);
-		frame = -60;
+		sprite.setTexture(*textures[1]);
+		frame = -aniSpeed;
 	}
 	else if (frame == 0)
-		sprite.setTexture(tex1);
+		sprite.setTexture(*textures[0]);
 
 	if(cooldown)
 		cooldownCounter++;

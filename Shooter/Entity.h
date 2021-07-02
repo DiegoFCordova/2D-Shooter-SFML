@@ -17,17 +17,15 @@
 
 class Entity
 {
-private:
+protected:
 	std::vector <sf::Texture*> textures;
 	sf::Sprite sprite;
 	sf::Vector2<float> target;
 	float scale,
 		baseDamage, velocity, sway;
-	///For Mob: HP, MaxHP
 
 public:
 	///Maybe add more constructors
-	Entity();
 	virtual ~Entity() {};	///Delete textures on derivative
 
 	//Getters
@@ -38,8 +36,6 @@ public:
 	sf::Vector2<float> getPos() const;
 	sf::Vector2<float> getTarget() const;
 	sf::FloatRect bounds() const;
-	///For Mob: getBullets();, dmg dealt, Bullets in Screen(Bullets.size)
-		///Atack, takedmg
 
 	//Draw Components
 	virtual void update(sf::RenderTarget& target) = 0;

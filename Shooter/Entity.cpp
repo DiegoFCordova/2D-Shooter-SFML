@@ -1,12 +1,6 @@
 #include "Entity.h"
 
 /*
- * Base constructor. Will never be used.
- */
-Entity::Entity()
-{
-}
-/*
  * @return get baseDamage of object.
  */
 float Entity::getBaseDamage() const

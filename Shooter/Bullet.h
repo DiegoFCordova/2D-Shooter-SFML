@@ -1,9 +1,6 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Audio.hpp>
-#include <iostream>
+#include "Entity.h"
 
 /*
  * Base bullet class for game's projectiles.
@@ -12,7 +9,7 @@
  * @author Diego Cordova
  */
 
-class Bullet
+class Bullet : public Entity
 {
 	///Make Enum for Variation sprite. Prototype
 public:
@@ -21,34 +18,23 @@ public:
 		None, Horizontal, Vertical, All
 	};
 
-private:
-	/*		///Might delete later
-	 * target: For homing bullets. Might need a boolean for chasers.
-	 * baseDamage: Base damage of common bullet
-	 * velocity: How fast it will go
-	 * sway: positive go to right, negative left
-	 * scaling: How big it will be (Maybe make it bigger the stronger it is
-	 *								Keep in mind that this would involve basing hitbox in scale)
-	 * fire: indicates if bullet is being fired or not
-	 * Hit?: true if it hits, most likely used for points but I think I don't need it
-	 */
+	///Type of Bullet. Used to decide color.
+	enum class From
+	{
+		Player, Enemy
+	};
 
+private:
 	//-Attributes
 	Loop loop;
-	sf::Vector2<float> target;
-	float baseDamage, velocity, sway;
-	float scaling;
-	bool fire;
+	From color;
+	bool active;
 
 public:
-	//-Basics
-	sf::Texture texture;
-	sf::Sprite sprite;
 
 	void initVariables();
 	void initSprite();
 
-	Bullet();
 	///Delete Following 1 or add scaling parameter
 	Bullet(float x, float y, float sway);
 	///Think for later: Modifiers, multipliers, etc
@@ -57,11 +43,7 @@ public:
 	~Bullet();
 
 	//-Getter
-	bool isActive() const;
-	float atk() const;
-	sf::FloatRect bounds() const;
-	sf::Vector2<float> getTarget() const;
-	sf::Vector2<float> getPos() const;
+	bool isActive() const override;
 
 	//-Setters
 	void activate();
@@ -71,11 +53,10 @@ public:
 
 	//-Functions
 	void setEnemyBullet(float angle, float x, float y, bool side);	//Maybe add an enum for this
-	float getLargestSide();
-
+	void setAngle(float destX, float destY);
 
 	//-Draw components
-	void update(sf::RenderTarget& target);
-	void render(sf::RenderTarget& target);
+	void update(sf::RenderTarget& target) override;
+	void render(sf::RenderTarget& target) override;
 };
 
