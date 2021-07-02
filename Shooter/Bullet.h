@@ -18,28 +18,16 @@ public:
 		None, Horizontal, Vertical, All
 	};
 
-	///Type of Bullet. Used to decide color.
-	enum class From
-	{
-		Player, Enemy
-	};
-
 private:
 	//-Attributes
 	Loop loop;
-	From color;
-	bool active;
-
-public:
+	bool active, isEnemy;
 
 	void initVariables();
 	void initSprite();
 
-	///Delete Following 1 or add scaling parameter
-	Bullet(float x, float y, float sway);
-	///Think for later: Modifiers, multipliers, etc
-	//Bullet(float x, float y, Type type);
-	//Bullet(float x, float y, float scale, Type type);
+public:
+	Bullet(float x, float y, Type t = Type::Player);
 	~Bullet();
 
 	//-Getter
@@ -52,8 +40,9 @@ public:
 	void setVelocity(float x, float y);
 
 	//-Functions
-	void setEnemyBullet(float angle, float x, float y, bool side);	//Maybe add an enum for this
+	void setColor(float r = -1, float g = -1, float b = -1, float alpha = 0);
 	void setAngle(float destX, float destY);
+	void setSway(float s);
 
 	//-Draw components
 	void update(sf::RenderTarget& target) override;

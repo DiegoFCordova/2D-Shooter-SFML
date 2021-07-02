@@ -31,6 +31,7 @@ public:
 
 	//-Functions
 	void takeDamage(float dmg) override;
+	void attackTo(float dstX, float dstY) override;
 
 	//-Draw Components
 	void update(sf::RenderTarget& target) override;

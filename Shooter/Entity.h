@@ -17,10 +17,17 @@
 
 class Entity
 {
+public:
+	enum class Type
+	{
+		Player, Enemy, Bullet
+	};
+
 protected:
 	std::vector <sf::Texture*> textures;
 	sf::Sprite sprite;
 	sf::Vector2<float> target;
+	Type objectType;
 	float scale,
 		baseDamage, velocity, sway;
 

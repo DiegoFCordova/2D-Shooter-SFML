@@ -43,6 +43,7 @@ public:
 
 	//-Functions
 	void init();
+	void setColor(float r = -1, float g = -1, float b = -1, float alpha = 0);
 	float getFitScale(float side) const;
 
 	void update(sf::RenderTarget& target);

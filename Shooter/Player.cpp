@@ -5,8 +5,9 @@
  */
 void Player::initVariables()
 {
+	objectType = Type::Player;
 	bullets.reserve(50);
-	shotRate = 4;
+	shotRate = 8;
 	cooldownCounter = 0;
 	cooldown = false;
 	frame = 0;
@@ -14,7 +15,7 @@ void Player::initVariables()
 	alive = true;
 	velocity = 4;
 	sway = 0;
-	maxHP = 10;
+	maxHP = 3000;
 	hp = maxHP;
 	maxBullets = 100;
 	scale = 1.5;
@@ -103,6 +104,20 @@ void Player::takeDamage(float dmg)
 }
 
 /*
+ * Shoots bullet to specific direction.
+ * Override: Places bullet in specific location
+ * for current Object.
+ *
+ * @param x: X coor of the target.
+ * @param y: Y coor of the target.
+ */
+void Player::attackTo(float dstX, float dstY)
+{
+	bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y - sprite.getGlobalBounds().height / 2));
+	Mob::attackTo(dstX, dstY);
+}
+
+/*
  * Update animations.
  * Also loops player if he goes outside screen.
  */
@@ -121,7 +136,7 @@ void Player::update(sf::RenderTarget& target)
 	else if (frame == 0)
 		sprite.setTexture(*textures[0]);
 
-	if(cooldown)
+	if(cooldown && cooldownCounter < shotRate + 3)
 		cooldownCounter++;
 	updateInput();
 
@@ -178,7 +193,7 @@ void Player::updateInput()
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 		if(canAttack())
-			bullets.emplace_back(new Bullet(sprite.getPosition().x , sprite.getPosition().y - sprite.getGlobalBounds().height/2, sway));
+			bullets.emplace_back(new Bullet(sprite.getPosition().x , sprite.getPosition().y - sprite.getGlobalBounds().height/2));
 }
 
 /*

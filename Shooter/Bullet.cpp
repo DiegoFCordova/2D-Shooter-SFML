@@ -11,9 +11,10 @@
  */
 void Bullet::initVariables()
 {
+	objectType = Type::Bullet;
 	loop = Loop::None;
-	color = From::Player;
 	active = true;
+	isEnemy = false;
 	target.x = -1;
 	target.y = -1;
 	scale = 1.5; ///2
@@ -48,16 +49,21 @@ void Bullet::initSprite()
  *
  * @param x: x coordinate.
  * @param y: y coordinate.
- * @param sway: horizontal speed.
+ * @param t: Enumerator to identify type of object (Default = Player).
  */
-Bullet::Bullet(float x, float y, float sway)
+Bullet::Bullet(float x, float y, Type t)
 {
 	initVariables();
 	initSprite();
-	sprite.setPosition(x, y - sprite.getGlobalBounds().height/2);
-	this->sway = sway;
+	sprite.setPosition(x, y - sprite.getGlobalBounds().height / 2);
 
-	sprite.setOrigin(sprite.getOrigin().x + (sprite.getLocalBounds().width/2), sprite.getOrigin().y + (sprite.getLocalBounds().height/2));
+	sprite.setOrigin(sprite.getOrigin().x + (sprite.getLocalBounds().width / 2), sprite.getOrigin().y + (sprite.getLocalBounds().height / 2));
+
+	if (t == Type::Enemy)
+	{
+		isEnemy = true;
+		setColor();
+	}
 }
 
 /*
@@ -115,38 +121,31 @@ void Bullet::setVelocity(float x, float y)
 }
 
 /*
- * Changes color to more redish.
- * Rotates the sprite so that its aiming its target
- * (Only when target its below. Might do for above later).
+ * Sets bullet sprite to certain color.
+ * If not arguments present, sets it red for enemy.
  * 
- * @param angle: Offset of the final angle calculation.
- * @param x: Length of triangle.
- * @param y: Height of triangle.
- * @param side: important part for final angle calculation.
- * 
- * ///Change name to setAngleAndColor
+ * @param r: Red.
+ * @param g: Green.
+ * @param b: Blue.
+ * @param a: Alpha.
  */
-void Bullet::setEnemyBullet(float angle, float x, float y, bool side)
+void Bullet::setColor(float r, float g, float b, float a)
 {
-	sprite.setColor(sf::Color::Red);
+	if (isEnemy && r == -1)
+		sprite.setColor(sf::Color(255, 50, 54, 150));
 
-	if (side && x > y)
-		angle += 180;
-	else if (side && y >= x)
-		angle = 270 - angle;
-	else if (!side && y > x)
-		angle = 90 + angle;
-	else if (!side && x >= y)
-		angle = -angle + 180;
-
-	sprite.setRotation(angle);
+	else
+		sprite.setColor(sf::Color(r, g, b, a));	//Nice color: 0, 100, 154, 100
 }
 
-
+/*
+ * Rotates sprite towards the direction is being fired at.
+ * 
+ * @param destX: x coor of target/destination.
+ * @param destY: y coor of target/destination.
+ */
 void Bullet::setAngle(float destX, float destY)
 {
-	///switch for what color is chosen, maybe set it from constructor.
-
 	float distance = 0, vX = 0, vY = 0, 
 		x = sprite.getPosition().x, y = sprite.getPosition().y,
 		diffX = 0, diffY = 0, angle = 0;
@@ -186,6 +185,11 @@ void Bullet::setAngle(float destX, float destY)
 	}
 
 	sprite.setRotation(angle);
+}
+/* Sets sway for Bullet */
+void Bullet::setSway(float s)
+{
+	sway = s;
 }
 
 /*

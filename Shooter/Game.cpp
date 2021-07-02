@@ -230,7 +230,8 @@ void Game::updateMobs()
 						//Lifes--, respawn animations and such.
 					}
 
-					///Same as before, if you do Bullet explotion animation, add it here as well.
+					death.emplace_back(new DeathAni(enemies[e]->getBullets()[k]->getPos().x, enemies[e]->getBullets()[k]->getPos().y, enemies[e]->getBullets()[k]->getLargestSide() * 2, DeathAni::Type::Bullet));
+					death[death.size() - 1]->setColor();
 					delete enemies[e]->getBullets()[k];
 					enemies[e]->getBullets().erase(enemies[e]->getBullets().begin() + k);
 				}
@@ -300,16 +301,12 @@ void Game::updateDebug()
 
 
 	///Trash code to check all enemies shooting per c frames.
-	int static c = 0;
-	c++;
-	if (c % 20 == 0)
-	{
+
 		for (auto* e : enemies)
 		{
 			if(e->isActive())
 				e->attackTo(player->getPos().x, player->getPos().y);
 		}
-	}
 		//enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % vidMode.height));
 }
 

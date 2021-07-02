@@ -8,6 +8,7 @@
  * 
  * @author Diego Cordova
  */
+
 class Mob : public Entity
 {
 protected:
@@ -28,6 +29,6 @@ public:
 	float damageDealt(int k);
 	bool canAttack();
 	virtual void takeDamage(float dmg) = 0;
-	void attackTo(float dstX, float dstY);
+	virtual void attackTo(float dstX, float dstY);
 };
 

@@ -69,22 +69,13 @@ bool Mob::canAttack()
 
 /*
  * Shoots bullet to specific direction.
- * ///Needs a lot of tuning
  *
  * @param x: X coor of the target.
  * @param y: Y coor of the target.
  */
 void Mob::attackTo(float destX, float destY)
 {
-	//if maxBullets
-	bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y + sprite.getGlobalBounds().height/2, 0));
-	///bullets.emplace_back(new Bullet(srcX, srcY, 0));
-
 	for (auto* b : bullets)
 		if (b->getTarget().x == -1 && b->getTarget().y == -1)
-			b->setAngle(destX, destY);
-
-	//			sprite.move(sway, -velocity);
-	//if (canAttack())
-//		bullets.emplace_back(new Bullet(sprite.getPosition().x + (sprite.getGlobalBounds().width / 2), sprite.getPosition().y, sway));
+			b->setAngle(destX, destY);;
 }

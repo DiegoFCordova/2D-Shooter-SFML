@@ -13,10 +13,10 @@ class Enemy : public Mob
 	//Make Enum for Variation sprite
 public:
 	/* Used for Enemy Type */
-	enum class Type
-	{
-		Common, Strong, Fast
-	};
+	//enum class MobType
+	//{
+	//	Common, Strong, Fast
+	//};
 
 	/*
  	 * States for easier enemy control:
@@ -47,6 +47,7 @@ public:
 	//-Functions
 	void takeDamage(float dmg) override;
 	void setWaitForDisposal();
+	void attackTo(float dstX, float dstY) override;
 
 	//-Draw Components
 	void update(sf::RenderTarget& target) override;

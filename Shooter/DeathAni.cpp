@@ -40,6 +40,24 @@ void DeathAni::init()
 }
 
 /*
+ * Sets bullet sprite to certain color.
+ * If not arguments present, sets it red for enemy.
+ *
+ * @param r: Red.
+ * @param g: Green.
+ * @param b: Blue.
+ * @param a: Alpha.
+ */
+void DeathAni::setColor(float r, float g, float b, float a)
+{
+	if (r == -1)
+		sprite.setColor(sf::Color(255, 50, 54, 150));
+
+	else
+		sprite.setColor(sf::Color(r, g, b, a));	//Nice color: 0, 100, 154, 100
+}
+
+/*
  * Method to get explosion scale to the biggest side of 
  * given object.
  * This method assumes that all sprites original

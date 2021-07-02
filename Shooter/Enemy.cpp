@@ -5,12 +5,17 @@
  */
 void Enemy::initVariables()
 {
+	objectType = Type::Enemy;
 	bullets.reserve(10);
-	hp = 100;
+	hp = 10;
 	target.x = -1;
 	target.y = -1;
+	frame = 0;
+	aniSpeed = 60;
 	maxHP = (int) hp;
-	maxBullets = 10;
+	cooldown = false;
+	maxBullets = 100;
+	shotRate = (int)(rand()%10) + 20;
 	state = State::Alive;
 }
 
@@ -22,8 +27,11 @@ void Enemy::initVariables()
 void Enemy::initSprite()
 {
 	textures.emplace_back(new sf::Texture());
-	if (!textures[0]->loadFromFile("Sprites/Enemy.png"))
-		std::cout << "Error loading Player Sprite.\n";
+	textures.emplace_back(new sf::Texture());
+	if (!textures[0]->loadFromFile("Sprites/Enemy0.png"))
+		std::cout << "Error loading Player Sprite 1.\n";
+	if (!textures[1]->loadFromFile("Sprites/Enemy1.png"))
+		std::cout << "Error loading Player Sprite 2.\n";
 	sprite.setTexture(*textures[0]);
 
 	sprite.scale(2, 2);
@@ -105,12 +113,41 @@ void Enemy::setWaitForDisposal()
 }
 
 /*
+ * Shoots bullet to specific direction.
+ * Override: Places bullet in specific location
+ * for current Object.
+ *
+ * @param x: X coor of the target.
+ * @param y: Y coor of the target.
+ */
+void Enemy::attackTo(float dstX, float dstY)
+{
+	if (canAttack())
+	{
+		bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y + sprite.getGlobalBounds().height / 2, objectType));
+		Mob::attackTo(dstX, dstY);
+	}
+}
+
+/*
  * ///If fall is true, enemy will start moving on its velocity.
  * 
  * @param target: Used to get window's bounds.
  */
 void Enemy::update(sf::RenderTarget& target)
 {
+	frame++;
+	if (frame == aniSpeed)
+	{
+		sprite.setTexture(*textures[1]);
+		frame = -aniSpeed;
+	}
+	else if (frame == 0)
+		sprite.setTexture(*textures[0]);
+
+	if (cooldown && cooldownCounter < shotRate + 3)
+		cooldownCounter++;
+
 	///movement of enemy goes here
 	/*if (sprite.getPosition().x > target.getSize().x)
 		sprite.setPosition(0, sprite.getPosition().y);
