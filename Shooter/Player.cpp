@@ -7,17 +7,17 @@ void Player::initVariables()
 {
 	objectType = Type::Player;
 	bullets.reserve(50);
-	shotRate = 8;
+	shotRate = 14;
 	cooldownCounter = 0;
 	cooldown = false;
 	frame = 0;
 	aniSpeed = 60;
 	alive = true;
-	velocity = 4;
+	velocity = 15;
 	sway = 0;
 	maxHP = 3000;
 	hp = maxHP;
-	maxBullets = 100;
+	maxBullets = 10;
 	scale = 1.5;
 }
 
@@ -163,8 +163,9 @@ void Player::updateInput()
 	{
 		sprite.move(-velocity, 0.f);
 
-		if(sway > -velocity/4) 
-			sway -= .1;
+		if(sway > -velocity / 4) 
+			sway -= .2;
+		//sway = -velocity / 4;
 		moving = true;
 	}
 
@@ -172,8 +173,9 @@ void Player::updateInput()
 	{
 		sprite.move(velocity, 0.f);
 
-		if (sway < velocity/4)
-			sway += .1;
+		if (sway < velocity / 4)
+			sway += .2;
+		//sway = velocity / 4;
 		moving = true;
 	}
 
@@ -182,7 +184,7 @@ void Player::updateInput()
 		if (sway > -.1 && sway < .1)
 			sway = 0;
 		else
-			sway += (sway < 0) ? .1 : -.1;
+			sway += (sway < 0) ? .5 : -.5;
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
@@ -192,8 +194,11 @@ void Player::updateInput()
 		sprite.move(0.f, velocity);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-		if(canAttack())
-			bullets.emplace_back(new Bullet(sprite.getPosition().x , sprite.getPosition().y - sprite.getGlobalBounds().height/2));
+		if (canAttack())
+		{
+			bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y - sprite.getGlobalBounds().height / 2));
+			bullets[bullets.size() - 1]->setSway(sway);
+		}
 }
 
 /*

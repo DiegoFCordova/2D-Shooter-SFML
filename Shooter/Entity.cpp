@@ -27,14 +27,6 @@ sf::Vector2<float> Entity::getPos() const
 	return sprite.getPosition();
 }
 
-/*
- * @return target with x and y float values.
- */
-sf::Vector2<float> Entity::getTarget() const
-{
-	return target;
-}
-
 /* @return sprite's global bounds. */
 sf::FloatRect Entity::bounds() const
 {

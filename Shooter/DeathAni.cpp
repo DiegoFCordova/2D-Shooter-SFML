@@ -7,7 +7,7 @@
  */
 void DeathAni::init()
 {
-	aniSpeed = 5;
+	aniSpeed = 2;
 	currentFrame = 0;
 
 	std::stringstream path;
@@ -137,7 +137,7 @@ bool DeathAni::isOver() const
 
 void DeathAni::update(sf::RenderTarget& target)
 {
-	if (frames > 5 * (currentFrame + 1))
+	if (frames > aniSpeed * (currentFrame + 1))
 	{
 		currentFrame++;
 		if (currentFrame == textures.size())

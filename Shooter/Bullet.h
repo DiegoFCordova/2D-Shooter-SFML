@@ -20,6 +20,7 @@ public:
 
 private:
 	//-Attributes
+	sf::Vector2<float> target;
 	Loop loop;
 	bool active, isEnemy;
 
@@ -32,6 +33,7 @@ public:
 
 	//-Getter
 	bool isActive() const override;
+	sf::Vector2<float> getTarget() const;
 
 	//-Setters
 	void activate();

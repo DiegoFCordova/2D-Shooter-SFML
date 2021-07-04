@@ -26,7 +26,6 @@ public:
 protected:
 	std::vector <sf::Texture*> textures;
 	sf::Sprite sprite;
-	sf::Vector2<float> target;
 	Type objectType;
 	float scale,
 		baseDamage, velocity, sway;
@@ -41,7 +40,6 @@ public:
 	float getBaseDamage() const;
 	float getLargestSide() const;
 	sf::Vector2<float> getPos() const;
-	sf::Vector2<float> getTarget() const;
 	sf::FloatRect bounds() const;
 
 	//Draw Components

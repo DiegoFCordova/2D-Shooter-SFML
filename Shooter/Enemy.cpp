@@ -8,8 +8,6 @@ void Enemy::initVariables()
 	objectType = Type::Enemy;
 	bullets.reserve(10);
 	hp = 10;
-	target.x = -1;
-	target.y = -1;
 	frame = 0;
 	aniSpeed = 60;
 	maxHP = (int) hp;

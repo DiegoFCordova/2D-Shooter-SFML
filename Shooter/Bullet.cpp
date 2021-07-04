@@ -19,7 +19,7 @@ void Bullet::initVariables()
 	target.y = -1;
 	scale = 1.5; ///2
 	baseDamage = 3;
-	velocity = 3;
+	velocity = 7;
 	sway = 0;
 }
 
@@ -81,6 +81,14 @@ Bullet::~Bullet()
 bool Bullet::isActive() const
 {
 	return active;
+}
+
+/*
+ * @return target with x and y float values.
+ */
+sf::Vector2<float> Bullet::getTarget() const
+{
+	return target;
 }
 
 /*

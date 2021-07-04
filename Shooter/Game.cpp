@@ -13,7 +13,7 @@ void Game::initWindow()
 	vidMode.width = 1600;
 	vidMode.height = 900;
 	window = new sf::RenderWindow(vidMode, "Demo", sf::Style::Titlebar | sf::Style::Close);
-	window->setFramerateLimit(144);
+	window->setFramerateLimit(60);
 }
 
 /*
@@ -295,7 +295,8 @@ void Game::updateDebug()
 		<< "\nTileSize: " << tileSize
 		<< "\nPlayer hp: " << player->getCurrentHP() << ", alive: " << player->isActive()
 		<< "\nWidth (Global): " << player->bounds().width
-		<< "\nHeight (Global): " << player->bounds().height;
+		<< "\nHeight (Global): " << player->bounds().height
+		<< "\nSway: " << player->getSway();
 
 	text.setString(str.str());
 
