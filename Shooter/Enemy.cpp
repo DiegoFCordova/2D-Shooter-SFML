@@ -9,7 +9,7 @@ void Enemy::initVariables()
 	bullets.reserve(10);
 	hp = 10;
 	frame = 0;
-	aniSpeed = 60;
+	aniSpeed = 25;
 	maxHP = (int) hp;
 	cooldown = false;
 	maxBullets = 100;
@@ -122,8 +122,10 @@ void Enemy::attackTo(float dstX, float dstY)
 {
 	if (canAttack())
 	{
+		int offsetX = (int)(rand() % 100) - 50,
+			offsetY = (int)(rand() % 100) - 50;
 		bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y + sprite.getGlobalBounds().height / 2, objectType));
-		Mob::attackTo(dstX, dstY);
+		Mob::attackTo(dstX + offsetX, dstY + offsetY);
 	}
 }
 

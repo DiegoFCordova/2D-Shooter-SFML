@@ -2,11 +2,8 @@
 
 /*
  * Initialize windows, sets
- * titlebar, and frames limit.
+ * titlebar, frames limit, and game logic.
  */
-
-///Quick dirty code to debug
-bool debug = false;
 
 void Game::initWindow()
 {
@@ -21,13 +18,15 @@ void Game::initWindow()
  */
 void Game::initVars()
 {
-	state = State::MainMenu;
-	tileSize = (float)(window->getSize().x) / 32;	//For  16:9 ratio
+	state = GameState::MainMenu;
+	debug = false;
+	tileSize = (float)(vidMode.width) / 32;	//For  16:9 ratio
+	starsSpeed = 5;
 
-	enemySpawnTimerMax = 25.f;
-	enemySpawnTimer = enemySpawnTimerMax;
-	maxEnemies = 50;
-	points = 0;
+	enemySpawnRate = 25;
+	enemySpawnTimer = enemySpawnRate;
+	maxEnemies = 100;
+	score = 0;
 }
 
 /*
@@ -39,6 +38,20 @@ void Game::initMobs()
 	player = new Player(tileSize*16, tileSize*15, 1);
 	enemies.reserve(maxEnemies);
 	death.reserve(maxEnemies);
+}
+
+/*
+ * Background stars are initialized here.
+ */
+void Game::initStars()
+{
+	stars.reserve(400);
+	for (int k = 0; k < 400; k++)
+	{
+		int randX = (int)(rand() % vidMode.width),
+			randY = (int)(rand() % (vidMode.height));
+		stars.emplace_back(new Star(randX, -randY, tileSize / 10, 5));
+	}
 }
 
 /* Debugging.
@@ -68,6 +81,7 @@ Game::Game()
 	initVars();
 	initText();
 	initMobs();
+	initStars();
 }
 
 /* Destructor */
@@ -79,6 +93,8 @@ Game::~Game()
 		delete e;
 	for (auto* d : death)
 		delete d;
+	for (auto* s : stars)
+		delete s;
 }
 
 
@@ -97,6 +113,7 @@ void Game::update()
 	pollEvents();
 	//if(state == State::Game)
 		updateMobs();
+	updateStars();
 
 	//-Debug
 	updateDebug();
@@ -125,6 +142,25 @@ void Game::pollEvents()
 			///Debug quick dirty code
 			else if (ev.key.code == sf::Keyboard::Z)
 				debug = !debug;
+			else if (ev.key.code == sf::Keyboard::C)
+				starsSpeed--;
+			else if (ev.key.code == sf::Keyboard::V)
+				starsSpeed++;
+			else if (ev.key.code == sf::Keyboard::T)
+			{
+				for (auto* s : stars)
+					s->inverseSpeedFX();
+			}
+			else if (ev.key.code == sf::Keyboard::Y)
+			{
+				for (auto* s : stars)
+					s->normalFX();
+			}
+			else if (ev.key.code == sf::Keyboard::G)
+			{
+				for (auto* s : stars)
+					s->masaFX();
+			}
 			else if (ev.key.code == sf::Keyboard::Q)
 				enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % (vidMode.height/2)));
 			else if (ev.key.code == sf::Keyboard::E)
@@ -186,7 +222,7 @@ void Game::updateMobs()
 
 						else
 							enemies[e]->setWaitForDisposal();
-						points++;
+						score++;
 					}
 
 					death.emplace_back(new DeathAni(player->getBullets()[k]->getPos().x, player->getBullets()[k]->getPos().y, player->getBullets()[k]->getLargestSide()*2, DeathAni::Type::Bullet));
@@ -250,6 +286,17 @@ void Game::updateMobs()
 			death[d]->update(*window);
 	}
 }
+/*
+ * Update stars and set them on top
+ * when they reach the bottom.
+ */
+void Game::updateStars()
+{
+	for (auto* s : stars)
+	{
+		s->update(*window);
+	}
+}
 
 /*
  * Refreshes windows to next frame
@@ -258,6 +305,7 @@ void Game::updateMobs()
 void Game::render()
 {
 	window->clear(sf::Color(30, 30, 30));
+	renderStars();
 	renderMobs();
 
 	//Debug
@@ -280,6 +328,15 @@ void Game::renderMobs()
 		d->render(*window);
 }
 
+/*
+ * Render stars here.
+ */
+void Game::renderStars()
+{
+	for (auto* s : stars)
+		s->render(*window);
+}
+
 
 //-Debug
 
@@ -288,7 +345,7 @@ void Game::updateDebug()
 {
 	std::stringstream str;
 
-	str << "Points:" << points
+	str << "Score:" << score
 		<< "\nX: " << player->getPos().x << " Y: " << player->getPos().y
 		<< "\nBullets: " << player->activeBullets()
 		<< "\nEnemies: " << enemies.size()
@@ -342,7 +399,7 @@ void Game::drawGrid()
 		}
 
 		linesVertical[k].position = sf::Vector2f(tileSize * (k / 2), 0);
-		linesVertical[k + 1].position = sf::Vector2f(tileSize * (k / 2), window->getSize().y);
+		linesVertical[k + 1].position = sf::Vector2f(tileSize * (k / 2), vidMode.height);
 	}
 
 	for (int k = 0; k < 36; k += 2)
@@ -360,7 +417,7 @@ void Game::drawGrid()
 		}
 
 		linesHorizontal[k].position = sf::Vector2f(0, tileSize * (k / 2));
-		linesHorizontal[k + 1].position = sf::Vector2f(window->getSize().x, tileSize * (k / 2));
+		linesHorizontal[k + 1].position = sf::Vector2f(vidMode.width, tileSize * (k / 2));
 	}
 
 	window->draw(linesVertical);

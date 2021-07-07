@@ -7,17 +7,17 @@ void Player::initVariables()
 {
 	objectType = Type::Player;
 	bullets.reserve(50);
-	shotRate = 14;
+	shotRate = 1;
 	cooldownCounter = 0;
 	cooldown = false;
 	frame = 0;
-	aniSpeed = 60;
+	aniSpeed = 25;
 	alive = true;
 	velocity = 15;
 	sway = 0;
-	maxHP = 3000;
+	maxHP = 10;
 	hp = maxHP;
-	maxBullets = 10;
+	maxBullets = 1000;
 	scale = 1.5;
 }
 
@@ -181,7 +181,7 @@ void Player::updateInput()
 
 	if (!moving)
 	{
-		if (sway > -.1 && sway < .1)
+		if (sway > -.3 && sway < .3)
 			sway = 0;
 		else
 			sway += (sway < 0) ? .5 : -.5;

@@ -19,7 +19,7 @@ void Bullet::initVariables()
 	target.y = -1;
 	scale = 1.5; ///2
 	baseDamage = 3;
-	velocity = 7;
+	velocity = 8;
 	sway = 0;
 }
 
