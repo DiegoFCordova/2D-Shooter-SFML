@@ -178,8 +178,16 @@ void Game::pollEvents()
 				ui->down();
 			else if (ev.key.code == sf::Keyboard::Enter)
 			{
-				if (ui->enter() == 0)
+				switch (ui->enter())
+				{
+				case 0:
 					state = GameState::Game;
+					break;
+				case 3:
+					window->close();
+				default:
+					break;
+				}
 			}
 
 
