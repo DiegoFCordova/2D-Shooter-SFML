@@ -1,7 +1,12 @@
 #include "Star.h"
 
 /*
- * Simple constructor to specify speed.
+ * Simple for Star.
+ * 
+ * @param x: X location.
+ * @param y: Y location.
+ * @param size: Size of the star.
+ * @param spd: Vertical speed.
  */
 Star::Star(int x, int y, int size, float spd)
 {
@@ -54,8 +59,7 @@ void Star::inverseSpeedFX()
 	resetFXs();
 }
 /*
- * After reaching certain point, starts
- * going in the oposite direction.
+ * Starts complex animation: Masa.
  */
 void Star::masaFX()
 {
@@ -64,6 +68,8 @@ void Star::masaFX()
 }
 /*
  * Complex animation goes here.
+ * 
+ * @param widthThird: 1 third of the window width.
  */
 void Star::masaAnimation(int widthThird)
 {
@@ -118,6 +124,11 @@ void Star::resetFXs()
 	sway = 0;
 }
 
+/*
+ * Updates star movements depending on parameters.
+ * 
+ * @param target: Window where it will be displayed.
+ */
 void Star::update(sf::RenderTarget& target)
 {
 	int widthThird = target.getSize().x / 3;
@@ -173,6 +184,9 @@ void Star::update(sf::RenderTarget& target)
 	}
 }
 
+/*
+ * Draws star onto window.
+ */
 void Star::render(sf::RenderTarget& target)
 {
 	target.draw(star);

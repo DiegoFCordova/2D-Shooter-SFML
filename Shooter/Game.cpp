@@ -9,7 +9,7 @@ void Game::initWindow()
 {
 	vidMode.width = 1600;
 	vidMode.height = 900;
-	window = new sf::RenderWindow(vidMode, "Demo", sf::Style::Titlebar | sf::Style::Close);
+	window = new sf::RenderWindow(vidMode, "Medjed", sf::Style::Titlebar | sf::Style::Close);
 	window->setFramerateLimit(60);
 }
 
@@ -18,15 +18,31 @@ void Game::initWindow()
  */
 void Game::initVars()
 {
-	state = GameState::MainMenu;
+	state = GameState::Opening;
 	debug = false;
 	tileSize = (float)(vidMode.width) / 32;	//For  16:9 ratio
-	starsSpeed = 5;
 
+	frame = 0;
 	enemySpawnRate = 25;
-	enemySpawnTimer = enemySpawnRate;
 	maxEnemies = 100;
 	score = 0;
+
+	//For Opening sequence
+	blackscreen.setSize(sf::Vector2<float>(vidMode.width, vidMode.height));
+	blackscreen.setFillColor(sf::Color(0, 0, 0, 255));
+	
+	if (!titleTex.loadFromFile("Sprites/Title.png"))
+	{
+		std::cout << "Error loading Title Sprite.\n";
+		return;
+	}
+
+	title.setTexture(titleTex);
+	title.setPosition(450, 100);
+	title.setColor(sf::Color(255, 255, 255, 128));
+
+	//For Main Menu
+	ui = new UI(700, 450);
 }
 
 /*
@@ -50,7 +66,7 @@ void Game::initStars()
 	{
 		int randX = (int)(rand() % vidMode.width),
 			randY = (int)(rand() % (vidMode.height));
-		stars.emplace_back(new Star(randX, -randY, tileSize / 10, 5));
+		stars.emplace_back(new Star(randX, randY, tileSize / 10, 5));
 	}
 }
 
@@ -89,6 +105,7 @@ Game::~Game()
 {
 	delete window;
 	delete player;
+	delete ui;
 	for (auto* e : enemies)
 		delete e;
 	for (auto* d : death)
@@ -111,8 +128,17 @@ const bool Game::running() const
 void Game::update()
 {
 	pollEvents();
+
+	if (state == GameState::Opening)
+	{
+		frame++;
+		if (frame == 127)
+			state = GameState::MainMenu;
+	}
+
 	//if(state == State::Game)
-		updateMobs();
+	updateMobs();
+
 	updateStars();
 
 	//-Debug
@@ -134,18 +160,32 @@ void Game::pollEvents()
 			window->close();
 			break;
 		case sf::Event::KeyPressed:
-			if (ev.key.code == sf::Keyboard::Escape)	//UI's Exit should trigger this
-				window->close();
+			if (ev.key.code == sf::Keyboard::Escape || ev.key.code == sf::Keyboard::BackSpace)	//UI's Exit should trigger this
+			{
+				if (ui->getState() == UI::MenuState::Main)
+					window->close();
+				else if (ui->getState() == UI::MenuState::Game)
+					state = GameState::PauseMenu;
+				ui->goBackTo();
+			}
 			//else if (ev.key.code == sf::Keyboard::Z)		///Za Warudo, pero mejor le bajamos la velocidad a todos los mobs?
 			//	window->setFramerateLimit(60);
+
+			//UI Controls
+			else if (ev.key.code == sf::Keyboard::W || ev.key.code == sf::Keyboard::Up)
+				ui->up();
+			else if (ev.key.code == sf::Keyboard::S || ev.key.code == sf::Keyboard::Down)
+				ui->down();
+			else if (ev.key.code == sf::Keyboard::Enter)
+			{
+				if (ui->enter() == 0)
+					state = GameState::Game;
+			}
+
 
 			///Debug quick dirty code
 			else if (ev.key.code == sf::Keyboard::Z)
 				debug = !debug;
-			else if (ev.key.code == sf::Keyboard::C)
-				starsSpeed--;
-			else if (ev.key.code == sf::Keyboard::V)
-				starsSpeed++;
 			else if (ev.key.code == sf::Keyboard::T)
 			{
 				for (auto* s : stars)
@@ -161,19 +201,17 @@ void Game::pollEvents()
 				for (auto* s : stars)
 					s->masaFX();
 			}
+			else if (ev.key.code == sf::Keyboard::F)
+			{
+				frame = 0;
+				state = GameState::Opening;
+			}
 			else if (ev.key.code == sf::Keyboard::Q)
 				enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % (vidMode.height/2)));
 			else if (ev.key.code == sf::Keyboard::E)
 				enemies.emplace_back(new Enemy(vidMode.width / 2, vidMode.height / 2));
 			else if (ev.key.code == sf::Keyboard::R)
 				death.emplace_back(new DeathAni(rand() % vidMode.width, rand() % vidMode.height, 10));
-			else if (ev.key.code == sf::Keyboard::F)
-				for (auto *e : enemies)
-				{
-					if(e->isActive())
-						e->attackTo(player->getPos().x, player->getPos().y);
-				}
-				break;
 		}
 	}
 }
@@ -195,10 +233,7 @@ void Game::updateMobs()
 	for (int k = 0; k < player->getBullets().size(); k++)
 	{
 		if (!player->getBullets()[k]->isActive())
-		{
-			delete player->getBullets()[k];
-			player->getBullets().erase(player->getBullets().begin() + k);
-		}
+			deleteBulletOf(player, k);
 
 		else
 		{
@@ -215,20 +250,15 @@ void Game::updateMobs()
 						death.emplace_back(new DeathAni(enemies[e]->getPos().x, enemies[e]->getPos().y, enemies[e]->getLargestSide()));
 						
 						if (enemies[e]->activeBullets() == 0)
-						{
-							delete enemies[e];
-							enemies.erase(enemies.begin() + e);
-						}
-
+							deleteMob(&enemies, enemies[e], e);
 						else
 							enemies[e]->setWaitForDisposal();
 						score++;
 					}
 
-					death.emplace_back(new DeathAni(player->getBullets()[k]->getPos().x, player->getBullets()[k]->getPos().y, player->getBullets()[k]->getLargestSide()*2, DeathAni::Type::Bullet));
-					delete player->getBullets()[k];
-					player->getBullets().erase(player->getBullets().begin() + k);
-
+					death.emplace_back(new DeathAni(player->getBullets()[k]->getPos().x, player->getBullets()[k]->getPos().y,
+														player->getBullets()[k]->getLargestSide()*2, DeathAni::Type::Bullet));
+					deleteBulletOf(player, k);
 					break;
 				}
 			}
@@ -239,10 +269,7 @@ void Game::updateMobs()
 	for (int e = 0; e < enemies.size(); e++)
 	{							//Check for dead and not bullets on field here.
 		if (!enemies[e]->isActive() && enemies[e]->activeBullets() == 0)
-		{
-			delete enemies[e];
-			enemies.erase(enemies.begin() + e);
-		}
+			deleteMob(&enemies, enemies[e], e);
 
 		else
 		{
@@ -251,10 +278,7 @@ void Game::updateMobs()
 			for (int k = 0; k < enemies[e]->getBullets().size(); k++)
 			{
 				if (!enemies[e]->getBullets()[k]->isActive())
-				{
-					delete enemies[e]->getBullets()[k];
-					enemies[e]->getBullets().erase(enemies[e]->getBullets().begin() + k);
-				}
+					deleteBulletOf(enemies[e], k);
 
 				else if (player->isActive() && player->bounds().intersects(enemies[e]->getBullets()[k]->bounds()))
 				{
@@ -266,36 +290,57 @@ void Game::updateMobs()
 						//Lifes--, respawn animations and such.
 					}
 
-					death.emplace_back(new DeathAni(enemies[e]->getBullets()[k]->getPos().x, enemies[e]->getBullets()[k]->getPos().y, enemies[e]->getBullets()[k]->getLargestSide() * 2, DeathAni::Type::Bullet));
+					death.emplace_back(new DeathAni(enemies[e]->getBullets()[k]->getPos().x, enemies[e]->getBullets()[k]->getPos().y,
+														enemies[e]->getBullets()[k]->getLargestSide() * 2, DeathAni::Type::Bullet));
 					death[death.size() - 1]->setColor();
-					delete enemies[e]->getBullets()[k];
-					enemies[e]->getBullets().erase(enemies[e]->getBullets().begin() + k);
+					deleteBulletOf(enemies[e], k);
 				}
 			}
 		}
 	}
 
+	//Loop for death animations.
 	for (int d = 0; d < death.size(); d++)
 	{
 		if (death[d]->isOver())
-		{
-			delete death[d];
-			death.erase(death.begin() + d);
-		}
+			deleteMob(&death, death[d], d);
 		else
 			death[d]->update(*window);
 	}
 }
+
 /*
- * Update stars and set them on top
- * when they reach the bottom.
+ * Method made to learn how to use templates
+ * and to save like 6 lines of code.
+ * 
+ * @param mobArray: vector of certain type.
+ * @param mob: Mob to be deleted from vector.
+ * @param index: Used to erase Mob from vector.
+ */
+template <typename T>
+void Game::deleteMob(std::vector<T*>* mobArray, T* mob, int index)
+{
+	delete mob;
+	mobArray->erase(mobArray->begin() + index);
+}
+
+/*
+ * Simlar as above, but this one is for Mob Bullets.
+ */
+void Game::deleteBulletOf(Mob* mob, int index)
+{
+	delete mob->getBullets()[index];
+	mob->getBullets().erase(mob->getBullets().begin() + index);
+}
+
+/*
+ * Update stars. The way they work is
+ * explained in Star class.
  */
 void Game::updateStars()
 {
 	for (auto* s : stars)
-	{
 		s->update(*window);
-	}
 }
 
 /*
@@ -304,6 +349,10 @@ void Game::updateStars()
  */
 void Game::render()
 {
+
+	//if (state == GameState::Opening)
+	//	window->clear(sf::Color(0, 0, 0, 255 - frame));
+
 	window->clear(sf::Color(30, 30, 30));
 	renderStars();
 	renderMobs();
@@ -314,6 +363,22 @@ void Game::render()
 		renderDebug(*window);
 		drawGrid();
 	}
+
+
+
+
+	ui->render(*window);
+
+	if (state == GameState::Opening)
+	{
+		window->draw(blackscreen);
+		blackscreen.setFillColor(sf::Color(0, 0, 0, 254 - (frame*2)));
+		title.setColor(sf::Color(255, 255, 255, 128 + frame));
+	}
+	if(ui->getState() == UI::MenuState::Main)
+		window->draw(title);
+
+
 
 	window->display();
 }
@@ -353,7 +418,16 @@ void Game::updateDebug()
 		<< "\nPlayer hp: " << player->getCurrentHP() << ", alive: " << player->isActive()
 		<< "\nWidth (Global): " << player->bounds().width
 		<< "\nHeight (Global): " << player->bounds().height
-		<< "\nSway: " << player->getSway();
+		<< "\nSway: " << player->getSway()
+		<< "\nFrame: " << frame
+		<< ((state == GameState::Opening) ? "\nState: Opening" :
+			(state == GameState::MainMenu) ? "\nState: Main Menu" : 
+			(state == GameState::Game) ? "\nState: Game" : "\nState: Pause Menu")
+		<< ((ui->getState() == UI::MenuState::Main) ? "\nUI State: Main" :
+			(ui->getState() == UI::MenuState::Controls) ? "\nUI State: Controls" :
+			(ui->getState() == UI::MenuState::Options) ? "\nUI State: Options" :
+			(ui->getState() == UI::MenuState::Pause) ? "\nUI State: Pause" : "\nUI State: Game");
+	//Main, Controls, Options, Pause
 
 	text.setString(str.str());
 

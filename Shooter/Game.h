@@ -11,10 +11,12 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Network.hpp>
 
+
+#include "DeathAni.h"
 #include "Player.h"
 #include "Enemy.h"
-#include "DeathAni.h"
 #include "Star.h"
+#include "UI.h"
 
 /* 
  * "Game Engine". Wrapper Class.
@@ -28,7 +30,7 @@ public:
 	///Will be used later for UI
 	enum class GameState
 	{
-		MainMenu, PauseMenu, Game
+		Opening, MainMenu, PauseMenu, Game
 	};
 
 private:
@@ -40,8 +42,9 @@ private:
 
 	//-Logic
 	float tileSize;
-	int enemySpawnTimer, enemySpawnRate,
-		maxEnemies, score, starsSpeed;
+	int enemySpawnRate,
+		maxEnemies, score,
+		frame;
 	bool debug;
 
 	//-Game Objects
@@ -49,6 +52,11 @@ private:
 	std::vector<Enemy*> enemies;
 	std::vector<DeathAni*> death;
 	std::vector<Star*> stars;
+	sf::RectangleShape blackscreen;
+
+	sf::Texture titleTex;
+	sf::Sprite title;
+	UI* ui;
 
 	//-Debug
 	sf::Font font;
@@ -69,6 +77,11 @@ public:
 
 	//-Getters
 	const bool running() const;
+
+	//-Functions
+	template <typename T>
+	void deleteMob(std::vector<T*>* mobArray, T* mob, int index);
+	void deleteBulletOf(Mob* mob, int index);
 
 	//-Draw Components
 	void update();

@@ -40,7 +40,6 @@ void Bullet::initSprite()
 
 	sprite.setTexture(*textures[0]);
 	sprite.scale(scale, scale);
-	sprite.setPosition(200, 200);
 }
 
 /*
