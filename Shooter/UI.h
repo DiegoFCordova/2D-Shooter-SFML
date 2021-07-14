@@ -1,11 +1,6 @@
 #pragma once
 
-#include <sstream>
-#include <vector>
 #include <string>
-#include <iostream>
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
 
 #include "Bullet.h"
 
@@ -21,13 +16,14 @@ public:
 	};
 
 private:
-	std::vector<sf::Text*> texts;
+	std::vector<sf::Text*> textsMain, textsOptions, textsPause;
 	sf::Texture ptrTex, rulesTex;
 	sf::Sprite pointer, rules;
 	sf::Font font;
 	sf::Text t;
 	MenuState state;
 	int choice;
+	bool inGame;
 
 	void init();
 
@@ -38,13 +34,14 @@ public:
 	UI(float x, float y);
 	~UI();
 
-	void hightlight();
+	void hightlight(const std::vector<sf::Text*>& t);
 	void setMenuMode(MenuState s);
 	void goBackTo();
 
 	void up();
 	void down();
 	int enter();
+	bool isInGame();
 
 	UI::MenuState getState() const;
 

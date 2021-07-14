@@ -183,7 +183,10 @@ void Game::pollEvents()
 				case 0:
 					state = GameState::Game;
 					break;
-				case 3:
+				case 2:
+					state = GameState::MainMenu;
+					break;
+				case -1:
 					window->close();
 				default:
 					break;
