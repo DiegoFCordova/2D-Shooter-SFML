@@ -82,6 +82,7 @@ public:
 	template <typename T>
 	void deleteMob(std::vector<T*>* mobArray, T* mob, int index);
 	void deleteBulletOf(Mob* mob, int index);
+	bool skipOpening();
 
 	//-Draw Components
 	void update();

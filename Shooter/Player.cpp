@@ -14,6 +14,7 @@ void Player::initVariables()
 	aniSpeed = 25;
 	alive = true;
 	velocity = 15;
+	shotSpeed = 8;
 	sway = 0;
 	maxHP = 10;
 	hp = maxHP;
@@ -78,10 +79,22 @@ bool Player::isActive() const
 	return alive;
 }
 
-/// Delete later
-float Player::getSway()
+/*
+ * @return shotSpeed of Player.
+ */
+float Player::getShotSpeed() const
 {
-	return sway;
+	return shotSpeed;
+}
+
+/*
+ * Sets shotSpeed to s.
+ * 
+ * @param s: new shotSpeed value.
+ */
+void Player::setShotSpeed(float s)
+{
+	shotSpeed = s;
 }
 
 /*
@@ -196,7 +209,8 @@ void Player::updateInput()
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 		if (canAttack())
 		{
-			bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y - sprite.getGlobalBounds().height / 2));
+			bullets.emplace_back(new Bullet(sprite.getPosition().x, 
+				sprite.getPosition().y - sprite.getGlobalBounds().height / 2, shotSpeed, continum));
 			bullets[bullets.size() - 1]->setSway(sway);
 		}
 }

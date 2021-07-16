@@ -65,6 +65,24 @@ Bullet::Bullet(float x, float y, Type t)
 	}
 }
 
+Bullet::Bullet(float x, float y, short shotSpeed, Loop l, Type t)
+{
+	initVariables();
+	initSprite();
+	sprite.setPosition(x, y - sprite.getGlobalBounds().height / 2);
+
+	sprite.setOrigin(sprite.getOrigin().x + (sprite.getLocalBounds().width / 2), sprite.getOrigin().y + (sprite.getLocalBounds().height / 2));
+
+	velocity = shotSpeed;
+	loop = l;
+
+	if (t == Type::Enemy)
+	{
+		isEnemy = true;
+		setColor();
+	}
+}
+
 /*
  * Destructor for pointers if needed.
  */
@@ -197,6 +215,16 @@ void Bullet::setAngle(float destX, float destY)
 void Bullet::setSway(float s)
 {
 	sway = s;
+}
+
+/*
+ * Sets looping ability to bullet.
+ * 
+ * @param l: new state for Loop.
+ */
+void Bullet::setLoop(Loop l)
+{
+	loop = l;
 }
 
 /*

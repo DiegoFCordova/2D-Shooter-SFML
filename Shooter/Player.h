@@ -11,6 +11,7 @@
 class Player : public Mob
 {
 private:
+	float shotSpeed;
 	bool alive;
 
 	void initVariables();  
@@ -23,11 +24,10 @@ public:
 	virtual ~Player();
 
 	bool isActive() const override;
-
-	///Delete later
-	float getSway();
+	float getShotSpeed() const;
 
 	//-Setters
+	void setShotSpeed(float s);
 
 	//-Functions
 	void takeDamage(float dmg) override;

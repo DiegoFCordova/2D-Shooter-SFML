@@ -173,23 +173,155 @@ void Game::pollEvents()
 
 			//UI Controls
 			else if (ev.key.code == sf::Keyboard::W || ev.key.code == sf::Keyboard::Up)
-				ui->up();
+			{
+				if (!skipOpening())
+					ui->up();
+			}
 			else if (ev.key.code == sf::Keyboard::S || ev.key.code == sf::Keyboard::Down)
-				ui->down();
+			{
+				if (!skipOpening())
+					ui->down();
+			}
+
+			else if (ev.key.code == sf::Keyboard::D || ev.key.code == sf::Keyboard::Right)
+			{
+				if (ui->getState() == UI::MenuState::Options)
+				{
+					switch (ui->getChoice())
+					{
+					case 0:
+						switch (ui->getDifficulty())
+						{
+						case UI::Difficulty::Easy:
+							ui->optionSet(1);
+							break;
+						case UI::Difficulty::Normal:
+							ui->optionSet(2);
+							break;
+						case UI::Difficulty::Merciless:
+							ui->optionSet(0);
+							break;
+						default:
+							break;
+						}
+						break;
+					case 1:
+						player->setShotRate(ui->optionSet(player->getShotRate() + 1));
+						break;
+					case 2:
+						player->setShotSpeed(ui->optionSet(player->getShotSpeed() + 1));
+						break;
+					case 3:
+						player->setVelocity(ui->optionSet(player->getVelocity() + 1));
+						break;
+					case 4:
+						switch (player->getContinum())
+						{
+						case Bullet::Loop::None:
+							ui->optionSet(1);
+							player->setContinum(Bullet::Loop::Horizontal);
+							break;
+						case Bullet::Loop::Horizontal:
+							ui->optionSet(2);
+							player->setContinum(Bullet::Loop::Vertical);
+							break;
+						case Bullet::Loop::Vertical:
+							ui->optionSet(3);
+							player->setContinum(Bullet::Loop::All);
+							break;
+						case Bullet::Loop::All:
+							ui->optionSet(0);
+							player->setContinum(Bullet::Loop::None);
+							break;
+						default:
+							break;
+						}
+						break;
+					case 5:
+						enemySpawnRate = ui->optionSet(enemySpawnRate + 1);
+					default:
+						break;
+					}
+				}
+			}
+			else if (ev.key.code == sf::Keyboard::A || ev.key.code == sf::Keyboard::Left)
+			{
+				if (ui->getState() == UI::MenuState::Options)
+				{
+					switch (ui->getChoice())
+					{
+					case 0:
+						switch (ui->getDifficulty())
+						{
+						case UI::Difficulty::Easy:
+							ui->optionSet(2);
+							break;
+						case UI::Difficulty::Normal:
+							ui->optionSet(0);
+							break;
+						case UI::Difficulty::Merciless:
+							ui->optionSet(1);
+							break;
+						default:
+							break;
+						}
+						break;
+					case 1:
+						player->setShotRate(ui->optionSet(player->getShotRate() - 1));
+						break;
+					case 2:
+						player->setShotSpeed(ui->optionSet(player->getShotSpeed() - 1));
+						break;
+					case 3:
+						player->setVelocity(ui->optionSet(player->getVelocity() - 1));
+						break;
+					case 4:
+						switch (player->getContinum())
+						{
+						case Bullet::Loop::None:
+							ui->optionSet(3);
+							player->setContinum(Bullet::Loop::All);
+							break;
+						case Bullet::Loop::Horizontal:
+							ui->optionSet(0);
+							player->setContinum(Bullet::Loop::None);
+							break;
+						case Bullet::Loop::Vertical:
+							ui->optionSet(1);
+							player->setContinum(Bullet::Loop::Horizontal);
+							break;
+						case Bullet::Loop::All:
+							ui->optionSet(2);
+							player->setContinum(Bullet::Loop::Vertical);
+							break;
+						default:
+							break;
+						}
+						break;
+					case 5:
+						enemySpawnRate = ui->optionSet(enemySpawnRate + 1);
+					default:
+						break;
+					}
+				}
+			}
 			else if (ev.key.code == sf::Keyboard::Enter)
 			{
-				switch (ui->enter())
+				if (!skipOpening())
 				{
-				case 0:
-					state = GameState::Game;
-					break;
-				case 2:
-					state = GameState::MainMenu;
-					break;
-				case -1:
-					window->close();
-				default:
-					break;
+					switch (ui->enter())
+					{
+					case 0:
+						state = GameState::Game;
+						break;
+					case 2:
+						state = GameState::MainMenu;
+						break;
+					case -1:
+						window->close();
+					default:
+						break;
+					}
 				}
 			}
 
@@ -342,6 +474,25 @@ void Game::deleteBulletOf(Mob* mob, int index)
 {
 	delete mob->getBullets()[index];
 	mob->getBullets().erase(mob->getBullets().begin() + index);
+}
+
+/*
+ * Quick method to save lines.
+ * Returns true if state is Opening
+ * and skips it.
+ * Else, return false.
+ */
+bool Game::skipOpening()
+{
+	if (state == GameState::Opening)
+	{
+		frame = 127;
+		title.setColor(sf::Color(255, 255, 255, 255));
+		state = GameState::MainMenu;
+		return true;
+	}
+
+	return false;
 }
 
 /*

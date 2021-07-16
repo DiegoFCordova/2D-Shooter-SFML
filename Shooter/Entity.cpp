@@ -32,3 +32,39 @@ sf::FloatRect Entity::bounds() const
 {
 	return sprite.getGlobalBounds();
 }
+
+/*
+ * @return Entity velocity.
+ */
+float Entity::getVelocity() const
+{
+	return velocity;
+}
+
+/*
+ * @return sway of Entity
+ */
+float Entity::getSway() const
+{
+	return sway;
+}
+
+/*
+ * Sets velocity to given param.
+ * 
+ * @param v: new Velocity.
+ */
+void Entity::setVelocity(float v)
+{
+	velocity = v;
+}
+
+/*
+ * Set sway to given parameter.
+ * 
+ * @param s: new value for sway.
+ */
+void Entity::setSway(float s)
+{
+	sway = s;
+}

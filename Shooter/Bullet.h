@@ -29,6 +29,7 @@ private:
 
 public:
 	Bullet(float x, float y, Type t = Type::Player);
+	Bullet(float x, float y, short shotSpeed, Loop l, Type t = Type::Player);
 	~Bullet();
 
 	//-Getter
@@ -45,6 +46,7 @@ public:
 	void setColor(float r = -1, float g = -1, float b = -1, float alpha = 0);
 	void setAngle(float destX, float destY);
 	void setSway(float s);
+	void setLoop(Loop l);
 
 	//-Draw components
 	void update(sf::RenderTarget& target) override;

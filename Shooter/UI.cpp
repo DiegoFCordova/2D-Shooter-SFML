@@ -9,6 +9,7 @@ void UI::init()
 	}
 
 	state = MenuState::Main;
+	diff = Difficulty::Normal;
 	inGame = false;
 
 	choice = 0;
@@ -18,19 +19,27 @@ void UI::init()
 	textsMain.emplace_back(new sf::Text("Options", font, 70));
 	textsMain.emplace_back(new sf::Text("Quit", font, 70));
 
-	textsOptions.emplace_back(new sf::Text("Difficulty", font, 70));
-	textsOptions.emplace_back(new sf::Text("Shot Rate", font, 70));
+	for(int k = 0; k < 6; k++)
+		textsOptions.emplace_back(new sf::Text("Option Placeholder", font, 70));
+	/*textsOptions.emplace_back(new sf::Text("Shot Rate", font, 70));
 	textsOptions.emplace_back(new sf::Text("Shot Speed", font, 70));
 	textsOptions.emplace_back(new sf::Text("Movement Speed", font, 70));
 	textsOptions.emplace_back(new sf::Text("Continuum", font, 70));
-	textsOptions.emplace_back(new sf::Text("Shot Speed", font, 70));
+	textsOptions.emplace_back(new sf::Text("E-Spawn Rate", font, 70));*/
+	optionBase[0] = "Difficulty";
+	optionBase[1] = "Shot Rate";
+	optionBase[2] = "Shot Speed";
+	optionBase[3] = "Movement Speed";
+	optionBase[4] = "Continum";
+	optionBase[5] = "E-Spawn Rate";
+
 
 	textsPause.emplace_back(new sf::Text("Continue", font, 70));
 	textsPause.emplace_back(new sf::Text("Options", font, 70));
 	textsPause.emplace_back(new sf::Text("Return to Main Menu", font, 70));
 
-	//for (int k = 0; k < textsMain.size(); k++)
-	//	textsMain[k]->setFillColor(sf::Color(180, 180, 180));
+	pause = new sf::Text("Pause", font, 210);
+	pause->move(510, 75);
 
 	if (!ptrTex.loadFromFile("Sprites/BulletNormal.png"))
 	{
@@ -91,6 +100,7 @@ UI::~UI()
 		delete to;
 	for (auto* tp : textsPause)
 		delete tp;
+	delete pause;
 }
 
 /*
@@ -146,6 +156,12 @@ void UI::goBackTo()
 	else if (state == UI::MenuState::Game)
 	{
 		state = MenuState::Pause;
+		hightlight(textsPause);
+	}
+	else if (state == UI::MenuState::Pause)
+	{
+		state = MenuState::Game;
+		choice = 0;
 		hightlight(textsPause);
 	}
 }
@@ -239,7 +255,7 @@ int UI::enter()
 			state = MenuState::Main;
 			choice = 0;
 			inGame = false;
-			//Signal to reset game.
+			///Signal to reset game.
 			hightlight(textsMain);
 			break;
 		default:
@@ -247,6 +263,78 @@ int UI::enter()
 		}
 	}
 	return ret;
+}
+
+int UI::optionSet(int num)
+{
+	std::stringstream str;
+	str << optionBase[choice] << "\t\t\t";
+
+
+	switch (choice)
+	{
+	case 0:
+		switch (num) 
+		{
+		case 0:
+			str << "Easy";
+			textsOptions[choice]->setString(str.str());
+			diff = Difficulty::Easy;
+			return 0;
+		case 1:
+			str << "Normal";
+			textsOptions[choice]->setString(str.str());
+			diff = Difficulty::Normal;
+			return 1;
+		case 2:
+			str << "Merciless";
+			textsOptions[choice]->setString(str.str());
+			diff = Difficulty::Merciless;
+			return 2;
+		default:
+			std::cout << "Issue with UI.optionSet, Difficulty Choice.\n";
+			break;
+		}
+		break;
+	case 1: case 2: case 3: case 5:
+		if (num < 1)
+			num = 1;
+		str << num;
+		textsOptions[choice]->setString(str.str());
+		return num;
+		std::cout << "Should never get to here.\n";
+		break;
+	case 4:
+		switch (num)
+		{
+		case 0:
+			str << "None";
+			textsOptions[choice]->setString(str.str());
+			return 0;
+		case 1:
+			str << "Horizontal"; 
+			textsOptions[choice]->setString(str.str());
+			return 1;
+		case 2:
+			str << "Vertical"; 
+			textsOptions[choice]->setString(str.str());
+			return 2;
+		case 3:
+			str << "All";
+			textsOptions[choice]->setString(str.str());
+			return 3;
+		default:
+			std::cout << "Issue with UI.optionSet, Continnum Choice.\n";
+			break;
+		}
+		break;
+	default:
+		std::cout << "Issue with UI.optionSet, Choice.\n";
+		return -1;
+	}
+
+	//Just to check
+	std::cout << str.str() << "\n";
 }
 
 /* @return inGame boolean */
@@ -261,6 +349,19 @@ bool UI::isInGame()
 UI::MenuState UI::getState() const
 {
 	return state;
+}
+
+UI::Difficulty UI::getDifficulty() const
+{
+	return diff;
+}
+
+/*
+ * @return choice/index.
+ */
+int UI::getChoice() const
+{
+	return choice;
 }
 
 /*
@@ -292,12 +393,7 @@ void UI::render(sf::RenderTarget& target)
 			target.draw(*t);
 		break;
 	case UI::MenuState::Pause:
-		///vector of 3 strings and a png.
-		/*
-		Pause.png
-		for(tex last)
-		draw tex
-		 */
+		target.draw(*pause);
 		for (auto* t : textsPause)
 			target.draw(*t);
 		target.draw(pointer);

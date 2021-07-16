@@ -1,8 +1,9 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 
-#include "Bullet.h"
+#include "Player.h"
 
 /*
  * Class for in-game UI.
@@ -15,13 +16,20 @@ public:
 		Main, Controls, Options, Pause, Game
 	};
 
+	enum class Difficulty
+	{
+		Easy, Normal, Merciless
+	};
+
 private:
 	std::vector<sf::Text*> textsMain, textsOptions, textsPause;
 	sf::Texture ptrTex, rulesTex;
 	sf::Sprite pointer, rules;
 	sf::Font font;
-	sf::Text t;
+	sf::Text* pause;
+	std::string optionBase[6];
 	MenuState state;
+	Difficulty diff;
 	int choice;
 	bool inGame;
 
@@ -41,9 +49,12 @@ public:
 	void up();
 	void down();
 	int enter();
+	int optionSet(int num);			///, Game::GameState gstate);
 	bool isInGame();
 
 	UI::MenuState getState() const;
+	UI::Difficulty getDifficulty() const;
+	int getChoice() const;
 
 	void update(sf::RenderTarget& target);
 	void render(sf::RenderTarget& target);

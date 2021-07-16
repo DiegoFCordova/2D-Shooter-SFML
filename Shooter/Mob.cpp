@@ -11,6 +11,16 @@ std::vector<Bullet*>& Mob::getBullets()
 	return bullets;
 }
 
+/*
+ * Get continum state of mob.
+ * 
+ * @return Bullet::Loop state.
+ */
+Bullet::Loop Mob::getContinum() const
+{
+	return continum;
+}
+
 /* @return Remaining HP of mob. */
 float Mob::getCurrentHP() const
 {
@@ -29,6 +39,13 @@ short Mob::getMaxHP() const
 int Mob::activeBullets() const
 {
 	return bullets.size();
+}
+/*
+ * @return shotRate of mob.
+ */
+short Mob::getShotRate() const
+{
+	return shotRate;
 }
 
 /*
@@ -65,6 +82,26 @@ bool Mob::canAttack()
 		cooldownCounter = 0;
 		return true;
 	}
+}
+
+/*
+ * Sets Mob continum to certain state.
+ * 
+ * @param l: new Bullet::Loop state.
+ */
+void Mob::setContinum(Bullet::Loop l)
+{
+	continum = l;
+}
+
+/*
+ * Sets shotRate to n.
+ * 
+ * @param n: new shotRate.
+ */
+void Mob::setShotRate(short n)
+{
+	shotRate = n;
 }
 
 /*

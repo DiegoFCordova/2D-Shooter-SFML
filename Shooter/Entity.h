@@ -41,6 +41,12 @@ public:
 	float getLargestSide() const;
 	sf::Vector2<float> getPos() const;
 	sf::FloatRect bounds() const;
+	float getVelocity() const;
+	float getSway() const;
+
+	//Setters
+	void setVelocity(float v);
+	void setSway(float s);
 
 	//Draw Components
 	virtual void update(sf::RenderTarget& target) = 0;
