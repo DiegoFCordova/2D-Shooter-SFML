@@ -6,6 +6,7 @@
 void Player::initVariables()
 {
 	objectType = Type::Player;
+	continum = Bullet::Loop::None;
 	bullets.reserve(50);
 	shotRate = 1;
 	cooldownCounter = 0;

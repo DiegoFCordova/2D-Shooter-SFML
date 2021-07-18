@@ -14,7 +14,7 @@ class Mob : public Entity
 protected:
 	std::vector <Bullet*> bullets;
 	Bullet::Loop continum;
-	float hp;
+	float hp, shotSpeed;
 	short maxHP, maxBullets, shotRate, cooldownCounter,
 		frame, aniSpeed;
 	bool cooldown;

@@ -21,17 +21,13 @@ void UI::init()
 
 	for(int k = 0; k < 6; k++)
 		textsOptions.emplace_back(new sf::Text("Option Placeholder", font, 70));
-	/*textsOptions.emplace_back(new sf::Text("Shot Rate", font, 70));
-	textsOptions.emplace_back(new sf::Text("Shot Speed", font, 70));
-	textsOptions.emplace_back(new sf::Text("Movement Speed", font, 70));
-	textsOptions.emplace_back(new sf::Text("Continuum", font, 70));
-	textsOptions.emplace_back(new sf::Text("E-Spawn Rate", font, 70));*/
+
 	optionBase[0] = "Difficulty";
-	optionBase[1] = "Shot Rate";
-	optionBase[2] = "Shot Speed";
-	optionBase[3] = "Movement Speed";
-	optionBase[4] = "Continum";
-	optionBase[5] = "E-Spawn Rate";
+	optionBase[1] = "Shot Rate    ";
+	optionBase[2] = "Shot Speed   ";
+	optionBase[3] = "Player Speed ";
+	optionBase[4] = "Continum  ";
+	optionBase[5] = "E-Spawn Rate ";
 
 
 	textsPause.emplace_back(new sf::Text("Continue", font, 70));
@@ -265,30 +261,42 @@ int UI::enter()
 	return ret;
 }
 
-int UI::optionSet(int num)
+/*
+ * Method to update Options depending
+ * on given value c that represents index
+ * of textsOptions array.
+ * (c default = -98, if so, c = choice)
+ * 
+ * @param num: Updated value for at index.
+ * @param c: Specify which index gets 
+ *				updated with num value.
+ */
+int UI::optionSet(int num, int c)
 {
 	std::stringstream str;
-	str << optionBase[choice] << "\t\t\t";
+	if (c == -98)
+		c = choice;
+	str << optionBase[c] << "\t\t\t";
 
 
-	switch (choice)
+	switch (c)
 	{
 	case 0:
 		switch (num) 
 		{
-		case 0:
+		case 0: case 3:
 			str << "Easy";
-			textsOptions[choice]->setString(str.str());
+			textsOptions[c]->setString(str.str());
 			diff = Difficulty::Easy;
 			return 0;
 		case 1:
 			str << "Normal";
-			textsOptions[choice]->setString(str.str());
+			textsOptions[c]->setString(str.str());
 			diff = Difficulty::Normal;
 			return 1;
-		case 2:
+		case 2: case -1:
 			str << "Merciless";
-			textsOptions[choice]->setString(str.str());
+			textsOptions[c]->setString(str.str());
 			diff = Difficulty::Merciless;
 			return 2;
 		default:
@@ -300,28 +308,28 @@ int UI::optionSet(int num)
 		if (num < 1)
 			num = 1;
 		str << num;
-		textsOptions[choice]->setString(str.str());
+		textsOptions[c]->setString(str.str());
 		return num;
 		std::cout << "Should never get to here.\n";
 		break;
 	case 4:
 		switch (num)
 		{
-		case 0:
+		case 0: case 4:
 			str << "None";
-			textsOptions[choice]->setString(str.str());
+			textsOptions[c]->setString(str.str());
 			return 0;
 		case 1:
 			str << "Horizontal"; 
-			textsOptions[choice]->setString(str.str());
+			textsOptions[c]->setString(str.str());
 			return 1;
 		case 2:
 			str << "Vertical"; 
-			textsOptions[choice]->setString(str.str());
+			textsOptions[c]->setString(str.str());
 			return 2;
-		case 3:
+		case 3: case -1:
 			str << "All";
-			textsOptions[choice]->setString(str.str());
+			textsOptions[c]->setString(str.str());
 			return 3;
 		default:
 			std::cout << "Issue with UI.optionSet, Continnum Choice.\n";

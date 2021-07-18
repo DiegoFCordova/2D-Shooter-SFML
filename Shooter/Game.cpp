@@ -26,23 +26,6 @@ void Game::initVars()
 	enemySpawnRate = 25;
 	maxEnemies = 100;
 	score = 0;
-
-	//For Opening sequence
-	blackscreen.setSize(sf::Vector2<float>(vidMode.width, vidMode.height));
-	blackscreen.setFillColor(sf::Color(0, 0, 0, 255));
-	
-	if (!titleTex.loadFromFile("Sprites/Title.png"))
-	{
-		std::cout << "Error loading Title Sprite.\n";
-		return;
-	}
-
-	title.setTexture(titleTex);
-	title.setPosition(450, 100);
-	title.setColor(sf::Color(255, 255, 255, 128));
-
-	//For Main Menu
-	ui = new UI(700, 450);
 }
 
 /*
@@ -85,6 +68,31 @@ void Game::initText()
 	text.setCharacterSize(tileSize*.85);
 	text.setFillColor(sf::Color(218, 218, 218));
 	text.setString("TEXT GOES HERE");
+
+	//For Opening sequence
+	blackscreen.setSize(sf::Vector2<float>(vidMode.width, vidMode.height));
+	blackscreen.setFillColor(sf::Color(0, 0, 0, 255));
+
+	if (!titleTex.loadFromFile("Sprites/Title.png"))
+	{
+		std::cout << "Error loading Title Sprite.\n";
+		return;
+	}
+
+	title.setTexture(titleTex);
+	title.setPosition(450, 100);
+	title.setColor(sf::Color(255, 255, 255, 128));
+
+	//For Main Menu
+	ui = new UI(700, 450);
+
+	ui->optionSet((int)ui->getDifficulty(), 0);
+	ui->optionSet(player->getShotRate(), 1);
+	ui->optionSet(player->getShotSpeed(), 2);
+	ui->optionSet(player->getVelocity(), 3);
+	ui->optionSet((int)player->getContinum(), 4);
+	ui->optionSet(enemySpawnRate, 5);
+
 }
 
 
@@ -95,8 +103,8 @@ Game::Game()
 {
 	initWindow();
 	initVars();
-	initText();
 	initMobs();
+	initText();
 	initStars();
 }
 
@@ -190,20 +198,7 @@ void Game::pollEvents()
 					switch (ui->getChoice())
 					{
 					case 0:
-						switch (ui->getDifficulty())
-						{
-						case UI::Difficulty::Easy:
-							ui->optionSet(1);
-							break;
-						case UI::Difficulty::Normal:
-							ui->optionSet(2);
-							break;
-						case UI::Difficulty::Merciless:
-							ui->optionSet(0);
-							break;
-						default:
-							break;
-						}
+						ui->optionSet((int)ui->getDifficulty() + 1);
 						break;
 					case 1:
 						player->setShotRate(ui->optionSet(player->getShotRate() + 1));
@@ -215,22 +210,19 @@ void Game::pollEvents()
 						player->setVelocity(ui->optionSet(player->getVelocity() + 1));
 						break;
 					case 4:
+						ui->optionSet((int)player->getContinum() + 1);
 						switch (player->getContinum())
 						{
 						case Bullet::Loop::None:
-							ui->optionSet(1);
-							player->setContinum(Bullet::Loop::Horizontal);
+							player->setContinum((Bullet::Loop)((int)player->getContinum()+1));// Bullet::Loop::Horizontal);
 							break;
 						case Bullet::Loop::Horizontal:
-							ui->optionSet(2);
 							player->setContinum(Bullet::Loop::Vertical);
 							break;
 						case Bullet::Loop::Vertical:
-							ui->optionSet(3);
 							player->setContinum(Bullet::Loop::All);
 							break;
 						case Bullet::Loop::All:
-							ui->optionSet(0);
 							player->setContinum(Bullet::Loop::None);
 							break;
 						default:
@@ -251,20 +243,7 @@ void Game::pollEvents()
 					switch (ui->getChoice())
 					{
 					case 0:
-						switch (ui->getDifficulty())
-						{
-						case UI::Difficulty::Easy:
-							ui->optionSet(2);
-							break;
-						case UI::Difficulty::Normal:
-							ui->optionSet(0);
-							break;
-						case UI::Difficulty::Merciless:
-							ui->optionSet(1);
-							break;
-						default:
-							break;
-						}
+						ui->optionSet((int)ui->getDifficulty() - 1);
 						break;
 					case 1:
 						player->setShotRate(ui->optionSet(player->getShotRate() - 1));
@@ -276,22 +255,19 @@ void Game::pollEvents()
 						player->setVelocity(ui->optionSet(player->getVelocity() - 1));
 						break;
 					case 4:
+						ui->optionSet((int)player->getContinum() - 1);
 						switch (player->getContinum())
 						{
 						case Bullet::Loop::None:
-							ui->optionSet(3);
 							player->setContinum(Bullet::Loop::All);
 							break;
 						case Bullet::Loop::Horizontal:
-							ui->optionSet(0);
 							player->setContinum(Bullet::Loop::None);
 							break;
 						case Bullet::Loop::Vertical:
-							ui->optionSet(1);
 							player->setContinum(Bullet::Loop::Horizontal);
 							break;
 						case Bullet::Loop::All:
-							ui->optionSet(2);
 							player->setContinum(Bullet::Loop::Vertical);
 							break;
 						default:
@@ -299,7 +275,7 @@ void Game::pollEvents()
 						}
 						break;
 					case 5:
-						enemySpawnRate = ui->optionSet(enemySpawnRate + 1);
+						enemySpawnRate = ui->optionSet(enemySpawnRate - 1);
 					default:
 						break;
 					}

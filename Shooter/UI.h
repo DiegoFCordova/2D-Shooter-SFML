@@ -49,7 +49,7 @@ public:
 	void up();
 	void down();
 	int enter();
-	int optionSet(int num);			///, Game::GameState gstate);
+	int optionSet(int num, int c = -98);			///, Game::GameState gstate);
 	bool isInGame();
 
 	UI::MenuState getState() const;

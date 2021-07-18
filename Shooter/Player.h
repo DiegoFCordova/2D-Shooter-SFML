@@ -11,7 +11,6 @@
 class Player : public Mob
 {
 private:
-	float shotSpeed;
 	bool alive;
 
 	void initVariables();  

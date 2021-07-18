@@ -6,6 +6,7 @@
 void Enemy::initVariables()
 {
 	objectType = Type::Enemy;
+	continum = Bullet::Loop::None;
 	bullets.reserve(10);
 	hp = 10;
 	frame = 0;
@@ -14,6 +15,7 @@ void Enemy::initVariables()
 	cooldown = false;
 	maxBullets = 100;
 	shotRate = (int)(rand()%10) + 20;
+	shotSpeed = 16;
 	state = State::Alive;
 }
 
@@ -124,7 +126,9 @@ void Enemy::attackTo(float dstX, float dstY)
 	{
 		int offsetX = (int)(rand() % 100) - 50,
 			offsetY = (int)(rand() % 100) - 50;
-		bullets.emplace_back(new Bullet(sprite.getPosition().x, sprite.getPosition().y + sprite.getGlobalBounds().height / 2, objectType));
+
+		bullets.emplace_back(new Bullet(sprite.getPosition().x,
+			sprite.getPosition().y + sprite.getGlobalBounds().height / 2, shotSpeed, continum, objectType));
 		Mob::attackTo(dstX + offsetX, dstY + offsetY);
 	}
 }
