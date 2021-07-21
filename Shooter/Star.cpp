@@ -16,6 +16,7 @@ Star::Star(int x, int y, int size, float spd)
 	speed = oriSpd;
 	sway = 0;
 	lap = true;
+	readyToChange = false;
 	frame = 0;
 	frameDelay = (int)(rand() % 100);
 
@@ -57,6 +58,7 @@ void Star::inverseSpeedFX()
 {
 	effect = FX::InverseSpeed;
 	resetFXs();
+	readyToChange = true;
 }
 /*
  * Starts complex animation: Masa.
@@ -74,6 +76,10 @@ void Star::masaFX()
 void Star::masaAnimation(int widthThird)
 {
 	frame++;
+	
+	if(frame > 440)
+		readyToChange = true;
+
 	if (frame > 120 + frameDelay && speed > -(oriSpd * 2))
 		speed -= .2;
 
@@ -108,6 +114,7 @@ void Star::normalFX()
 {
 	effect = FX::Normal;
 	resetFXs();
+	readyToChange = true;
 }
 
 /*
@@ -120,8 +127,25 @@ void Star::resetFXs()
 	star.setOutlineThickness(0);
 	loop = Loop::Normal;
 	lap = true; 
+	readyToChange = false;
 	frame = 0;
 	sway = 0;
+}
+
+/*
+ * @return Current FX state of Star.
+ */
+Star::FX Star::getFX() const
+{
+	return effect;
+}
+
+/*
+ * @return True if animation is ready to change.
+ */
+bool Star::isReadyToChange() const
+{
+	return readyToChange;
 }
 
 /*

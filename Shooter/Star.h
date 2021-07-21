@@ -30,7 +30,9 @@ private:
 	int oriAlp, alpha,
 		frame, frameDelay;
 	short r, g, b;
-	bool lap;
+	bool lap, readyToChange;
+
+	void masaAnimation(int widthThird);
 
 public:
 	Star(int x, int y, int size, float spd);
@@ -38,9 +40,11 @@ public:
 
 	void inverseSpeedFX();
 	void masaFX();
-	void masaAnimation(int widthThird);
 	void normalFX();
 	void resetFXs();
+
+	Star::FX getFX() const;
+	bool isReadyToChange() const;
 
 	void update(sf::RenderTarget& target);
 	void render(sf::RenderTarget& target);

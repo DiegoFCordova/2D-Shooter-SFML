@@ -21,6 +21,7 @@ public:
 private:
 	//-Attributes
 	sf::Vector2<float> target;
+	sf::Vector2<short> loopLimit, loopCounter;
 	Loop loop;
 	bool active, isEnemy;
 
@@ -33,6 +34,8 @@ public:
 	~Bullet();
 
 	//-Getter
+	sf::Vector2<short> getLoopLimit() const;
+	sf::Vector2<short> getLoopCounter() const;
 	bool isActive() const override;
 	sf::Vector2<float> getTarget() const;
 
@@ -41,6 +44,8 @@ public:
 	void deactivate();
 	void setTarget(float x, float y);
 	void setVelocity(float x, float y);
+	void setLoopLimit(sf::Vector2<short> n);
+	void setLoopCounter(sf::Vector2<short> n);
 
 	//-Functions
 	void setColor(float r = -1, float g = -1, float b = -1, float alpha = 0);

@@ -21,6 +21,10 @@ void Bullet::initVariables()
 	baseDamage = 3;
 	velocity = 8;
 	sway = 0;
+	loopLimit.x = 4;
+	loopLimit.y = 1;
+	loopCounter.x = 0;
+	loopCounter.y = 0;
 }
 
 /*
@@ -93,6 +97,22 @@ Bullet::~Bullet()
 }
 
 /*
+ * @return Limit of how many times can a bullet loop.
+ */
+sf::Vector2<short> Bullet::getLoopLimit() const
+{
+	return loopLimit;
+}
+
+/*
+ * @return Number of loops a bulled have made so far.
+ */
+sf::Vector2<short> Bullet::getLoopCounter() const
+{
+	return loopCounter;
+}
+
+/*
  * @return true if active is true.
  */
 bool Bullet::isActive() const
@@ -143,6 +163,22 @@ void Bullet::setVelocity(float x, float y)
 {
 	velocity = y;
 	sway = x;
+}
+
+/*
+ * @param n: new value for LoopLimit.
+ */
+void Bullet::setLoopLimit(sf::Vector2<short> n)
+{
+	loopLimit = n;
+}
+
+/*
+ * @param n: new value for LoopCounter.
+ */
+void Bullet::setLoopCounter(sf::Vector2<short> n)
+{
+	loopCounter = n;
 }
 
 /*
@@ -244,7 +280,10 @@ void Bullet::update(sf::RenderTarget& target)
 
 		if (y < 0 - height/2)
 		{
-			if (loop == Loop::Vertical || loop == Loop::All)
+			if (loopCounter.y != -1)
+				loopCounter.y++;
+
+			if ((loop == Loop::Vertical || loop == Loop::All) && loopCounter.y <= loopLimit.y)
 				sprite.setPosition(x, targetHeight + height / 2);
 			else
 				active = false;
@@ -252,21 +291,30 @@ void Bullet::update(sf::RenderTarget& target)
 
 		else if (y > targetHeight + height / 2)
 		{
-			if (loop == Loop::Vertical || loop == Loop::All)
+			if (loopCounter.y != -1)
+				loopCounter.y++;
+
+			if ((loop == Loop::Vertical || loop == Loop::All) && loopCounter.y <= loopLimit.y)
 				sprite.setPosition(x, 0 - height / 2);
 			else
 				active = false;
 		}
 		else if (x < 0 - width/2)
 		{
-			if (loop == Loop::Horizontal || loop == Loop::All)
+			if (loopCounter.x != -1)
+				loopCounter.x++;
+
+			if ((loop == Loop::Horizontal || loop == Loop::All) && loopCounter.x <= loopLimit.x)
 				sprite.setPosition(targetWidth + width/2, y);
 			else
 				active = false;
 		}
 		else if (x > targetWidth + width / 2)
 		{
-			if (loop == Loop::Horizontal || loop == Loop::All)
+			if (loopCounter.x != -1)
+				loopCounter.x++;
+
+			if ((loop == Loop::Horizontal || loop == Loop::All) && loopCounter.x <= loopLimit.x)
 				sprite.setPosition(0 - width/2, y);
 			else
 				active = false;

@@ -144,8 +144,8 @@ void Game::update()
 			state = GameState::MainMenu;
 	}
 
-	//if(state == State::Game)
-	updateMobs();
+	if(state == GameState::Game)
+		updateMobs();
 
 	updateStars();
 
@@ -477,6 +477,24 @@ bool Game::skipOpening()
  */
 void Game::updateStars()
 {
+	if (ui->getDifficulty() == UI::Difficulty::Merciless && stars[0]->getFX() != Star::FX::Masa)
+	{
+		for (auto* s : stars)
+			s->masaFX();
+	}
+	else if (ui->getDifficulty() == UI::Difficulty::Normal && 
+				stars[0]->getFX() != Star::FX::Normal && stars[0]->isReadyToChange())
+	{
+		for (auto* s : stars)
+			s->normalFX();
+	}
+	else if (ui->getDifficulty() == UI::Difficulty::Easy && 
+				stars[0]->getFX() != Star::FX::InverseSpeed && stars[0]->isReadyToChange())
+	{
+		for (auto* s : stars)
+			s->inverseSpeedFX();
+	}
+
 	for (auto* s : stars)
 		s->update(*window);
 }
@@ -493,17 +511,9 @@ void Game::render()
 
 	window->clear(sf::Color(30, 30, 30));
 	renderStars();
-	renderMobs();
 
-	//Debug
-	if (debug)
-	{
-		renderDebug(*window);
-		drawGrid();
-	}
-
-
-
+	if(state == GameState::Game || state == GameState::PauseMenu)
+		renderMobs();
 
 	ui->render(*window);
 
@@ -513,10 +523,13 @@ void Game::render()
 		blackscreen.setFillColor(sf::Color(0, 0, 0, 254 - (frame*2)));
 		title.setColor(sf::Color(255, 255, 255, 128 + frame));
 	}
+
 	if(ui->getState() == UI::MenuState::Main)
 		window->draw(title);
 
-
+	//Debug
+	if (debug)
+		renderDebug(*window);
 
 	window->display();
 }
@@ -564,7 +577,11 @@ void Game::updateDebug()
 		<< ((ui->getState() == UI::MenuState::Main) ? "\nUI State: Main" :
 			(ui->getState() == UI::MenuState::Controls) ? "\nUI State: Controls" :
 			(ui->getState() == UI::MenuState::Options) ? "\nUI State: Options" :
-			(ui->getState() == UI::MenuState::Pause) ? "\nUI State: Pause" : "\nUI State: Game");
+			(ui->getState() == UI::MenuState::Pause) ? "\nUI State: Pause" : "\nUI State: Game")
+		<< ((ui->getDifficulty() == UI::Difficulty::Easy) ? "\nDifficulty: Easy" :
+			(ui->getDifficulty() == UI::Difficulty::Normal) ? "\nDifficulty: Normal" : "\nDifficulty: Merciless")
+		<< ((stars[0]->getFX() == Star::FX::Normal) ? "\nStar Pattern: Normal" : 
+			(stars[0]->getFX() == Star::FX::InverseSpeed) ? "\nStar Pattern: Invert" : "\nStar Pattern: Masa");
 	//Main, Controls, Options, Pause
 
 	text.setString(str.str());
@@ -584,6 +601,7 @@ void Game::updateDebug()
 void Game::renderDebug(sf::RenderTarget& target)
 {
 	target.draw(text);
+	drawGrid();
 }
 
 /*
