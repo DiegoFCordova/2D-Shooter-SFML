@@ -29,6 +29,7 @@ public:
 	void setShotSpeed(float s);
 
 	//-Functions
+	void resetMob() override;
 	void takeDamage(float dmg) override;
 	void attackTo(float dstX, float dstY) override;
 

@@ -53,6 +53,36 @@ void Game::initStars()
 	}
 }
 
+/*
+ * Primarily used when going back to Main
+ * Menu. Resets Player stats and removes all enemies.
+ */
+void Game::resetMobs()
+{
+	player->resetMob();
+	player->setPos(sf::Vector2<float>(tileSize * 16, tileSize * 15));
+	score = 0;
+	refreshUI();
+	enemies.clear();
+}
+
+/*
+ * Refreshes UI parts that interact with Player.
+ */
+void Game::refreshUI()
+{
+	ui->optionSet((int)ui->getDifficulty(), 0);
+	ui->optionSet(player->getShotRate(), 1);
+	ui->optionSet(player->getShotSpeed(), 2);
+	ui->optionSet(player->getVelocity(), 3);
+	ui->optionSet((int)player->getContinum(), 4);
+	ui->optionSet(player->getLoopLimit().y, 5);
+	ui->optionSet(enemySpawnRate, 6);
+
+	ui->updateGameScores(0, score);
+	ui->updateGameScores(1, player->getCurrentHP());
+}
+
 /* Debugging.
  * Initializes font for text.
  */
@@ -86,13 +116,7 @@ void Game::initText()
 	//For Main Menu
 	ui = new UI(700, 450);
 
-	ui->optionSet((int)ui->getDifficulty(), 0);
-	ui->optionSet(player->getShotRate(), 1);
-	ui->optionSet(player->getShotSpeed(), 2);
-	ui->optionSet(player->getVelocity(), 3);
-	ui->optionSet((int)player->getContinum(), 4);
-	ui->optionSet(enemySpawnRate, 5);
-
+	refreshUI();
 }
 
 
@@ -230,7 +254,11 @@ void Game::pollEvents()
 						}
 						break;
 					case 5:
+						player->setLoopLimit(sf::Vector2<short>(-1, ui->optionSet(player->getLoopLimit().y + 1)));
+						break;
+					case 6:
 						enemySpawnRate = ui->optionSet(enemySpawnRate + 1);
+						break;
 					default:
 						break;
 					}
@@ -275,7 +303,11 @@ void Game::pollEvents()
 						}
 						break;
 					case 5:
+						player->setLoopLimit(sf::Vector2<short>(-1, ui->optionSet(player->getLoopLimit().y - 1)));
+						break;
+					case 6:
 						enemySpawnRate = ui->optionSet(enemySpawnRate - 1);
+						break;
 					default:
 						break;
 					}
@@ -283,7 +315,7 @@ void Game::pollEvents()
 			}
 			else if (ev.key.code == sf::Keyboard::Enter)
 			{
-				if (!skipOpening())
+				if (!skipOpening() && (ui->getState() == UI::MenuState::Main || ui->getState() == UI::MenuState::Pause))
 				{
 					switch (ui->enter())
 					{
@@ -292,6 +324,7 @@ void Game::pollEvents()
 						break;
 					case 2:
 						state = GameState::MainMenu;
+						resetMobs();
 						break;
 					case -1:
 						window->close();
@@ -326,11 +359,13 @@ void Game::pollEvents()
 				state = GameState::Opening;
 			}
 			else if (ev.key.code == sf::Keyboard::Q)
-				enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % (vidMode.height/2)));
+				enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % (vidMode.height/2), ui->getDifficulty()));
 			else if (ev.key.code == sf::Keyboard::E)
-				enemies.emplace_back(new Enemy(vidMode.width / 2, vidMode.height / 2));
+				enemies.emplace_back(new Enemy(vidMode.width / 2, vidMode.height / 2, ui->getDifficulty()));
 			else if (ev.key.code == sf::Keyboard::R)
 				death.emplace_back(new DeathAni(rand() % vidMode.width, rand() % vidMode.height, 10));
+			else if (ev.key.code == sf::Keyboard::L)
+				resetMobs();
 		}
 	}
 }
@@ -372,7 +407,7 @@ void Game::updateMobs()
 							deleteMob(&enemies, enemies[e], e);
 						else
 							enemies[e]->setWaitForDisposal();
-						score++;
+						score = ui->updateGameScores(0, score + 5);
 					}
 
 					death.emplace_back(new DeathAni(player->getBullets()[k]->getPos().x, player->getBullets()[k]->getPos().y,
@@ -402,11 +437,12 @@ void Game::updateMobs()
 				else if (player->isActive() && player->bounds().intersects(enemies[e]->getBullets()[k]->bounds()))
 				{
 					player->takeDamage(enemies[e]->damageDealt(k));
+					ui->updateGameScores(1, player->getCurrentHP());
 
 					if (!player->isActive())
 					{
 						death.emplace_back(new DeathAni(player->getPos().x, player->getPos().y, player->getLargestSide(), DeathAni::Type::Player));
-						//Lifes--, respawn animations and such.
+						///Lifes--, respawn animations and such. Death Sequence starts here
 					}
 
 					death.emplace_back(new DeathAni(enemies[e]->getBullets()[k]->getPos().x, enemies[e]->getBullets()[k]->getPos().y,

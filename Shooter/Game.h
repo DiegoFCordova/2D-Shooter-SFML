@@ -67,6 +67,8 @@ private:
 	void initWindow();
 	void initMobs();
 	void initStars();
+	void resetMobs();
+	void refreshUI();
 
 	//-Debug
 	void initText();

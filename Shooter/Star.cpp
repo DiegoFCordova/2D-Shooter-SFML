@@ -16,7 +16,7 @@ Star::Star(int x, int y, int size, float spd)
 	speed = oriSpd;
 	sway = 0;
 	lap = true;
-	readyToChange = false;
+	readyToChange = true;
 	frame = 0;
 	frameDelay = (int)(rand() % 100);
 
@@ -58,7 +58,6 @@ void Star::inverseSpeedFX()
 {
 	effect = FX::InverseSpeed;
 	resetFXs();
-	readyToChange = true;
 }
 /*
  * Starts complex animation: Masa.
@@ -67,6 +66,7 @@ void Star::masaFX()
 {
 	effect = FX::Masa;
 	resetFXs();
+	readyToChange = false;
 }
 /*
  * Complex animation goes here.
@@ -85,7 +85,7 @@ void Star::masaAnimation(int widthThird)
 
 	else if (frame == 120 + frameDelay)
 	{
-		star.setFillColor(sf::Color(73, 0, 142, 255));
+		star.setFillColor(sf::Color(73, 0, 142, 155));
 		star.setOutlineThickness(1);
 		star.setOutlineColor(sf::Color(74, 0, 68));
 		speed -= .2;
@@ -114,7 +114,6 @@ void Star::normalFX()
 {
 	effect = FX::Normal;
 	resetFXs();
-	readyToChange = true;
 }
 
 /*
@@ -125,9 +124,10 @@ void Star::resetFXs()
 	alpha = oriAlp;
 	star.setFillColor(sf::Color(r, g, b, alpha));
 	star.setOutlineThickness(0);
+	star.setScale(1, 1);
 	loop = Loop::Normal;
 	lap = true; 
-	readyToChange = false;
+	readyToChange = true;
 	frame = 0;
 	sway = 0;
 }
@@ -189,6 +189,7 @@ void Star::update(sf::RenderTarget& target)
 			{
 				star.setPosition((int)(rand() % target.getSize().x), (int)(rand() % target.getSize().y));
 				lap = false;
+				star.setScale(sf::Vector2<float>(2, 2));
 			}
 			speed = oriSpd;
 		}

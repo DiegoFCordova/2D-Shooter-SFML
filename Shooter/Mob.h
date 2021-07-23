@@ -14,6 +14,7 @@ class Mob : public Entity
 protected:
 	std::vector <Bullet*> bullets;
 	Bullet::Loop continum;
+	sf::Vector2<short> loopLimit;
 	float hp, shotSpeed;
 	short maxHP, maxBullets, shotRate, cooldownCounter,
 		frame, aniSpeed;
@@ -23,6 +24,7 @@ public:
 	//Getter
 	std::vector<Bullet*>& getBullets();
 	Bullet::Loop getContinum() const;
+	sf::Vector2<short> getLoopLimit() const;
 	float getCurrentHP() const;
 	short getMaxHP() const;
 	int activeBullets() const;
@@ -33,7 +35,9 @@ public:
 	bool canAttack();
 	void setContinum(Bullet::Loop l);
 	void setShotRate(short n);
+	void setLoopLimit(sf::Vector2<short> n);
 
+	virtual void resetMob() = 0;
 	virtual void takeDamage(float dmg) = 0;
 	virtual void attackTo(float dstX, float dstY);
 };

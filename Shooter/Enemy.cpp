@@ -7,15 +7,16 @@ void Enemy::initVariables()
 {
 	objectType = Type::Enemy;
 	continum = Bullet::Loop::None;
-	bullets.reserve(10);
-	hp = 10;
+	bullets.reserve(50);
+	maxHP = 10;
+	hp = maxHP;
 	frame = 0;
 	aniSpeed = 25;
-	maxHP = (int) hp;
 	cooldown = false;
 	maxBullets = 100;
 	shotRate = (int)(rand()%10) + 20;
-	shotSpeed = 16;
+	shotSpeed = 12;
+	shotOffset = 100;
 	state = State::Alive;
 }
 
@@ -65,6 +66,50 @@ Enemy::Enemy(float x, float y)
 }
 
 /*
+ * Sets Enemy fireRate and some more depending
+ * on game difficulty.
+ * 
+ * @param x: x coordinate.
+ * @param y: y coordinate.
+ * @param diff: Current game difficulty.
+ */
+Enemy::Enemy(float x, float y, UI::Difficulty diff)
+{
+	initVariables();
+	initSprite();
+
+	switch (diff)
+	{
+	case UI::Difficulty::Easy:
+		shotRate += 120 + (int)(rand() % 50);
+		maxHP = 5;
+		hp = maxHP;
+		shotSpeed = 8;
+		shotOffset = 10;
+		sprite.setColor(sf::Color::Yellow);
+		break;
+	//case UI::Difficulty::Normal:
+	//	sprite.setColor(sf::Color::Yellow);
+	//	break;
+	case UI::Difficulty::Merciless:
+		shotRate -= 10;
+		maxHP = 25;
+		hp = maxHP;
+		shotSpeed = 16;
+		shotOffset = 200;
+		sprite.setColor(sf::Color(150, 0, 255));
+
+		break;
+	default:
+		break;
+	}
+
+	sprite.setOrigin(sprite.getOrigin().x + (sprite.getLocalBounds().width / 2), sprite.getOrigin().y + (sprite.getLocalBounds().height / 2));
+
+	sprite.setPosition(x, y);
+}
+
+/*
  * Destructor for pointers if needed.
  */
 Enemy::~Enemy()
@@ -82,6 +127,27 @@ Enemy::~Enemy()
 bool Enemy::isActive() const
 {
 	return (state == State::Alive);
+}
+
+/*
+ * Reset Mob values and delete all bullets.
+ */
+void Enemy::resetMob()
+{
+	bullets.clear();
+
+	continum = Bullet::Loop::None;
+	bullets.reserve(50);
+	maxHP = 10;
+	hp = maxHP;
+	frame = 0;
+	aniSpeed = 25;
+	cooldown = false;
+	maxBullets = 100;
+	shotRate = (int)(rand() % 10) + 20;		///The extra int might change due to difficulty.
+	shotSpeed = 16;
+	shotOffset = 100;
+	state = State::Alive;
 }
 
 /*
@@ -124,8 +190,8 @@ void Enemy::attackTo(float dstX, float dstY)
 {
 	if (canAttack())
 	{
-		int offsetX = (int)(rand() % 100) - 50,
-			offsetY = (int)(rand() % 100) - 50;
+		int offsetX = (int)(rand() % shotOffset) - (shotOffset / 2),
+			offsetY = (int)(rand() % shotOffset) - (shotOffset / 2);
 
 		bullets.emplace_back(new Bullet(sprite.getPosition().x,
 			sprite.getPosition().y + sprite.getGlobalBounds().height / 2, shotSpeed, continum, objectType));

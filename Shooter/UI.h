@@ -22,12 +22,13 @@ public:
 	};
 
 private:
-	std::vector<sf::Text*> textsMain, textsOptions, textsPause;
+	std::vector<sf::Text*> textsMain, textsOptions, 
+		textsPause, textsGame;
 	sf::Texture ptrTex, rulesTex;
 	sf::Sprite pointer, rules;
 	sf::Font font;
 	sf::Text* pause;
-	std::string optionBase[6];
+	std::string optionBase[7], gameBase[2];
 	MenuState state;
 	Difficulty diff;
 	int choice;
@@ -49,7 +50,8 @@ public:
 	void up();
 	void down();
 	int enter();
-	int optionSet(int num, int c = -98);			///, Game::GameState gstate);
+	int optionSet(int num, int c = -98);
+	int updateGameScores(int ind, int val);
 	bool isInGame();
 
 	UI::MenuState getState() const;

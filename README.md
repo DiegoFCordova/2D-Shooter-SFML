@@ -6,12 +6,6 @@ Been fun so far.
 
 To-do list:
 
-	-Add bullet Wrap limit to Options (-1 = infinite, max = 20)
-			
-	-Probably add Hud for UI "Game" state with player stats
-			
-	-Reset Mobs when quitting game
-
 	-Player respawn
 			
 	-Making the game fps independent
@@ -25,5 +19,7 @@ To-do list:
 	-Sway (Like continum) will be a power up
 			
 	-Make Gold Center the hitbox of player
+	
+	-Try HashMap for small collition detection
 			
 	-Add Drag to make movement smooth

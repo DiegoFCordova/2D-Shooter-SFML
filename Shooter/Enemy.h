@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Mob.h"
+#include "UI.h"
 
 /*
  * Base enemy class for mobs.
@@ -32,6 +33,7 @@ public:
 private:
 	///Mostly for initial, don't forget there is already x and y in sprite
 	State state;
+	int shotOffset;
 
 	void initVariables();
 	void initSprite();
@@ -39,12 +41,14 @@ private:
 public:
 	Enemy();
 	Enemy(float x, float y);
+	Enemy(float x, float y, UI::Difficulty diff);
 	~Enemy();
 
 	//-Getters
 	bool isActive() const override;
 
 	//-Functions
+	void resetMob() override;
 	void takeDamage(float dmg) override;
 	void setWaitForDisposal();
 	void attackTo(float dstX, float dstY) override;

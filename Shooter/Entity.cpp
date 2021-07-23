@@ -68,3 +68,13 @@ void Entity::setSway(float s)
 {
 	sway = s;
 }
+
+/*
+ * Sets new position for sprite.
+ * 
+ * @param pos: x and y coordinate.
+ */
+void Entity::setPos(sf::Vector2<float> pos)
+{
+	sprite.setPosition(pos.x, pos.y);
+}

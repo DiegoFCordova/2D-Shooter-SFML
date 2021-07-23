@@ -21,6 +21,14 @@ Bullet::Loop Mob::getContinum() const
 	return continum;
 }
 
+/*
+ * @return Limit of how many times can a Mob's bullet loop.
+ */
+sf::Vector2<short> Mob::getLoopLimit() const
+{
+	return loopLimit;
+}
+
 /* @return Remaining HP of mob. */
 float Mob::getCurrentHP() const
 {
@@ -102,6 +110,14 @@ void Mob::setContinum(Bullet::Loop l)
 void Mob::setShotRate(short n)
 {
 	shotRate = n;
+}
+
+/*
+ * @param n: new value for LoopLimit.
+ */
+void Mob::setLoopLimit(sf::Vector2<short> n)
+{
+	loopLimit = n;
 }
 
 /*

@@ -16,6 +16,8 @@ void Player::initVariables()
 	alive = true;
 	velocity = 15;
 	shotSpeed = 8;
+	loopLimit.x = -1;
+	loopLimit.y = 4;
 	sway = 0;
 	maxHP = 10;
 	hp = maxHP;
@@ -96,6 +98,31 @@ float Player::getShotSpeed() const
 void Player::setShotSpeed(float s)
 {
 	shotSpeed = s;
+}
+
+/*
+ * Reset Mob values and delete all bullets.
+ */
+void Player::resetMob()
+{
+	bullets.clear();
+
+	continum = Bullet::Loop::None;
+	shotRate = 1;
+	cooldownCounter = 0;
+	cooldown = false;
+	frame = 0;
+	aniSpeed = 25;
+	alive = true;
+	velocity = 15;
+	shotSpeed = 8;
+	loopLimit.x = -1;
+	loopLimit.y = 4;
+	sway = 0;
+	maxHP = 10;
+	hp = maxHP;
+	maxBullets = 1000;
+	scale = 1.5;
 }
 
 /*
@@ -213,6 +240,7 @@ void Player::updateInput()
 			bullets.emplace_back(new Bullet(sprite.getPosition().x, 
 				sprite.getPosition().y - sprite.getGlobalBounds().height / 2, shotSpeed, continum));
 			bullets[bullets.size() - 1]->setSway(sway);
+			bullets[bullets.size() - 1]->setLoopLimit(sf::Vector2<short>(loopLimit.x, loopLimit.y));
 		}
 }
 

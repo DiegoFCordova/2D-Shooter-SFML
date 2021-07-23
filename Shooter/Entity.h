@@ -47,6 +47,7 @@ public:
 	//Setters
 	void setVelocity(float v);
 	void setSway(float s);
+	void setPos(sf::Vector2<float> pos);
 
 	//Draw Components
 	virtual void update(sf::RenderTarget& target) = 0;

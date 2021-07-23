@@ -19,16 +19,20 @@ void UI::init()
 	textsMain.emplace_back(new sf::Text("Options", font, 70));
 	textsMain.emplace_back(new sf::Text("Quit", font, 70));
 
-	for(int k = 0; k < 6; k++)
+	for(int k = 0; k < 7; k++)
 		textsOptions.emplace_back(new sf::Text("Option Placeholder", font, 70));
+	optionBase[0] = "Difficulty     ";
+	optionBase[1] = "Shot Rate         ";
+	optionBase[2] = "Shot Speed        ";
+	optionBase[3] = "Player Speed      ";
+	optionBase[4] = "Continum       ";
+	optionBase[5] = "Bullet Loop Limit ";
+	optionBase[6] = "E-Spawn Rate      ";
 
-	optionBase[0] = "Difficulty";
-	optionBase[1] = "Shot Rate    ";
-	optionBase[2] = "Shot Speed   ";
-	optionBase[3] = "Player Speed ";
-	optionBase[4] = "Continum  ";
-	optionBase[5] = "E-Spawn Rate ";
-
+	for (int k = 0; k < 2; k++)
+		textsGame.emplace_back(new sf::Text("Option Placeholder", font, 70));
+	gameBase[0] = "Score: ";
+	gameBase[1] = "HP: ";
 
 	textsPause.emplace_back(new sf::Text("Continue", font, 70));
 	textsPause.emplace_back(new sf::Text("Options", font, 70));
@@ -80,6 +84,10 @@ UI::UI(float x, float y)
 	textsOptions[3]->setPosition(x - 650, y - 180);
 	textsOptions[4]->setPosition(x - 650, y - 100);
 	textsOptions[5]->setPosition(x - 650, y - 20);
+	textsOptions[6]->setPosition(x - 650, y + 60);
+
+	textsGame[0]->setPosition(x - 680, y - 450);
+	textsGame[1]->setPosition(x - 680, y + 360);
 
 	textsPause[0]->setPosition(x - 52, y - 20);
 	textsPause[1]->setPosition(x - 30, y + 60);
@@ -96,6 +104,8 @@ UI::~UI()
 		delete to;
 	for (auto* tp : textsPause)
 		delete tp;
+	for (auto* tg : textsGame)
+		delete tg;
 	delete pause;
 }
 
@@ -276,7 +286,7 @@ int UI::optionSet(int num, int c)
 	std::stringstream str;
 	if (c == -98)
 		c = choice;
-	str << optionBase[c] << "\t\t\t";
+	str << optionBase[c] << "\t\t";
 
 
 	switch (c)
@@ -304,13 +314,29 @@ int UI::optionSet(int num, int c)
 			break;
 		}
 		break;
-	case 1: case 2: case 3: case 5:
+	case 1: case 2: case 3: case 6:
 		if (num < 1)
 			num = 1;
 		str << num;
 		textsOptions[c]->setString(str.str());
 		return num;
 		std::cout << "Should never get to here.\n";
+		break;
+	case 5:
+		if (num < 0)
+		{
+			num = -1;
+			str << "Infinite";
+		}
+		else
+		{
+			if (num > 20)
+				num = 20;
+			str << num;
+		}
+		textsOptions[c]->setString(str.str());
+		return num;
+		std::cout << "Bullet Loop Limit Option buggy..\n";
 		break;
 	case 4:
 		switch (num)
@@ -340,15 +366,39 @@ int UI::optionSet(int num, int c)
 		std::cout << "Issue with UI.optionSet, Choice.\n";
 		return -1;
 	}
-
-	//Just to check
-	std::cout << str.str() << "\n";
 }
 
 /* @return inGame boolean */
 bool UI::isInGame()
 {
 	return inGame;
+}
+
+/*
+ * Updates index of textsGame with given val.
+ * 
+ * @param ind: index of textsGame.
+ * @paran val: value to display.
+ */
+int UI::updateGameScores(int ind, int val)
+{
+	std::stringstream str;
+	str << gameBase[ind];
+
+	switch (ind)
+	{
+	case 0: case 1:
+		if (val < 1)
+			val = 0;
+		str << val;
+		textsGame[ind]->setString(str.str());
+		return val;
+		break;
+	default:
+		break;
+	}
+	
+	return 0;
 }
 
 /*
@@ -405,6 +455,10 @@ void UI::render(sf::RenderTarget& target)
 		for (auto* t : textsPause)
 			target.draw(*t);
 		target.draw(pointer);
+		break;
+	case UI::MenuState::Game:
+		for (auto* t : textsGame)
+			target.draw(*t);
 		break;
 	default:
 		break;
