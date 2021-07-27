@@ -11,7 +11,6 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Network.hpp>
 
-
 #include "DeathAni.h"
 #include "Player.h"
 #include "Enemy.h"
@@ -44,7 +43,7 @@ private:
 	float tileSize;
 	int enemySpawnRate,
 		maxEnemies, score,
-		frame;
+		openingFrame, ticks, reviveTicks;
 	bool debug;
 
 	//-Game Objects
@@ -88,10 +87,11 @@ public:
 
 	//-Draw Components
 	void update();
+	void updateTimer();
 	void pollEvents();
 	void updateMobs();	///Need reworking
 	void updateStars();	///Might rename to UI when other stuffs are added
-	
+		
 	void render();
 	void renderMobs();	///Need to add something to it
 	void renderStars();

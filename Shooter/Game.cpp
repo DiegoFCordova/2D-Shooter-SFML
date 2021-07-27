@@ -22,9 +22,10 @@ void Game::initVars()
 	debug = false;
 	tileSize = (float)(vidMode.width) / 32;	//For  16:9 ratio
 
-	frame = 0;
-	enemySpawnRate = 25;
-	maxEnemies = 100;
+	ticks = 0;
+	openingFrame = 0;
+	enemySpawnRate = 70;
+	maxEnemies = 20;
 	score = 0;
 }
 
@@ -96,7 +97,7 @@ void Game::initText()
 
 	text.setFont(font);
 	text.setCharacterSize(tileSize*.85);
-	text.setFillColor(sf::Color(218, 218, 218));
+	text.setFillColor(sf::Color(218, 218, 218, 250));
 	text.setString("TEXT GOES HERE");
 
 	//For Opening sequence
@@ -159,12 +160,17 @@ const bool Game::running() const
  */
 void Game::update()
 {
+	ticks++;
+
+	if(state == GameState::Game)
+		updateTimer();
+
 	pollEvents();
 
 	if (state == GameState::Opening)
 	{
-		frame++;
-		if (frame == 127)
+		openingFrame++;
+		if (openingFrame == 127)
 			state = GameState::MainMenu;
 	}
 
@@ -175,6 +181,42 @@ void Game::update()
 
 	//-Debug
 	updateDebug();
+}
+
+/*
+ * Updates frames to keep track of logic and
+ * events.
+ */
+void Game::updateTimer()
+{
+	if (!player->isActive())
+	{
+		reviveTicks++;
+		if (reviveTicks == 100)
+		{
+			///Revive player with invul stat
+			///Set position to origin
+			///Remove 1 life
+			/// Add text for duration of wait (Text will depend if infinite lifes or not)
+			///		If no lifes left, change text at last few frames saying GAME OVER
+			///		(Maybe add HighScore file)
+			/// Add max lifes to Options
+			/// Give player almost double speed + halves fire rate if possible
+			/// 
+			player->resetMob();
+			reviveTicks = 0;
+		}
+	}
+
+	//Enemy auto-shoot.
+	for (auto* e : enemies)
+	{
+		if (e->isActive() && player->isActive())
+			e->attackTo(player->getPos().x, player->getPos().y);
+	}
+
+	if(ticks % enemySpawnRate == 0 && enemies.size() < maxEnemies && player->isActive())
+		enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % (vidMode.height / 2), ui->getDifficulty()));
 }
 
 /*
@@ -355,7 +397,7 @@ void Game::pollEvents()
 			}
 			else if (ev.key.code == sf::Keyboard::F)
 			{
-				frame = 0;
+				openingFrame = 0;
 				state = GameState::Opening;
 			}
 			else if (ev.key.code == sf::Keyboard::Q)
@@ -382,6 +424,8 @@ void Game::pollEvents()
 void Game::updateMobs()
 {
 	player->update(*window);
+	if (player->isActive())
+		player->updateInput();
 
 	//Loop for player bullets against enemies
 	for (int k = 0; k < player->getBullets().size(); k++)
@@ -442,6 +486,7 @@ void Game::updateMobs()
 					if (!player->isActive())
 					{
 						death.emplace_back(new DeathAni(player->getPos().x, player->getPos().y, player->getLargestSide(), DeathAni::Type::Player));
+						
 						///Lifes--, respawn animations and such. Death Sequence starts here
 					}
 
@@ -498,7 +543,7 @@ bool Game::skipOpening()
 {
 	if (state == GameState::Opening)
 	{
-		frame = 127;
+		openingFrame = 127;
 		title.setColor(sf::Color(255, 255, 255, 255));
 		state = GameState::MainMenu;
 		return true;
@@ -508,8 +553,8 @@ bool Game::skipOpening()
 }
 
 /*
- * Update stars. The way they work is
- * explained in Star class.
+ * Update stars. Also makes changes
+ * when updating difficulty.
  */
 void Game::updateStars()
 {
@@ -517,6 +562,7 @@ void Game::updateStars()
 	{
 		for (auto* s : stars)
 			s->masaFX();
+		enemySpawnRate = 45;
 	}
 	else if (ui->getDifficulty() == UI::Difficulty::Normal && 
 				stars[0]->getFX() != Star::FX::Normal && stars[0]->isReadyToChange())
@@ -529,10 +575,15 @@ void Game::updateStars()
 	{
 		for (auto* s : stars)
 			s->inverseSpeedFX();
+		enemySpawnRate = 150;
 	}
 
-	for (auto* s : stars)
-		s->update(*window);
+		for (auto* s : stars)
+		{
+			if (player->isActive())
+				s->update(*window);
+			s->blinkFX(ticks);
+		}
 }
 
 /*
@@ -556,8 +607,8 @@ void Game::render()
 	if (state == GameState::Opening)
 	{
 		window->draw(blackscreen);
-		blackscreen.setFillColor(sf::Color(0, 0, 0, 254 - (frame*2)));
-		title.setColor(sf::Color(255, 255, 255, 128 + frame));
+		blackscreen.setFillColor(sf::Color(0, 0, 0, 254 - (openingFrame *2)));
+		title.setColor(sf::Color(255, 255, 255, 128 + openingFrame));
 	}
 
 	if(ui->getState() == UI::MenuState::Main)
@@ -597,7 +648,7 @@ void Game::updateDebug()
 {
 	std::stringstream str;
 
-	str << "Score:" << score
+	str << "\Ticks: " << ticks
 		<< "\nX: " << player->getPos().x << " Y: " << player->getPos().y
 		<< "\nBullets: " << player->activeBullets()
 		<< "\nEnemies: " << enemies.size()
@@ -606,7 +657,7 @@ void Game::updateDebug()
 		<< "\nWidth (Global): " << player->bounds().width
 		<< "\nHeight (Global): " << player->bounds().height
 		<< "\nSway: " << player->getSway()
-		<< "\nFrame: " << frame
+		<< "\nOpeningFrame: " << openingFrame
 		<< ((state == GameState::Opening) ? "\nState: Opening" :
 			(state == GameState::MainMenu) ? "\nState: Main Menu" : 
 			(state == GameState::Game) ? "\nState: Game" : "\nState: Pause Menu")
@@ -621,16 +672,6 @@ void Game::updateDebug()
 	//Main, Controls, Options, Pause
 
 	text.setString(str.str());
-
-
-	///Trash code to check all enemies shooting per c frames.
-
-		for (auto* e : enemies)
-		{
-			if(e->isActive())
-				e->attackTo(player->getPos().x, player->getPos().y);
-		}
-		//enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % vidMode.height));
 }
 
 /* Render debug components after update is done */

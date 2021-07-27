@@ -25,6 +25,7 @@ void DeathAni::init()
 		break;
 	
 	case DeathAni::Type::Player:
+		aniSpeed = 6;
 		path << "Sprites/ShipDeath";
 		loadTextures(6, path);
 		break;

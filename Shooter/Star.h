@@ -43,6 +43,8 @@ public:
 	void normalFX();
 	void resetFXs();
 
+	void blinkFX(int blinkInt);
+
 	Star::FX getFX() const;
 	bool isReadyToChange() const;
 

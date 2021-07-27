@@ -106,6 +106,7 @@ void Player::setShotSpeed(float s)
 void Player::resetMob()
 {
 	bullets.clear();
+	sprite.setColor(sf::Color(255, 255, 255, 255));
 
 	continum = Bullet::Loop::None;
 	shotRate = 1;
@@ -140,7 +141,7 @@ void Player::takeDamage(float dmg)
 	if (hp < 0)
 	{
 		alive = false;
-		//sprite.setColor(sf::Color(0, 0, 0, 0));
+		sprite.setColor(sf::Color(0, 0, 0, 0));
 	}
 }
 
@@ -179,7 +180,6 @@ void Player::update(sf::RenderTarget& target)
 
 	if(cooldown && cooldownCounter < shotRate + 3)
 		cooldownCounter++;
-	updateInput();
 
 	for (auto* k : bullets)
 		k->update(target);

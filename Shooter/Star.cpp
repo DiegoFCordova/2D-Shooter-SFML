@@ -133,6 +133,22 @@ void Star::resetFXs()
 }
 
 /*
+ * Makes it seem as if the star were "blinking".
+ * 
+ * @param blinkInt: Helps with the bliking effect on the star.
+ */
+void Star::blinkFX(int blinkInt)
+{
+	if (effect != FX::Masa)
+	{
+		if (blinkInt % (oriAlp * (frameDelay + 1 % 12)) < 5)
+			star.setFillColor(sf::Color(r, g, b, 0));
+		else
+			star.setFillColor(sf::Color(r, g, b, oriAlp));
+	}
+}
+
+/*
  * @return Current FX state of Star.
  */
 Star::FX Star::getFX() const

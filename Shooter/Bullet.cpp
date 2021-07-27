@@ -283,7 +283,7 @@ void Bullet::update(sf::RenderTarget& target)
 			if (loopCounter.y != -1)
 				loopCounter.y++;
 
-			if ((loop == Loop::Vertical || loop == Loop::All) && loopCounter.y <= loopLimit.y)
+			if ((loop == Loop::Vertical || loop == Loop::All) && (loopCounter.y <= loopLimit.y || loopLimit.y == -1))
 				sprite.setPosition(x, targetHeight + height / 2);
 			else
 				active = false;
@@ -294,7 +294,7 @@ void Bullet::update(sf::RenderTarget& target)
 			if (loopCounter.y != -1)
 				loopCounter.y++;
 
-			if ((loop == Loop::Vertical || loop == Loop::All) && loopCounter.y <= loopLimit.y)
+			if ((loop == Loop::Vertical || loop == Loop::All) && (loopCounter.y <= loopLimit.y || loopLimit.y == -1))
 				sprite.setPosition(x, 0 - height / 2);
 			else
 				active = false;
@@ -304,7 +304,7 @@ void Bullet::update(sf::RenderTarget& target)
 			if (loopCounter.x != -1)
 				loopCounter.x++;
 
-			if ((loop == Loop::Horizontal || loop == Loop::All) && loopCounter.x <= loopLimit.x)
+			if ((loop == Loop::Horizontal || loop == Loop::All) && (loopCounter.x <= loopLimit.x || loopLimit.x == -1))
 				sprite.setPosition(targetWidth + width/2, y);
 			else
 				active = false;
@@ -314,7 +314,7 @@ void Bullet::update(sf::RenderTarget& target)
 			if (loopCounter.x != -1)
 				loopCounter.x++;
 
-			if ((loop == Loop::Horizontal || loop == Loop::All) && loopCounter.x <= loopLimit.x)
+			if ((loop == Loop::Horizontal || loop == Loop::All) && (loopCounter.x <= loopLimit.x || loopLimit.x == -1))
 				sprite.setPosition(0 - width/2, y);
 			else
 				active = false;

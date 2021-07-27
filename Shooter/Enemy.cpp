@@ -15,7 +15,7 @@ void Enemy::initVariables()
 	cooldown = false;
 	maxBullets = 100;
 	shotRate = (int)(rand()%10) + 20;
-	shotSpeed = 12;
+	shotSpeed = 10;
 	shotOffset = 100;
 	state = State::Alive;
 }
@@ -84,7 +84,7 @@ Enemy::Enemy(float x, float y, UI::Difficulty diff)
 		shotRate += 120 + (int)(rand() % 50);
 		maxHP = 5;
 		hp = maxHP;
-		shotSpeed = 8;
+		shotSpeed = 5;
 		shotOffset = 10;
 		sprite.setColor(sf::Color::Yellow);
 		break;
@@ -93,9 +93,9 @@ Enemy::Enemy(float x, float y, UI::Difficulty diff)
 	//	break;
 	case UI::Difficulty::Merciless:
 		shotRate -= 10;
-		maxHP = 25;
+		maxHP = 15;
 		hp = maxHP;
-		shotSpeed = 16;
+		shotSpeed = 12;
 		shotOffset = 200;
 		sprite.setColor(sf::Color(150, 0, 255));
 
