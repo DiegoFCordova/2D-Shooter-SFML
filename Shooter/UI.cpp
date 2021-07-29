@@ -19,7 +19,7 @@ void UI::init()
 	textsMain.emplace_back(new sf::Text("Options", font, 70));
 	textsMain.emplace_back(new sf::Text("Quit", font, 70));
 
-	for(int k = 0; k < 7; k++)
+	for(int k = 0; k < 8; k++)
 		textsOptions.emplace_back(new sf::Text("Option Placeholder", font, 70));
 	optionBase[0] = "Difficulty     ";
 	optionBase[1] = "Shot Rate         ";
@@ -28,11 +28,13 @@ void UI::init()
 	optionBase[4] = "Continum       ";
 	optionBase[5] = "Bullet Loop Limit ";
 	optionBase[6] = "E-Spawn Rate      ";
+	optionBase[7] = "Lives             ";
 
-	for (int k = 0; k < 2; k++)
+	for (int k = 0; k < 3; k++)
 		textsGame.emplace_back(new sf::Text("Option Placeholder", font, 70));
 	gameBase[0] = "Score: ";
 	gameBase[1] = "HP: ";
+	gameBase[2] = "Inf";
 
 	textsPause.emplace_back(new sf::Text("Continue", font, 70));
 	textsPause.emplace_back(new sf::Text("Options", font, 70));
@@ -41,6 +43,7 @@ void UI::init()
 	pause = new sf::Text("Pause", font, 210);
 	pause->move(510, 75);
 
+	//Options Pointer
 	if (!ptrTex.loadFromFile("Sprites/BulletNormal.png"))
 	{
 		std::cout << "Error: pointer texture not loaded correctly." << "\n";
@@ -52,6 +55,19 @@ void UI::init()
 	pointer.rotate(90);
 	pointer.setScale(5,5);
 
+	//Lives Counter
+	if (!livesTex.loadFromFile("Sprites/Ship.png"))
+	{
+		std::cout << "Error: lives-counter texture not loaded correctly." << "\n";
+		return;
+	}
+
+	livesIcon.setTexture(livesTex);
+	livesIcon.setOrigin(livesIcon.getOrigin().x + (livesIcon.getLocalBounds().width / 2), livesIcon.getOrigin().y + (livesIcon.getLocalBounds().height / 2));
+	livesIcon.setColor(sf::Color(255, 255, 255, 200));
+	livesIcon.setPosition(50, 775);
+
+	//Controls/Rules
 	if(!rulesTex.loadFromFile("Sprites/Controls.png"))
 	{
 		std::cout << "Error: rules texture not loaded correctly." << "\n";
@@ -85,9 +101,11 @@ UI::UI(float x, float y)
 	textsOptions[4]->setPosition(x - 650, y - 100);
 	textsOptions[5]->setPosition(x - 650, y - 20);
 	textsOptions[6]->setPosition(x - 650, y + 60);
+	textsOptions[7]->setPosition(x - 650, y + 140);
 
 	textsGame[0]->setPosition(x - 680, y - 450);
 	textsGame[1]->setPosition(x - 680, y + 360);
+	textsGame[2]->setPosition(x - 610, y + 280);
 
 	textsPause[0]->setPosition(x - 52, y - 20);
 	textsPause[1]->setPosition(x - 30, y + 60);
@@ -322,22 +340,6 @@ int UI::optionSet(int num, int c)
 		return num;
 		std::cout << "Should never get to here.\n";
 		break;
-	case 5:
-		if (num < 0)
-		{
-			num = -1;
-			str << "Infinite";
-		}
-		else
-		{
-			if (num > 20)
-				num = 20;
-			str << num;
-		}
-		textsOptions[c]->setString(str.str());
-		return num;
-		std::cout << "Bullet Loop Limit Option buggy..\n";
-		break;
 	case 4:
 		switch (num)
 		{
@@ -361,6 +363,38 @@ int UI::optionSet(int num, int c)
 			std::cout << "Issue with UI.optionSet, Continnum Choice.\n";
 			break;
 		}
+		break;
+	case 5:
+		if (num < 0)
+		{
+			num = -1;
+			str << "Infinite";
+		}
+		else
+		{
+			if (num > 20)
+				num = 20;
+			str << num;
+		}
+		textsOptions[c]->setString(str.str());
+		return num;
+		std::cout << "Bullet Loop Limit Option buggy.\n";
+		break;
+	case 7:
+		if (num < 0)
+		{
+			num = -1;
+			str << "Infinite";
+		}
+		else
+		{
+			if (num > 99)
+				num = 99;
+			str << num;
+		}
+		textsOptions[c]->setString(str.str());
+		return num;
+		std::cout << "Something wrong with \"Lives\" option.\n";
 		break;
 	default:
 		std::cout << "Issue with UI.optionSet, Choice.\n";
@@ -391,6 +425,15 @@ int UI::updateGameScores(int ind, int val)
 		if (val < 1)
 			val = 0;
 		str << val;
+		textsGame[ind]->setString(str.str());
+		return val;
+		break;
+	case 2:
+		if (val > -1)
+		{
+			str.str("");
+			str << "x" << val;
+		}
 		textsGame[ind]->setString(str.str());
 		return val;
 		break;
@@ -459,6 +502,7 @@ void UI::render(sf::RenderTarget& target)
 	case UI::MenuState::Game:
 		for (auto* t : textsGame)
 			target.draw(*t);
+		target.draw(livesIcon);
 		break;
 	default:
 		break;

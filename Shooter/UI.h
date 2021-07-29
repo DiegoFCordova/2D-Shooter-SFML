@@ -24,11 +24,11 @@ public:
 private:
 	std::vector<sf::Text*> textsMain, textsOptions, 
 		textsPause, textsGame;
-	sf::Texture ptrTex, rulesTex;
-	sf::Sprite pointer, rules;
+	sf::Texture ptrTex, rulesTex, livesTex;
+	sf::Sprite pointer, rules, livesIcon;
 	sf::Font font;
 	sf::Text* pause;
-	std::string optionBase[7], gameBase[2];
+	std::string optionBase[8], gameBase[3];
 	MenuState state;
 	Difficulty diff;
 	int choice;

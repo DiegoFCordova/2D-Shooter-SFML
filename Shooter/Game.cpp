@@ -79,9 +79,11 @@ void Game::refreshUI()
 	ui->optionSet((int)player->getContinum(), 4);
 	ui->optionSet(player->getLoopLimit().y, 5);
 	ui->optionSet(enemySpawnRate, 6);
+	ui->optionSet(player->getLives(), 7);
 
 	ui->updateGameScores(0, score);
 	ui->updateGameScores(1, player->getCurrentHP());
+	ui->updateGameScores(2, player->getLives());
 }
 
 /* Debugging.
@@ -189,22 +191,19 @@ void Game::update()
  */
 void Game::updateTimer()
 {
-	if (!player->isActive())
+	if (player->getStatus() == Player::Status::Dead)
 	{
 		reviveTicks++;
 		if (reviveTicks == 100)
 		{
-			///Revive player with invul stat
-			///Set position to origin
-			///Remove 1 life
 			/// Add text for duration of wait (Text will depend if infinite lifes or not)
 			///		If no lifes left, change text at last few frames saying GAME OVER
 			///		(Maybe add HighScore file)
-			/// Add max lifes to Options
-			/// Give player almost double speed + halves fire rate if possible
 			/// 
-			player->resetMob();
+			player->revive();
+			player->setPos(sf::Vector2f(tileSize * 16, tileSize * 15));
 			reviveTicks = 0;
+			ui->updateGameScores(1, player->getCurrentHP());
 		}
 	}
 
@@ -301,6 +300,10 @@ void Game::pollEvents()
 					case 6:
 						enemySpawnRate = ui->optionSet(enemySpawnRate + 1);
 						break;
+					case 7:
+						player->setLives(ui->optionSet(player->getLives() + 1));
+						ui->updateGameScores(2, player->getLives());
+						break;
 					default:
 						break;
 					}
@@ -349,6 +352,10 @@ void Game::pollEvents()
 						break;
 					case 6:
 						enemySpawnRate = ui->optionSet(enemySpawnRate - 1);
+						break;
+					case 7:
+						player->setLives(ui->optionSet(player->getLives() - 1));
+						ui->updateGameScores(2, player->getLives());
 						break;
 					default:
 						break;
@@ -480,10 +487,13 @@ void Game::updateMobs()
 
 				else if (player->isActive() && player->bounds().intersects(enemies[e]->getBullets()[k]->bounds()))
 				{
-					player->takeDamage(enemies[e]->damageDealt(k));
-					ui->updateGameScores(1, player->getCurrentHP());
+					if (player->getStatus() == Player::Status::Alive)
+					{
+						player->takeDamage(enemies[e]->damageDealt(k));
+						ui->updateGameScores(1, player->getCurrentHP());
+					}
 
-					if (!player->isActive())
+					if (player->getStatus() == Player::Status::Dead)
 					{
 						death.emplace_back(new DeathAni(player->getPos().x, player->getPos().y, player->getLargestSide(), DeathAni::Type::Player));
 						
@@ -654,6 +664,7 @@ void Game::updateDebug()
 		<< "\nEnemies: " << enemies.size()
 		<< "\nTileSize: " << tileSize
 		<< "\nPlayer hp: " << player->getCurrentHP() << ", alive: " << player->isActive()
+		<< "\nPlayer lives left: " << player->getLives()
 		<< "\nWidth (Global): " << player->bounds().width
 		<< "\nHeight (Global): " << player->bounds().height
 		<< "\nSway: " << player->getSway()

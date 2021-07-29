@@ -8,12 +8,15 @@ void Player::initVariables()
 	objectType = Type::Player;
 	continum = Bullet::Loop::None;
 	bullets.reserve(50);
-	shotRate = 1;
+	shotRate = 4;
 	cooldownCounter = 0;
 	cooldown = false;
 	frame = 0;
 	aniSpeed = 25;
-	alive = true;
+	invulDur = 250;
+	invulCounter = 0;
+	status = Status::Alive;
+	lives = 5;
 	velocity = 15;
 	shotSpeed = 8;
 	loopLimit.x = -1;
@@ -76,10 +79,16 @@ Player::~Player()
 		delete t;
 }
 
-/* @return true if player is alive. */
+/* @return true if player is not dead. */
 bool Player::isActive() const
 {
-	return alive;
+	return (status != Status::Dead);
+}
+
+/* @return number of lives left for Player */
+short Player::getLives() const
+{
+	return lives;
 }
 
 /*
@@ -88,6 +97,12 @@ bool Player::isActive() const
 float Player::getShotSpeed() const
 {
 	return shotSpeed;
+}
+
+/* @returns Current status of Player. */
+Player::Status Player::getStatus() const
+{
+	return status;
 }
 
 /*
@@ -101,6 +116,29 @@ void Player::setShotSpeed(float s)
 }
 
 /*
+ * Change the number of lives left on Player.
+ * 
+ * @param l: New lives value.
+ */
+void Player::setLives(short l)
+{
+	lives = l;
+}
+
+/*
+ * Method used to revive Player.
+ */
+void Player::revive()
+{
+	lives--;
+	status = Status::Invul;
+	hp = maxHP;
+	shotRate = (shotRate == 1) ? 1 : shotRate / 2;
+	shotSpeed *= 2;
+	velocity *= 1.5;
+}
+
+/*
  * Reset Mob values and delete all bullets.
  */
 void Player::resetMob()
@@ -109,12 +147,15 @@ void Player::resetMob()
 	sprite.setColor(sf::Color(255, 255, 255, 255));
 
 	continum = Bullet::Loop::None;
-	shotRate = 1;
+	shotRate = 4;
 	cooldownCounter = 0;
 	cooldown = false;
 	frame = 0;
 	aniSpeed = 25;
-	alive = true;
+	invulDur = 500;
+	invulCounter = 0;
+	lives = 5;
+	status = Status::Alive;
 	velocity = 15;
 	shotSpeed = 8;
 	loopLimit.x = -1;
@@ -140,7 +181,7 @@ void Player::takeDamage(float dmg)
 
 	if (hp < 0)
 	{
-		alive = false;
+		status = Status::Dead;
 		sprite.setColor(sf::Color(0, 0, 0, 0));
 	}
 }
@@ -180,6 +221,33 @@ void Player::update(sf::RenderTarget& target)
 
 	if(cooldown && cooldownCounter < shotRate + 3)
 		cooldownCounter++;
+
+	if (status == Status::Invul)
+	{
+		if (invulCounter < invulDur)
+		{
+			invulCounter++;
+			if (invulCounter < invulDur - 70)
+				sprite.setColor(sf::Color(
+					((int)invulCounter * 5 % 155) + 100, 
+					((int)invulCounter * 5 % 255), 
+					((int)invulCounter * 2 % 200) + 55, 255));
+			else
+				sprite.setColor(sf::Color(255, 255, 255, 45 + 3 * (invulCounter + 70 % (int)invulDur)));
+
+		}
+
+		else
+		{
+			status = Status::Alive;
+			sprite.setColor(sf::Color(255, 255, 255, 255));
+			invulCounter = 0;
+
+			shotRate = (shotRate == 1) ? 1 : shotRate * 2;
+			shotSpeed /= 2;
+			velocity /= 1.5;
+		}
+	}
 
 	for (auto* k : bullets)
 		k->update(target);
