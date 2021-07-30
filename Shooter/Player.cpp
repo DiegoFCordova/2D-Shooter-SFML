@@ -130,7 +130,6 @@ void Player::setLives(short l)
  */
 void Player::revive()
 {
-	lives--;
 	status = Status::Invul;
 	hp = maxHP;
 	shotRate = (shotRate == 1) ? 1 : shotRate / 2;
@@ -181,6 +180,7 @@ void Player::takeDamage(float dmg)
 
 	if (hp < 0)
 	{
+		lives--;
 		status = Status::Dead;
 		sprite.setColor(sf::Color(0, 0, 0, 0));
 	}

@@ -97,10 +97,19 @@ void Game::initText()
 		return;
 	}
 
+	//Debug texts
 	text.setFont(font);
 	text.setCharacterSize(tileSize*.85);
 	text.setFillColor(sf::Color(218, 218, 218, 250));
 	text.setString("TEXT GOES HERE");
+
+	//Temp text
+	temp.setFont(font);
+	temp.setCharacterSize(tileSize);
+	temp.setPosition(vidMode.width/2 - (tileSize*3.25), vidMode.height/2 - tileSize);
+	temp.setFillColor(sf::Color(255, 255, 255, 255));
+	temp.setString("X Lives left");
+
 
 	//For Opening sequence
 	blackscreen.setSize(sf::Vector2<float>(vidMode.width, vidMode.height));
@@ -186,8 +195,8 @@ void Game::update()
 }
 
 /*
- * Updates frames to keep track of logic and
- * events.
+ * Updates frames to keep track of logic,
+ * events, and revive sequence.
  */
 void Game::updateTimer()
 {
@@ -196,14 +205,28 @@ void Game::updateTimer()
 		reviveTicks++;
 		if (reviveTicks == 100)
 		{
+			if (player->getLives() == 0)
+			{
+				temp.move(tileSize*.85, 0);
+				temp.setString("Game Over");
+				reviveTicks = 0;
+				state = GameState::GameOver;
+				resetMobs();
+				///change gameMode to GameOver (Hide all mobs)
+				///Return player to Main Menu after 100 ticks or so
+			}
+
 			/// Add text for duration of wait (Text will depend if infinite lifes or not)
 			///		If no lifes left, change text at last few frames saying GAME OVER
 			///		(Maybe add HighScore file)
 			/// 
-			player->revive();
-			player->setPos(sf::Vector2f(tileSize * 16, tileSize * 15));
-			reviveTicks = 0;
-			ui->updateGameScores(1, player->getCurrentHP());
+			else
+			{
+				player->revive();
+				player->setPos(sf::Vector2f(tileSize * 16, tileSize * 15));
+				reviveTicks = 0;
+				ui->updateGameScores(1, player->getCurrentHP());
+			}
 		}
 	}
 
@@ -495,9 +518,22 @@ void Game::updateMobs()
 
 					if (player->getStatus() == Player::Status::Dead)
 					{
-						death.emplace_back(new DeathAni(player->getPos().x, player->getPos().y, player->getLargestSide(), DeathAni::Type::Player));
-						
-						///Lifes--, respawn animations and such. Death Sequence starts here
+						std::stringstream ss;
+						if (player->getLives() == 0)
+						{
+							ss << "Out of Lives";
+						}
+						else if (player->getLives() == 1)
+							ss << "Last Chance";
+						else
+							ss << player->getLives() << " Lives Left";
+
+						temp.setString(ss.str());
+						ui->optionSet(player->getLives(), 7);
+						ui->updateGameScores(2, player->getLives());
+
+						death.emplace_back(new DeathAni(player->getPos().x, player->getPos().y,
+											player->getLargestSide(), DeathAni::Type::Player));
 					}
 
 					death.emplace_back(new DeathAni(enemies[e]->getBullets()[k]->getPos().x, enemies[e]->getBullets()[k]->getPos().y,
@@ -609,10 +645,17 @@ void Game::render()
 	window->clear(sf::Color(30, 30, 30));
 	renderStars();
 
-	if(state == GameState::Game || state == GameState::PauseMenu)
-		renderMobs();
 
-	ui->render(*window);
+
+	if (state == GameState::Game || state == GameState::PauseMenu)
+	{
+		renderMobs();
+		if(player->getStatus() == Player::Status::Dead || state == GameState::GameOver)
+			window->draw(temp);
+	}
+
+	if(state != GameState::GameOver)
+		ui->render(*window);
 
 	if (state == GameState::Opening)
 	{
@@ -665,13 +708,13 @@ void Game::updateDebug()
 		<< "\nTileSize: " << tileSize
 		<< "\nPlayer hp: " << player->getCurrentHP() << ", alive: " << player->isActive()
 		<< "\nPlayer lives left: " << player->getLives()
-		<< "\nWidth (Global): " << player->bounds().width
-		<< "\nHeight (Global): " << player->bounds().height
+		<< "\nRevive Ticks: " << reviveTicks
 		<< "\nSway: " << player->getSway()
 		<< "\nOpeningFrame: " << openingFrame
 		<< ((state == GameState::Opening) ? "\nState: Opening" :
 			(state == GameState::MainMenu) ? "\nState: Main Menu" : 
-			(state == GameState::Game) ? "\nState: Game" : "\nState: Pause Menu")
+			(state == GameState::Game) ? "\nState: Game" :
+			(state == GameState::GameOver) ? "\nState: GameOver" : "\nState: Pause Menu")
 		<< ((ui->getState() == UI::MenuState::Main) ? "\nUI State: Main" :
 			(ui->getState() == UI::MenuState::Controls) ? "\nUI State: Controls" :
 			(ui->getState() == UI::MenuState::Options) ? "\nUI State: Options" :

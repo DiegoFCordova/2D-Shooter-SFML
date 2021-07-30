@@ -29,7 +29,7 @@ public:
 	///Will be used later for UI
 	enum class GameState
 	{
-		Opening, MainMenu, PauseMenu, Game
+		Opening, MainMenu, PauseMenu, Game, GameOver
 	};
 
 private:
@@ -59,7 +59,7 @@ private:
 
 	//-Debug
 	sf::Font font;
-	sf::Text text;
+	sf::Text text, temp;
 
 	//-Basic
 	void initVars();

@@ -432,7 +432,8 @@ int UI::updateGameScores(int ind, int val)
 		if (val > -1)
 		{
 			str.str("");
-			str << "x" << val;
+			if(val != 1) 
+				str << "x" << val;
 		}
 		textsGame[ind]->setString(str.str());
 		return val;
