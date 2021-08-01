@@ -176,6 +176,7 @@ void Game::update()
 	if(state == GameState::Game)
 		updateTimer();
 
+	reviveSequence();
 	pollEvents();
 
 	if (state == GameState::Opening)
@@ -200,36 +201,6 @@ void Game::update()
  */
 void Game::updateTimer()
 {
-	if (player->getStatus() == Player::Status::Dead)
-	{
-		reviveTicks++;
-		if (reviveTicks == 100)
-		{
-			if (player->getLives() == 0)
-			{
-				temp.move(tileSize*.85, 0);
-				temp.setString("Game Over");
-				reviveTicks = 0;
-				state = GameState::GameOver;
-				resetMobs();
-				///change gameMode to GameOver (Hide all mobs)
-				///Return player to Main Menu after 100 ticks or so
-			}
-
-			/// Add text for duration of wait (Text will depend if infinite lifes or not)
-			///		If no lifes left, change text at last few frames saying GAME OVER
-			///		(Maybe add HighScore file)
-			/// 
-			else
-			{
-				player->revive();
-				player->setPos(sf::Vector2f(tileSize * 16, tileSize * 15));
-				reviveTicks = 0;
-				ui->updateGameScores(1, player->getCurrentHP());
-			}
-		}
-	}
-
 	//Enemy auto-shoot.
 	for (auto* e : enemies)
 	{
@@ -239,6 +210,46 @@ void Game::updateTimer()
 
 	if(ticks % enemySpawnRate == 0 && enemies.size() < maxEnemies && player->isActive())
 		enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % (vidMode.height / 2), ui->getDifficulty()));
+}
+
+/*
+ * Takes care of Player reviving
+ * sequence or GAME OVER event.
+ */
+void Game::reviveSequence()
+{
+	if (state == GameState::GameOver)
+	{
+		reviveTicks++;
+		if (reviveTicks == 200)
+		{
+			state = GameState::MainMenu;
+			ui->setMenuMode(UI::MenuState::Main);
+			reviveTicks = 0;
+		}
+	}
+
+	else if (state == GameState::Game && player->getStatus() == Player::Status::Dead)
+	{
+		reviveTicks++;
+		if (reviveTicks == 100)
+		{
+			if (player->getLives() == 0)
+			{
+				state = GameState::GameOver;
+				ui->setMenuMode(UI::MenuState::GameOver);
+				resetMobs();
+			}
+
+			else
+			{
+				player->revive();
+				player->setPos(sf::Vector2f(tileSize * 16, tileSize * 15));
+				reviveTicks = 0;
+				ui->updateGameScores(1, player->getCurrentHP());
+			}
+		}
+	}
 }
 
 /*
@@ -385,7 +396,7 @@ void Game::pollEvents()
 					}
 				}
 			}
-			else if (ev.key.code == sf::Keyboard::Enter)
+			else if (ev.key.code == sf::Keyboard::Enter || ev.key.code == sf::Keyboard::Space)
 			{
 				if (!skipOpening() && (ui->getState() == UI::MenuState::Main || ui->getState() == UI::MenuState::Pause))
 				{
@@ -645,17 +656,14 @@ void Game::render()
 	window->clear(sf::Color(30, 30, 30));
 	renderStars();
 
-
-
 	if (state == GameState::Game || state == GameState::PauseMenu)
 	{
 		renderMobs();
-		if(player->getStatus() == Player::Status::Dead || state == GameState::GameOver)
+		if(player->getStatus() == Player::Status::Dead)
 			window->draw(temp);
 	}
 
-	if(state != GameState::GameOver)
-		ui->render(*window);
+	ui->render(*window);
 
 	if (state == GameState::Opening)
 	{
@@ -709,6 +717,8 @@ void Game::updateDebug()
 		<< "\nPlayer hp: " << player->getCurrentHP() << ", alive: " << player->isActive()
 		<< "\nPlayer lives left: " << player->getLives()
 		<< "\nRevive Ticks: " << reviveTicks
+		<< "\nInvul Counter: " << player->invulCounter
+		<< "\nInvul Dur: " << player->invulDur
 		<< "\nSway: " << player->getSway()
 		<< "\nOpeningFrame: " << openingFrame
 		<< ((state == GameState::Opening) ? "\nState: Opening" :
@@ -718,7 +728,8 @@ void Game::updateDebug()
 		<< ((ui->getState() == UI::MenuState::Main) ? "\nUI State: Main" :
 			(ui->getState() == UI::MenuState::Controls) ? "\nUI State: Controls" :
 			(ui->getState() == UI::MenuState::Options) ? "\nUI State: Options" :
-			(ui->getState() == UI::MenuState::Pause) ? "\nUI State: Pause" : "\nUI State: Game")
+			(ui->getState() == UI::MenuState::Pause) ? "\nUI State: Pause" :
+			(ui->getState() == UI::MenuState::GameOver) ? "\nUI State: GameOver" : "\nUI State: Game")
 		<< ((ui->getDifficulty() == UI::Difficulty::Easy) ? "\nDifficulty: Easy" :
 			(ui->getDifficulty() == UI::Difficulty::Normal) ? "\nDifficulty: Normal" : "\nDifficulty: Merciless")
 		<< ((stars[0]->getFX() == Star::FX::Normal) ? "\nStar Pattern: Normal" : 

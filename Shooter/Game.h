@@ -88,6 +88,7 @@ public:
 	//-Draw Components
 	void update();
 	void updateTimer();
+	void reviveSequence();
 	void pollEvents();
 	void updateMobs();	///Need reworking
 	void updateStars();	///Might rename to UI when other stuffs are added

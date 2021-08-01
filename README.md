@@ -6,11 +6,6 @@ Been fun so far.
 
 To-do list:
 
-	-Player respawn sequence
-		-Add text for duration of wait (Text will depend if infinite lifes or not)
-			If no lifes left, change text at last few frames saying GAME OVER
-			(Maybe add HighScore file)
-			
 	-Making the game fps independent
 			
 			
@@ -22,6 +17,8 @@ To-do list:
 	-Sway (Like continum) will be a power up
 			
 	-Make Gold Center the hitbox of player
+	
+	-Using a file to keep track of high scores
 	
 	-Try HashMap for small collition detection
 			

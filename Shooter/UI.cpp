@@ -67,6 +67,17 @@ void UI::init()
 	livesIcon.setColor(sf::Color(255, 255, 255, 200));
 	livesIcon.setPosition(50, 775);
 
+	//Game Over image
+	if (!overTex.loadFromFile("Sprites/GameOver.png"))
+	{
+		std::cout << "Error: Game Over texture not loaded correctly." << "\n";
+		return;
+	}
+
+	overImg.setTexture(overTex);
+	overImg.setOrigin(overImg.getOrigin().x + (overImg.getLocalBounds().width / 2), overImg.getOrigin().y + (overImg.getLocalBounds().height / 2));
+	overImg.setPosition(800, 450);
+
 	//Controls/Rules
 	if(!rulesTex.loadFromFile("Sprites/Controls.png"))
 	{
@@ -504,6 +515,9 @@ void UI::render(sf::RenderTarget& target)
 		for (auto* t : textsGame)
 			target.draw(*t);
 		target.draw(livesIcon);
+		break;
+	case UI::MenuState::GameOver:
+		target.draw(overImg);
 		break;
 	default:
 		break;

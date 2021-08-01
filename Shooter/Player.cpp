@@ -16,7 +16,7 @@ void Player::initVariables()
 	invulDur = 250;
 	invulCounter = 0;
 	status = Status::Alive;
-	lives = 5;
+	lives = 3;
 	velocity = 15;
 	shotSpeed = 8;
 	loopLimit.x = -1;
@@ -151,9 +151,9 @@ void Player::resetMob()
 	cooldown = false;
 	frame = 0;
 	aniSpeed = 25;
-	invulDur = 500;
+	invulDur = 250;
 	invulCounter = 0;
-	lives = 5;
+	lives = 3;
 	status = Status::Alive;
 	velocity = 15;
 	shotSpeed = 8;

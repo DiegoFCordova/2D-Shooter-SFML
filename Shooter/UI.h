@@ -13,7 +13,7 @@ class UI
 public:
 	enum class MenuState
 	{
-		Main, Controls, Options, Pause, Game
+		Main, Controls, Options, Pause, Game, GameOver
 	};
 
 	enum class Difficulty
@@ -24,8 +24,8 @@ public:
 private:
 	std::vector<sf::Text*> textsMain, textsOptions, 
 		textsPause, textsGame;
-	sf::Texture ptrTex, rulesTex, livesTex;
-	sf::Sprite pointer, rules, livesIcon;
+	sf::Texture ptrTex, rulesTex, livesTex, overTex;
+	sf::Sprite pointer, rules, livesIcon, overImg;
 	sf::Font font;
 	sf::Text* pause;
 	std::string optionBase[8], gameBase[3];
