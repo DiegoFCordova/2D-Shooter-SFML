@@ -9,7 +9,7 @@ void UI::init()
 	}
 
 	state = MenuState::Main;
-	diff = Difficulty::Normal;
+	diff = Difficulty::Easy;
 	inGame = false;
 
 	choice = 0;
@@ -425,7 +425,7 @@ bool UI::isInGame()
  * @param ind: index of textsGame.
  * @paran val: value to display.
  */
-int UI::updateGameScores(int ind, int val)
+int UI::updateGameScores(int ind, float val)
 {
 	std::stringstream str;
 	str << gameBase[ind];
@@ -433,7 +433,7 @@ int UI::updateGameScores(int ind, int val)
 	switch (ind)
 	{
 	case 0: case 1:
-		if (val < 1)
+		if (val < 0)
 			val = 0;
 		str << val;
 		textsGame[ind]->setString(str.str());

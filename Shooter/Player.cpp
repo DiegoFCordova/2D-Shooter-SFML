@@ -8,6 +8,7 @@ void Player::initVariables()
 	objectType = Type::Player;
 	continum = Bullet::Loop::None;
 	bullets.reserve(50);
+	baseDamage = 1;
 	shotRate = 4;
 	cooldownCounter = 0;
 	cooldown = false;
@@ -135,6 +136,7 @@ void Player::revive()
 	shotRate = (shotRate == 1) ? 1 : shotRate / 2;
 	shotSpeed *= 2;
 	velocity *= 1.5;
+	baseDamage *= 2;
 }
 
 /*
@@ -146,6 +148,7 @@ void Player::resetMob()
 	sprite.setColor(sf::Color(255, 255, 255, 255));
 
 	continum = Bullet::Loop::None;
+	baseDamage = 1;
 	shotRate = 4;
 	cooldownCounter = 0;
 	cooldown = false;
@@ -246,6 +249,7 @@ void Player::update(sf::RenderTarget& target)
 			shotRate = (shotRate == 1) ? 1 : shotRate * 2;
 			shotSpeed /= 2;
 			velocity /= 1.5;
+			baseDamage /= 2;
 		}
 	}
 
@@ -270,7 +274,7 @@ void Player::updateInput()
 	bool moving = false;
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 	{
-		sprite.move(-velocity, 0.f);
+		sprite.move(-velocity * DT::dt * DT::mult, 0.f);
 
 		if(sway > -velocity / 4) 
 			sway -= .2;
@@ -280,7 +284,7 @@ void Player::updateInput()
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 	{
-		sprite.move(velocity, 0.f);
+		sprite.move(velocity * DT::dt * DT::mult, 0.f);
 
 		if (sway < velocity / 4)
 			sway += .2;
@@ -297,10 +301,10 @@ void Player::updateInput()
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		sprite.move(0.f, -velocity);
+		sprite.move(0.f, -velocity * DT::dt * DT::mult);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-		sprite.move(0.f, velocity);
+		sprite.move(0.f, velocity * DT::dt * DT::mult);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 		if (canAttack())

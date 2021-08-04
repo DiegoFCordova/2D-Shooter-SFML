@@ -49,6 +49,15 @@ float Entity::getSway() const
 	return sway;
 }
 
+/* Sets baseDamage to given parameter.
+ * 
+ * @param dmg: new Damage.
+ */
+void Entity::setBaseDamage(float dmg)
+{
+	baseDamage = dmg;
+}
+
 /*
  * Sets velocity to given param.
  * 

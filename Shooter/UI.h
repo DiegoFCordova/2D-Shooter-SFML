@@ -51,7 +51,8 @@ public:
 	void down();
 	int enter();
 	int optionSet(int num, int c = -98);
-	int updateGameScores(int ind, int val);
+
+	int updateGameScores(int ind, float val);
 	bool isInGame();
 
 	UI::MenuState getState() const;

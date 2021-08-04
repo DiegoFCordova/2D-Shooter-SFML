@@ -86,7 +86,7 @@ void Star::masaAnimation(int widthThird)
 	else if (frame == 120 + frameDelay)
 	{
 		star.setFillColor(sf::Color(73, 0, 142, 155));
-		star.setOutlineThickness(1);
+		star.setOutlineThickness(.5);
 		star.setOutlineColor(sf::Color(74, 0, 68));
 		speed -= .2;
 	}
@@ -205,7 +205,7 @@ void Star::update(sf::RenderTarget& target)
 			{
 				star.setPosition((int)(rand() % target.getSize().x), (int)(rand() % target.getSize().y));
 				lap = false;
-				star.setScale(sf::Vector2<float>(2, 2));
+				star.setScale(sf::Vector2<float>(1.5, 1.5));
 			}
 			speed = oriSpd;
 		}

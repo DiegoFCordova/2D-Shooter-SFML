@@ -8,6 +8,7 @@ void Enemy::initVariables()
 	objectType = Type::Enemy;
 	continum = Bullet::Loop::None;
 	bullets.reserve(50);
+	baseDamage = .8;
 	maxHP = 10;
 	hp = maxHP;
 	frame = 0;

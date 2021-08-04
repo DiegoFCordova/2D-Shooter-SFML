@@ -40,6 +40,7 @@ private:
 	GameState state;
 
 	//-Logic
+	///sf::Clock clock;
 	float tileSize;
 	int enemySpawnRate,
 		maxEnemies, score,
@@ -73,6 +74,8 @@ private:
 	void initText();
 
 public:
+	///float dt;
+
 	Game();
 	~Game();
 
@@ -102,5 +105,7 @@ public:
 	
 	void renderDebug(sf::RenderTarget& target);
 	void drawGrid();
+
+	///void updateClock();
 };
 

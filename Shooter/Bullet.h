@@ -46,8 +46,6 @@ public:
 	void setVelocity(float x, float y);
 	void setLoopLimit(sf::Vector2<short> n);
 	void setLoopCounter(sf::Vector2<short> n);
-
-	//-Functions
 	void setColor(float r = -1, float g = -1, float b = -1, float alpha = 0);
 	void setAngle(float destX, float destY);
 	void setSway(float s);

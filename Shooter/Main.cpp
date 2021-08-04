@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Game.h"
+#include "DT.h"
 
 /*
  * Class that calls a Game instance
@@ -15,6 +16,7 @@ int main()
 
 	//Init Game Engine
 	Game game;
+	DT d;
 
 	//Main loop
 	while (game.running())
@@ -24,6 +26,8 @@ int main()
 
 		//Render
 		game.render();
+
+		d.updateClock();
 	}
 
 	return 0;

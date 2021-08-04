@@ -10,7 +10,7 @@ void Game::initWindow()
 	vidMode.width = 1600;
 	vidMode.height = 900;
 	window = new sf::RenderWindow(vidMode, "Medjed", sf::Style::Titlebar | sf::Style::Close);
-	window->setFramerateLimit(60);
+	window->setFramerateLimit(144);
 }
 
 /*
@@ -422,19 +422,13 @@ void Game::pollEvents()
 			else if (ev.key.code == sf::Keyboard::Z)
 				debug = !debug;
 			else if (ev.key.code == sf::Keyboard::T)
-			{
-				for (auto* s : stars)
-					s->inverseSpeedFX();
-			}
+				window->setFramerateLimit(144);
+			else if (ev.key.code == sf::Keyboard::G)
+				window->setFramerateLimit(60);
 			else if (ev.key.code == sf::Keyboard::Y)
 			{
 				for (auto* s : stars)
 					s->normalFX();
-			}
-			else if (ev.key.code == sf::Keyboard::G)
-			{
-				for (auto* s : stars)
-					s->masaFX();
 			}
 			else if (ev.key.code == sf::Keyboard::F)
 			{
@@ -717,8 +711,8 @@ void Game::updateDebug()
 		<< "\nPlayer hp: " << player->getCurrentHP() << ", alive: " << player->isActive()
 		<< "\nPlayer lives left: " << player->getLives()
 		<< "\nRevive Ticks: " << reviveTicks
-		<< "\nInvul Counter: " << player->invulCounter
-		<< "\nInvul Dur: " << player->invulDur
+		//<< "\nInvul Counter: " << player->invulCounter
+		//<< "\nInvul Dur: " << player->invulDur
 		<< "\nSway: " << player->getSway()
 		<< "\nOpeningFrame: " << openingFrame
 		<< ((state == GameState::Opening) ? "\nState: Opening" :
@@ -795,3 +789,12 @@ void Game::drawGrid()
 	window->draw(linesVertical);
 	window->draw(linesHorizontal);
 }
+
+/*
+ * Updates clock.
+ */
+///void Game::updateClock()
+//{
+//	dt = (clock.restart().asSeconds()) * 60;
+//	std::cout << "\ndt: " << dt;
+//}

@@ -5,6 +5,8 @@
 #include <SFML/Audio.hpp>
 #include <iostream>
 
+#include "DT.h"
+
 /*
  * Some classes had a lot of methods in common, so I made
  * a base class to make things more neat.
@@ -45,6 +47,7 @@ public:
 	float getSway() const;
 
 	//Setters
+	void setBaseDamage(float dmg);
 	void setVelocity(float v);
 	void setSway(float s);
 	void setPos(sf::Vector2<float> pos);

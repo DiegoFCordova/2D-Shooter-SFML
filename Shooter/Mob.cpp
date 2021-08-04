@@ -64,7 +64,7 @@ short Mob::getShotRate() const
  */
 float Mob::damageDealt(int k)
 {
-	return bullets[k]->getBaseDamage();		///Add damage multiplier later
+	return bullets[k]->getBaseDamage() * baseDamage;
 }
 
 /*
