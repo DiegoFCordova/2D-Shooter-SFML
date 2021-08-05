@@ -23,7 +23,7 @@ void Player::initVariables()
 	loopLimit.x = -1;
 	loopLimit.y = 4;
 	sway = 0;
-	maxHP = 10;
+	maxHP = 20;
 	hp = maxHP;
 	maxBullets = 1000;
 	scale = 1.5;
@@ -45,6 +45,9 @@ void Player::initSprite()
 		std::cout << "Error loading Player Sprite 2.\n";
 	sprite.setTexture(*textures[0]);
 	sprite.scale(scale, scale);
+
+	hitbox.setFillColor(sf::Color(255, 255, 0, 0));
+	hitbox.setSize(sf::Vector2f(20, 20));
 }
 
 /*
@@ -68,6 +71,9 @@ Player::Player(float x, float y, float scale)
 
 	sprite.setOrigin(sprite.getPosition().x + (sprite.getLocalBounds().width / 2), sprite.getPosition().y + (sprite.getLocalBounds().height / 2));
 	sprite.setPosition(x, y);
+
+	hitbox.setOrigin(hitbox.getPosition().x + (hitbox.getLocalBounds().width / 2), hitbox.getPosition().y + (hitbox.getLocalBounds().height / 2));
+	hitbox.setPosition(x, y);
 }
 
 /* Destructor for pointers. */
@@ -104,6 +110,14 @@ float Player::getShotSpeed() const
 Player::Status Player::getStatus() const
 {
 	return status;
+}
+
+/*
+ * Makes hitbox Player's hitbox.
+ */
+sf::FloatRect Player::bounds() const
+{
+	return hitbox.getGlobalBounds();
 }
 
 /*
@@ -163,7 +177,7 @@ void Player::resetMob()
 	loopLimit.x = -1;
 	loopLimit.y = 4;
 	sway = 0;
-	maxHP = 10;
+	maxHP = 20;
 	hp = maxHP;
 	maxBullets = 1000;
 	scale = 1.5;
@@ -213,23 +227,23 @@ void Player::update(sf::RenderTarget& target)
 		width = sprite.getGlobalBounds().width, height = sprite.getGlobalBounds().height;
 	int targetWidth = target.getSize().x, targetHeight = target.getSize().y;
 
-	frame++;
-	if (frame == aniSpeed)
+	frame = frame + (1 * DT::dt * DT::mult);
+	if (frame >= aniSpeed)
 	{
 		sprite.setTexture(*textures[1]);
 		frame = -aniSpeed;
 	}
-	else if (frame == 0)
+	else if (frame >= 0)
 		sprite.setTexture(*textures[0]);
 
 	if(cooldown && cooldownCounter < shotRate + 3)
-		cooldownCounter++;
+		cooldownCounter = cooldownCounter + (1 * DT::dt * DT::mult);
 
 	if (status == Status::Invul)
 	{
 		if (invulCounter < invulDur)
 		{
-			invulCounter++;
+			invulCounter = invulCounter + (1 * DT::dt * DT::mult);
 			if (invulCounter < invulDur - 70)
 				sprite.setColor(sf::Color(
 					((int)invulCounter * 5 % 155) + 100, 
@@ -237,7 +251,6 @@ void Player::update(sf::RenderTarget& target)
 					((int)invulCounter * 2 % 200) + 55, 255));
 			else
 				sprite.setColor(sf::Color(255, 255, 255, 45 + 3 * (invulCounter + 70 % (int)invulDur)));
-
 		}
 
 		else
@@ -264,6 +277,8 @@ void Player::update(sf::RenderTarget& target)
 		sprite.setPosition(targetWidth + width / 2, y);
 	else if (x > targetWidth + width / 2)
 		sprite.setPosition(0 - width / 2, y);
+
+	hitbox.setPosition(getPos());
 }
 
 /*
@@ -277,7 +292,7 @@ void Player::updateInput()
 		sprite.move(-velocity * DT::dt * DT::mult, 0.f);
 
 		if(sway > -velocity / 4) 
-			sway -= .2;
+			sway = sway - (.2 * DT::dt * DT::mult);
 		//sway = -velocity / 4;
 		moving = true;
 	}
@@ -287,7 +302,7 @@ void Player::updateInput()
 		sprite.move(velocity * DT::dt * DT::mult, 0.f);
 
 		if (sway < velocity / 4)
-			sway += .2;
+			sway = sway + (.2 * DT::dt * DT::mult);
 		//sway = velocity / 4;
 		moving = true;
 	}
@@ -297,7 +312,8 @@ void Player::updateInput()
 		if (sway > -.3 && sway < .3)
 			sway = 0;
 		else
-			sway += (sway < 0) ? .5 : -.5;
+			sway = (sway < 0) ? sway + (.5 * DT::dt * DT::mult)
+							: sway - (.5 * DT::dt * DT::mult);
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
@@ -324,6 +340,7 @@ void Player::updateInput()
 void Player::render(sf::RenderTarget& target)
 {
 	target.draw(sprite);
+	target.draw(hitbox);
 
 	for (auto* k : bullets)
 		k->render(target);

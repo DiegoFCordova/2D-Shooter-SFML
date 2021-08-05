@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
+#include "DT.h"
 
 /*
  * Star class for pretty background.
@@ -26,10 +27,9 @@ private:
 	sf::RectangleShape star;
 	FX effect;
 	Loop loop;
-	float oriSpd, speed, sway;
-	int oriAlp, alpha,
-		frame, frameDelay;
-	short r, g, b;
+	float oriSpd, speed, sway, frame;
+	int oriAlp, alpha, frameDelay;
+	short r, g, b, masaStarStage;
 	bool lap, readyToChange;
 
 	void masaAnimation(int widthThird);

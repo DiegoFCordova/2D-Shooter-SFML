@@ -4,13 +4,17 @@
  * Initialize windows, sets
  * titlebar, frames limit, and game logic.
  */
-
 void Game::initWindow()
 {
+	sf::Image icon;
+	if (!icon.loadFromFile("Sprites/Ship.png"))
+		std::cout << "Error loading window icon. \n";
+
 	vidMode.width = 1600;
 	vidMode.height = 900;
 	window = new sf::RenderWindow(vidMode, "Medjed", sf::Style::Titlebar | sf::Style::Close);
 	window->setFramerateLimit(144);
+	window->setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 }
 
 /*
@@ -21,10 +25,14 @@ void Game::initVars()
 	state = GameState::Opening;
 	debug = false;
 	tileSize = (float)(vidMode.width) / 32;	//For  16:9 ratio
+	fpsID = 2;
 
 	ticks = 0;
-	openingFrame = 0;
-	enemySpawnRate = 70;
+	openingFrame.x = 127;
+	openingFrame.y = 0;
+	reviveTicks = 0;
+	enemySpawnRate.x = 70;
+	enemySpawnRate.y = 0;
 	maxEnemies = 20;
 	score = 0;
 }
@@ -78,8 +86,9 @@ void Game::refreshUI()
 	ui->optionSet(player->getVelocity(), 3);
 	ui->optionSet((int)player->getContinum(), 4);
 	ui->optionSet(player->getLoopLimit().y, 5);
-	ui->optionSet(enemySpawnRate, 6);
+	ui->optionSet(enemySpawnRate.x, 6);
 	ui->optionSet(player->getLives(), 7);
+	ui->optionSet(fpsID, 8);
 
 	ui->updateGameScores(0, score);
 	ui->updateGameScores(1, player->getCurrentHP());
@@ -171,7 +180,7 @@ const bool Game::running() const
  */
 void Game::update()
 {
-	ticks++;
+	ticks += (1 *DT::dt * DT::mult);
 
 	if(state == GameState::Game)
 		updateTimer();
@@ -181,8 +190,8 @@ void Game::update()
 
 	if (state == GameState::Opening)
 	{
-		openingFrame++;
-		if (openingFrame == 127)
+		openingFrame.y += (1 * DT::dt * DT::mult);
+		if (openingFrame.y >= openingFrame.x)
 			state = GameState::MainMenu;
 	}
 
@@ -201,6 +210,7 @@ void Game::update()
  */
 void Game::updateTimer()
 {
+	enemySpawnRate.y += (1 * DT::dt * DT::mult);
 	//Enemy auto-shoot.
 	for (auto* e : enemies)
 	{
@@ -208,8 +218,11 @@ void Game::updateTimer()
 			e->attackTo(player->getPos().x, player->getPos().y);
 	}
 
-	if(ticks % enemySpawnRate == 0 && enemies.size() < maxEnemies && player->isActive())
+	if (enemySpawnRate.y >= enemySpawnRate.x && enemies.size() < maxEnemies && player->isActive())
+	{
 		enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % (vidMode.height / 2), ui->getDifficulty()));
+		enemySpawnRate.y = 0;
+	}
 }
 
 /*
@@ -220,8 +233,8 @@ void Game::reviveSequence()
 {
 	if (state == GameState::GameOver)
 	{
-		reviveTicks++;
-		if (reviveTicks == 200)
+		reviveTicks += (1 * DT::dt * DT::mult);
+		if (reviveTicks >= 200)
 		{
 			state = GameState::MainMenu;
 			ui->setMenuMode(UI::MenuState::Main);
@@ -231,8 +244,8 @@ void Game::reviveSequence()
 
 	else if (state == GameState::Game && player->getStatus() == Player::Status::Dead)
 	{
-		reviveTicks++;
-		if (reviveTicks == 100)
+		reviveTicks += (1 * DT::dt * DT::mult);
+		if (reviveTicks >= 100)
 		{
 			if (player->getLives() == 0)
 			{
@@ -275,8 +288,6 @@ void Game::pollEvents()
 					state = GameState::PauseMenu;
 				ui->goBackTo();
 			}
-			//else if (ev.key.code == sf::Keyboard::Z)		///Za Warudo, pero mejor le bajamos la velocidad a todos los mobs?
-			//	window->setFramerateLimit(60);
 
 			//UI Controls
 			else if (ev.key.code == sf::Keyboard::W || ev.key.code == sf::Keyboard::Up)
@@ -332,11 +343,16 @@ void Game::pollEvents()
 						player->setLoopLimit(sf::Vector2<short>(-1, ui->optionSet(player->getLoopLimit().y + 1)));
 						break;
 					case 6:
-						enemySpawnRate = ui->optionSet(enemySpawnRate + 1);
+						enemySpawnRate.x = ui->optionSet(enemySpawnRate.x + 5);
 						break;
 					case 7:
 						player->setLives(ui->optionSet(player->getLives() + 1));
 						ui->updateGameScores(2, player->getLives());
+						break;
+					case 8:
+						fpsID = ui->optionSet(fpsID + 1);
+						(fpsID == 1) ? 
+							window->setFramerateLimit(60) : window->setFramerateLimit(144);
 						break;
 					default:
 						break;
@@ -385,11 +401,16 @@ void Game::pollEvents()
 						player->setLoopLimit(sf::Vector2<short>(-1, ui->optionSet(player->getLoopLimit().y - 1)));
 						break;
 					case 6:
-						enemySpawnRate = ui->optionSet(enemySpawnRate - 1);
+						enemySpawnRate.x = ui->optionSet(enemySpawnRate.x - 5);
 						break;
 					case 7:
 						player->setLives(ui->optionSet(player->getLives() - 1));
 						ui->updateGameScores(2, player->getLives());
+						break;
+					case 8:
+						fpsID = ui->optionSet(fpsID - 1);
+						(fpsID == 0) ?
+							window->setFramerateLimit(30) : window->setFramerateLimit(60);
 						break;
 					default:
 						break;
@@ -418,29 +439,19 @@ void Game::pollEvents()
 			}
 
 
-			///Debug quick dirty code
+			//Debug Mode (Show various params for easier debugging).
 			else if (ev.key.code == sf::Keyboard::Z)
 				debug = !debug;
-			else if (ev.key.code == sf::Keyboard::T)
-				window->setFramerateLimit(144);
-			else if (ev.key.code == sf::Keyboard::G)
-				window->setFramerateLimit(60);
-			else if (ev.key.code == sf::Keyboard::Y)
-			{
-				for (auto* s : stars)
-					s->normalFX();
-			}
-			else if (ev.key.code == sf::Keyboard::F)
-			{
-				openingFrame = 0;
-				state = GameState::Opening;
-			}
-			else if (ev.key.code == sf::Keyboard::Q)
+			//Spawns an enemy at a random location in upper half of screen.
+			else if (ev.key.code == sf::Keyboard::I)
 				enemies.emplace_back(new Enemy(rand() % vidMode.width, rand() % (vidMode.height/2), ui->getDifficulty()));
-			else if (ev.key.code == sf::Keyboard::E)
+			//Spawns an enemy in the middle of the screen.
+			else if (ev.key.code == sf::Keyboard::O)
 				enemies.emplace_back(new Enemy(vidMode.width / 2, vidMode.height / 2, ui->getDifficulty()));
-			else if (ev.key.code == sf::Keyboard::R)
-				death.emplace_back(new DeathAni(rand() % vidMode.width, rand() % vidMode.height, 10));
+			//Displays Enemy Death Animation at a random position.
+			else if (ev.key.code == sf::Keyboard::K)
+				death.emplace_back(new DeathAni(rand() % vidMode.width, rand() % vidMode.height, 100));
+			//Reset all Mobs (Same as when you Go Back to Main Menu).
 			else if (ev.key.code == sf::Keyboard::L)
 				resetMobs();
 		}
@@ -594,7 +605,7 @@ bool Game::skipOpening()
 {
 	if (state == GameState::Opening)
 	{
-		openingFrame = 127;
+		openingFrame.y = 127;
 		title.setColor(sf::Color(255, 255, 255, 255));
 		state = GameState::MainMenu;
 		return true;
@@ -613,20 +624,27 @@ void Game::updateStars()
 	{
 		for (auto* s : stars)
 			s->masaFX();
-		enemySpawnRate = 45;
+		enemySpawnRate.x = 45;
+		player->setMaxHP(50);
+		ui->updateGameScores(1, player->getCurrentHP());
 	}
 	else if (ui->getDifficulty() == UI::Difficulty::Normal && 
 				stars[0]->getFX() != Star::FX::Normal && stars[0]->isReadyToChange())
 	{
 		for (auto* s : stars)
 			s->normalFX();
+		enemySpawnRate.x = 70;
+		player->setMaxHP(20);
+		ui->updateGameScores(1, player->getCurrentHP());
 	}
 	else if (ui->getDifficulty() == UI::Difficulty::Easy && 
 				stars[0]->getFX() != Star::FX::InverseSpeed && stars[0]->isReadyToChange())
 	{
 		for (auto* s : stars)
 			s->inverseSpeedFX();
-		enemySpawnRate = 150;
+		enemySpawnRate.x = 150;
+		player->setMaxHP(25);
+		ui->updateGameScores(1, player->getCurrentHP());
 	}
 
 		for (auto* s : stars)
@@ -643,10 +661,6 @@ void Game::updateStars()
  */
 void Game::render()
 {
-
-	//if (state == GameState::Opening)
-	//	window->clear(sf::Color(0, 0, 0, 255 - frame));
-
 	window->clear(sf::Color(30, 30, 30));
 	renderStars();
 
@@ -662,8 +676,8 @@ void Game::render()
 	if (state == GameState::Opening)
 	{
 		window->draw(blackscreen);
-		blackscreen.setFillColor(sf::Color(0, 0, 0, 254 - (openingFrame *2)));
-		title.setColor(sf::Color(255, 255, 255, 128 + openingFrame));
+		blackscreen.setFillColor(sf::Color(0, 0, 0, 254 - (openingFrame.y *2)));
+		title.setColor(sf::Color(255, 255, 255, 128 + openingFrame.y));
 	}
 
 	if(ui->getState() == UI::MenuState::Main)
@@ -686,9 +700,7 @@ void Game::renderMobs()
 		d->render(*window);
 }
 
-/*
- * Render stars here.
- */
+/* Render stars here */
 void Game::renderStars()
 {
 	for (auto* s : stars)
@@ -710,11 +722,11 @@ void Game::updateDebug()
 		<< "\nTileSize: " << tileSize
 		<< "\nPlayer hp: " << player->getCurrentHP() << ", alive: " << player->isActive()
 		<< "\nPlayer lives left: " << player->getLives()
-		<< "\nRevive Ticks: " << reviveTicks
+		<< "\nRevive Ticks (x): " << reviveTicks
 		//<< "\nInvul Counter: " << player->invulCounter
 		//<< "\nInvul Dur: " << player->invulDur
 		<< "\nSway: " << player->getSway()
-		<< "\nOpeningFrame: " << openingFrame
+		<< "\nOpeningFrame (x): " << openingFrame.x << ", (y): " << openingFrame.y
 		<< ((state == GameState::Opening) ? "\nState: Opening" :
 			(state == GameState::MainMenu) ? "\nState: Main Menu" : 
 			(state == GameState::Game) ? "\nState: Game" :
@@ -727,7 +739,8 @@ void Game::updateDebug()
 		<< ((ui->getDifficulty() == UI::Difficulty::Easy) ? "\nDifficulty: Easy" :
 			(ui->getDifficulty() == UI::Difficulty::Normal) ? "\nDifficulty: Normal" : "\nDifficulty: Merciless")
 		<< ((stars[0]->getFX() == Star::FX::Normal) ? "\nStar Pattern: Normal" : 
-			(stars[0]->getFX() == Star::FX::InverseSpeed) ? "\nStar Pattern: Invert" : "\nStar Pattern: Masa");
+			(stars[0]->getFX() == Star::FX::InverseSpeed) ? "\nStar Pattern: Invert" : "\nStar Pattern: Masa")
+		<< "\nFPSID: " << fpsID;
 	//Main, Controls, Options, Pause
 
 	text.setString(str.str());
@@ -789,12 +802,3 @@ void Game::drawGrid()
 	window->draw(linesVertical);
 	window->draw(linesHorizontal);
 }
-
-/*
- * Updates clock.
- */
-///void Game::updateClock()
-//{
-//	dt = (clock.restart().asSeconds()) * 60;
-//	std::cout << "\ndt: " << dt;
-//}

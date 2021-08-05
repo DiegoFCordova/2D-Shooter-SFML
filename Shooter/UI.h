@@ -28,7 +28,7 @@ private:
 	sf::Sprite pointer, rules, livesIcon, overImg;
 	sf::Font font;
 	sf::Text* pause;
-	std::string optionBase[8], gameBase[3];
+	std::string optionBase[9], gameBase[3];
 	MenuState state;
 	Difficulty diff;
 	int choice;

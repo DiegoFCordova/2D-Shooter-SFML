@@ -207,17 +207,17 @@ void Enemy::attackTo(float dstX, float dstY)
  */
 void Enemy::update(sf::RenderTarget& target)
 {
-	frame++;
-	if (frame == aniSpeed)
+	frame = frame + (1 * DT::dt * DT::mult);
+	if (frame >= aniSpeed)
 	{
 		sprite.setTexture(*textures[1]);
 		frame = -aniSpeed;
 	}
-	else if (frame == 0)
+	else if (frame >= 0)
 		sprite.setTexture(*textures[0]);
 
 	if (cooldown && cooldownCounter < shotRate + 3)
-		cooldownCounter++;
+		cooldownCounter = cooldownCounter + (1 * DT::dt * DT::mult);
 
 	///movement of enemy goes here
 	/*if (sprite.getPosition().x > target.getSize().x)

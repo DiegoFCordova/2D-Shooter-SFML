@@ -11,7 +11,6 @@
 
 class Enemy : public Mob
 {
-	//Make Enum for Variation sprite
 public:
 	/* Used for Enemy Type */
 	//enum class MobType

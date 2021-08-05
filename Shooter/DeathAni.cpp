@@ -147,7 +147,7 @@ void DeathAni::update(sf::RenderTarget& target)
 			sprite.setTexture(*textures[currentFrame]);
 	}
 
-	frames++;
+	frames = frames + (1 * DT::dt * DT::mult);
 }
 
 void DeathAni::render(sf::RenderTarget& target)

@@ -17,7 +17,7 @@ public:
 	};
 
 private:
-	//bool alive;
+	sf::RectangleShape hitbox;
 	Status status;
 	float invulDur, invulCounter;
 	short lives;
@@ -35,6 +35,7 @@ public:
 	short getLives() const;
 	float getShotSpeed() const;
 	Player::Status getStatus() const;
+	sf::FloatRect bounds() const override;
 
 	//-Setters
 	void setShotSpeed(float s);

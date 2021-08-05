@@ -5,6 +5,7 @@
 #include <SFML/Audio.hpp>
 #include <sstream>
 #include <iostream>
+#include "DT.h"
 
 /*
  * Simple Death Animation class for when an enemy
@@ -23,11 +24,10 @@ public:
 
 private:
 	std::vector <sf::Texture*> textures;
-	//sf::Texture t1, t2, t3, t4;
 	sf::Sprite sprite;
 	Type type;
-	float scale;
-	short frames, aniSpeed, currentFrame;
+	float scale, frames, aniSpeed;
+	short currentFrame;
 	bool done;
 
 	void loadTextures(int n, const std::stringstream& str);

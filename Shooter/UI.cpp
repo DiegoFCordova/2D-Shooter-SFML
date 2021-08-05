@@ -9,7 +9,7 @@ void UI::init()
 	}
 
 	state = MenuState::Main;
-	diff = Difficulty::Easy;
+	diff = Difficulty::Normal;
 	inGame = false;
 
 	choice = 0;
@@ -19,7 +19,7 @@ void UI::init()
 	textsMain.emplace_back(new sf::Text("Options", font, 70));
 	textsMain.emplace_back(new sf::Text("Quit", font, 70));
 
-	for(int k = 0; k < 8; k++)
+	for(int k = 0; k < 9; k++)
 		textsOptions.emplace_back(new sf::Text("Option Placeholder", font, 70));
 	optionBase[0] = "Difficulty     ";
 	optionBase[1] = "Shot Rate         ";
@@ -29,6 +29,7 @@ void UI::init()
 	optionBase[5] = "Bullet Loop Limit ";
 	optionBase[6] = "E-Spawn Rate      ";
 	optionBase[7] = "Lives             ";
+	optionBase[8] = "FPS               ";
 
 	for (int k = 0; k < 3; k++)
 		textsGame.emplace_back(new sf::Text("Option Placeholder", font, 70));
@@ -113,6 +114,7 @@ UI::UI(float x, float y)
 	textsOptions[5]->setPosition(x - 650, y - 20);
 	textsOptions[6]->setPosition(x - 650, y + 60);
 	textsOptions[7]->setPosition(x - 650, y + 140);
+	textsOptions[8]->setPosition(x - 650, y + 220);
 
 	textsGame[0]->setPosition(x - 680, y - 450);
 	textsGame[1]->setPosition(x - 680, y + 360);
@@ -406,6 +408,25 @@ int UI::optionSet(int num, int c)
 		textsOptions[c]->setString(str.str());
 		return num;
 		std::cout << "Something wrong with \"Lives\" option.\n";
+		break;
+	case 8:
+		if (num <= 0)
+		{
+			num = 0;
+			str << "30";
+		}
+		else if (num == 1)
+		{
+			str << "60";
+		}
+		else
+		{
+			num = 2;
+			str << "144";
+		}
+		textsOptions[c]->setString(str.str());
+		return num;
+		std::cout << "Something wrong with \"FPS\" option.\n";
 		break;
 	default:
 		std::cout << "Issue with UI.optionSet, Choice.\n";

@@ -1,25 +1,28 @@
 # 2D-Shooter-Game
 Simple 2D game to learn more of C++ and how to use Git
 
-Working on it at simple pace.
-Been fun so far.
+All goals I had in mind are complete! I will probably make
+this into a full game in the future after I finish school
+and learn more to improve my code.
+
+Working on this game was pretty fun! Feel free to let me
+know if there are parts that could be improved on, for I
+am a newbiew when it comes to making complex things as games
+on my own.
 
 To-do list:
 
-	-Making the game fps independent
-			
-			
 	//Greedy goals, not really a priority.
-	-Add Intro with a quick simple logo
-			
+	-Add Drag to make movement smooth
+	
+	-Try HashMap for small collition detection
+		
 	-Implement sounds
-			
+	
 	-Sway (Like continum) will be a power up
-			
-	-Make Gold Center the hitbox of player
+	
+	-Levels & More Mobs
 	
 	-Using a file to keep track of high scores
 	
-	-Try HashMap for small collition detection
-			
-	-Add Drag to make movement smooth
+	-Add Intro with a quick simple logo

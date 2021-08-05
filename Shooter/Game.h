@@ -16,6 +16,7 @@
 #include "Enemy.h"
 #include "Star.h"
 #include "UI.h"
+#include "DT.h"
 
 /* 
  * "Game Engine". Wrapper Class.
@@ -40,11 +41,14 @@ private:
 	GameState state;
 
 	//-Logic
-	///sf::Clock clock;
-	float tileSize;
-	int enemySpawnRate,
-		maxEnemies, score,
-		openingFrame, ticks, reviveTicks;
+	/* For these vectors, the x represents the limit for a
+	 * specific action to happen, y is the counter that
+	 * will increase depending on the fps.
+	 */
+	sf::Vector2f openingFrame, enemySpawnRate;
+	float tileSize, ticks, reviveTicks;
+	int maxEnemies, score;
+	short fpsID;
 	bool debug;
 
 	//-Game Objects
@@ -74,8 +78,6 @@ private:
 	void initText();
 
 public:
-	///float dt;
-
 	Game();
 	~Game();
 
@@ -93,11 +95,11 @@ public:
 	void updateTimer();
 	void reviveSequence();
 	void pollEvents();
-	void updateMobs();	///Need reworking
-	void updateStars();	///Might rename to UI when other stuffs are added
+	void updateMobs();
+	void updateStars();
 		
 	void render();
-	void renderMobs();	///Need to add something to it
+	void renderMobs();
 	void renderStars();
 
 	//-Debug
@@ -105,7 +107,5 @@ public:
 	
 	void renderDebug(sf::RenderTarget& target);
 	void drawGrid();
-
-	///void updateClock();
 };
 

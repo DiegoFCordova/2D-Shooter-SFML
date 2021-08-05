@@ -15,9 +15,9 @@ protected:
 	std::vector <Bullet*> bullets;
 	Bullet::Loop continum;
 	sf::Vector2<short> loopLimit;
-	float hp, shotSpeed;
-	short maxHP, maxBullets, shotRate, cooldownCounter,
+	float hp, shotSpeed, cooldownCounter,
 		frame, aniSpeed;
+	short maxHP, maxBullets, shotRate;
 	bool cooldown;
 
 public:
@@ -36,6 +36,7 @@ public:
 	void setContinum(Bullet::Loop l);
 	void setShotRate(short n);
 	void setLoopLimit(sf::Vector2<short> n);
+	void setMaxHP(float h);
 
 	virtual void resetMob() = 0;
 	virtual void takeDamage(float dmg) = 0;

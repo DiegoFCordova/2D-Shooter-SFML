@@ -12,6 +12,7 @@ Star::Star(int x, int y, int size, float spd)
 {
 	effect = FX::Normal;
 	loop = Loop::Normal;
+	masaStarStage = -1;
 	oriSpd = spd;
 	speed = oriSpd;
 	sway = 0;
@@ -67,6 +68,7 @@ void Star::masaFX()
 	effect = FX::Masa;
 	resetFXs();
 	readyToChange = false;
+	masaStarStage = 0;
 }
 /*
  * Complex animation goes here.
@@ -75,34 +77,36 @@ void Star::masaFX()
  */
 void Star::masaAnimation(int widthThird)
 {
-	frame++;
+	frame = frame + (1 * DT::dt * DT::mult);
 	
 	if(frame > 440)
 		readyToChange = true;
 
-	if (frame > 120 + frameDelay && speed > -(oriSpd * 2))
-		speed -= .2;
+	if (frame > 120 + frameDelay && speed > -(oriSpd * 2) && masaStarStage == 2)
+		speed = speed - (.2 * DT::dt * DT::mult);
 
-	else if (frame == 120 + frameDelay)
+	else if (frame > 120 + frameDelay && masaStarStage == 1)
 	{
 		star.setFillColor(sf::Color(73, 0, 142, 155));
 		star.setOutlineThickness(.5);
 		star.setOutlineColor(sf::Color(74, 0, 68));
-		speed -= .2;
+		speed = speed - (.2 * DT::dt * DT::mult);
+		masaStarStage = 2;
 	}
 
-	else if (frame == 119 + frameDelay)
+	else if (frame > 119 + frameDelay && masaStarStage == 0)
 	{
 		star.setPosition(widthThird + (int)(rand() % widthThird), 450);
 		sway = (frameDelay % 3 == 0) ? 0 
 			: (frameDelay % 2 == 0) ? 1 : -1;
 		speed = oriSpd;
 		loop = Loop::MFirstLoop;
+		masaStarStage = 1;
 	}
 
 	else if (frame > frameDelay && alpha > 0)
 	{
-		alpha = (alpha - 30 < 0) ? 0 : alpha -30;
+		alpha = (alpha - 30 < 0) ? 0 : alpha - (30 * DT::dt * DT::mult);
 		star.setFillColor(sf::Color(r, g, b, alpha));
 	}
 }
@@ -121,6 +125,7 @@ void Star::normalFX()
  */
 void Star::resetFXs()
 {
+	masaStarStage = -1;
 	alpha = oriAlp;
 	star.setFillColor(sf::Color(r, g, b, alpha));
 	star.setOutlineThickness(0);
@@ -176,11 +181,11 @@ void Star::update(sf::RenderTarget& target)
 	{
 	case Star::FX::Normal:
 		if (speed < oriSpd)
-			speed += .5;
+			speed += (.5 * DT::dt * DT::mult);
 		break;
 	case Star::FX::InverseSpeed:
 		if (speed > -oriSpd)
-			speed -= .5;
+			speed -= (.5 * DT::dt * DT::mult);
 		break;
 	case Star::FX::Masa:
 		masaAnimation(widthThird);
@@ -189,7 +194,7 @@ void Star::update(sf::RenderTarget& target)
 		break;
 	}
 
-	star.move(sway, speed);
+	star.move(sway * DT::dt * DT::mult, speed * DT::dt * DT::mult);
 
 
 	if (effect == FX::Masa && speed < 0 && star.getPosition().y < 0)

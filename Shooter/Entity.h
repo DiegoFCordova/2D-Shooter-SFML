@@ -42,7 +42,7 @@ public:
 	float getBaseDamage() const;
 	float getLargestSide() const;
 	sf::Vector2<float> getPos() const;
-	sf::FloatRect bounds() const;
+	virtual sf::FloatRect bounds() const;
 	float getVelocity() const;
 	float getSway() const;
 

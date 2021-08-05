@@ -6,5 +6,5 @@ float DT::dt = 0, DT::mult = 60;
 void DT::updateClock()
 {
 	dt = (clock.restart().asSeconds());
-	std::cout << "\ndt: " << dt;
+	//std::cout << "\ndt: " << dt;
 }

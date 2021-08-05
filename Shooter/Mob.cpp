@@ -120,6 +120,13 @@ void Mob::setLoopLimit(sf::Vector2<short> n)
 	loopLimit = n;
 }
 
+/* @param h: new MaxHP val for Mob */
+void Mob::setMaxHP(float h)
+{
+	maxHP = h;
+	hp = maxHP;
+}
+
 /*
  * Shoots bullet to specific direction.
  *

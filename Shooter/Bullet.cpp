@@ -320,7 +320,7 @@ void Bullet::update(sf::RenderTarget& target)
 				active = false;
 		}
 		else
-			sprite.move(sway, -velocity);
+			sprite.move(sway * DT::dt * DT::mult, -velocity * DT::dt * DT::mult);
 	}
 }
 
