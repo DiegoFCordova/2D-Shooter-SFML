@@ -1,6 +1,10 @@
+#pragma once
+
 #include <iostream>
 #include "Game.h"
 #include "DT.h"
+
+
 
 /*
  * Class that calls a Game instance
