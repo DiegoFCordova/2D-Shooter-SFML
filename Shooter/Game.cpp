@@ -34,7 +34,8 @@ void Game::initVars()
 	enemySpawnRate.x = 70;
 	enemySpawnRate.y = 0;
 	maxEnemies = 20;
-	score = 0;
+	score.x = 10;
+	score.y = 0;
 }
 
 /*
@@ -70,7 +71,21 @@ void Game::resetMobs()
 {
 	player->resetMob();
 	player->setPos(sf::Vector2<float>(tileSize * 16, tileSize * 15));
-	score = 0;
+	score.y = 0;
+	switch (ui->getDifficulty())
+	{
+	case UI::Difficulty::Easy:
+		player->setMaxHP(25);
+		break;
+	case UI::Difficulty::Normal:
+		player->setMaxHP(20);
+		break;
+	case UI::Difficulty::Merciless:
+		player->setMaxHP(50);
+		break;
+	default:
+		break;
+	}
 	refreshUI();
 	enemies.clear();
 }
@@ -90,7 +105,7 @@ void Game::refreshUI()
 	ui->optionSet(player->getLives(), 7);
 	ui->optionSet(fpsID, 8);
 
-	ui->updateGameScores(0, score);
+	ui->updateGameScores(0, score.y);
 	ui->updateGameScores(1, player->getCurrentHP());
 	ui->updateGameScores(2, player->getLives());
 }
@@ -497,7 +512,7 @@ void Game::updateMobs()
 							deleteMob(&enemies, enemies[e], e);
 						else
 							enemies[e]->setWaitForDisposal();
-						score = ui->updateGameScores(0, score + 5);
+						score.y = ui->updateGameScores(0, score.y + score.x);
 					}
 
 					death.emplace_back(new DeathAni(player->getBullets()[k]->getPos().x, player->getBullets()[k]->getPos().y,
@@ -615,37 +630,54 @@ bool Game::skipOpening()
 }
 
 /*
+ * Updates game parameters depending
+ * in the current difficulty.
+ */
+void Game::diffChanges(UI::Difficulty diff)
+{
+	switch (diff)
+	{
+	case UI::Difficulty::Easy:
+		for (auto* s : stars)
+			s->inverseSpeedFX();
+		enemySpawnRate.x = 150;
+		player->setMaxHP(25);
+		score.x = 5;
+		break;
+	case UI::Difficulty::Normal:
+		for (auto* s : stars)
+			s->normalFX();
+		enemySpawnRate.x = 70;
+		player->setMaxHP(20);
+		score.x = 10;
+		break;
+	case UI::Difficulty::Merciless:
+		for (auto* s : stars)
+			s->masaFX();
+		enemySpawnRate.x = 45;
+		player->setMaxHP(50);
+		score.x = 15;
+		break;
+	default:
+		break;
+	}
+
+	ui->updateGameScores(1, player->getCurrentHP());
+	ui->optionSet(enemySpawnRate.x, 6);
+}
+
+/*
  * Update stars. Also makes changes
  * when updating difficulty.
  */
 void Game::updateStars()
 {
-	if (ui->getDifficulty() == UI::Difficulty::Merciless && stars[0]->getFX() != Star::FX::Masa)
-	{
-		for (auto* s : stars)
-			s->masaFX();
-		enemySpawnRate.x = 45;
-		player->setMaxHP(50);
-		ui->updateGameScores(1, player->getCurrentHP());
-	}
-	else if (ui->getDifficulty() == UI::Difficulty::Normal && 
-				stars[0]->getFX() != Star::FX::Normal && stars[0]->isReadyToChange())
-	{
-		for (auto* s : stars)
-			s->normalFX();
-		enemySpawnRate.x = 70;
-		player->setMaxHP(20);
-		ui->updateGameScores(1, player->getCurrentHP());
-	}
-	else if (ui->getDifficulty() == UI::Difficulty::Easy && 
-				stars[0]->getFX() != Star::FX::InverseSpeed && stars[0]->isReadyToChange())
-	{
-		for (auto* s : stars)
-			s->inverseSpeedFX();
-		enemySpawnRate.x = 150;
-		player->setMaxHP(25);
-		ui->updateGameScores(1, player->getCurrentHP());
-	}
+	if (ui->getDifficulty() == UI::Difficulty::Merciless && stars[0]->getFX() != Star::FX::Masa
+		|| (stars[0]->isReadyToChange() &&
+		(ui->getDifficulty() == UI::Difficulty::Normal && stars[0]->getFX() != Star::FX::Normal
+		|| ui->getDifficulty() == UI::Difficulty::Easy && stars[0]->getFX() != Star::FX::InverseSpeed)))
+		
+		diffChanges(ui->getDifficulty());
 
 		for (auto* s : stars)
 		{

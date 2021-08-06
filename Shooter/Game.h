@@ -45,9 +45,9 @@ private:
 	 * specific action to happen, y is the counter that
 	 * will increase depending on the fps.
 	 */
-	sf::Vector2f openingFrame, enemySpawnRate;
+	sf::Vector2f openingFrame, enemySpawnRate, score;
 	float tileSize, ticks, reviveTicks;
-	int maxEnemies, score;
+	int maxEnemies;
 	short fpsID;
 	bool debug;
 
@@ -89,6 +89,7 @@ public:
 	void deleteMob(std::vector<T*>* mobArray, T* mob, int index);
 	void deleteBulletOf(Mob* mob, int index);
 	bool skipOpening();
+	void diffChanges(UI::Difficulty diff);
 
 	//-Draw Components
 	void update();

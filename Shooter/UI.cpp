@@ -166,6 +166,20 @@ void UI::hightlight(const std::vector<sf::Text*>& t)
 void UI::setMenuMode(MenuState s)
 {
 	state = s;
+	switch (state)
+	{
+	case UI::MenuState::Main:
+		hightlight(textsMain);
+		break;
+	case UI::MenuState::Options:
+		hightlight(textsOptions);
+		break;
+	case UI::MenuState::Pause:
+		hightlight(textsPause);
+		break;
+	default:
+		break;
+	}
 }
 
 /*
@@ -449,6 +463,7 @@ bool UI::isInGame()
 int UI::updateGameScores(int ind, float val)
 {
 	std::stringstream str;
+	str.precision(4);
 	str << gameBase[ind];
 
 	switch (ind)
