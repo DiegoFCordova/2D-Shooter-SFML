@@ -7,7 +7,7 @@ and learn more to improve my code.
 
 Working on this game was pretty fun! Feel free to let me
 know if there are parts that could be improved on, for I
-am a newbiew when it comes to making complex things as games
+am a newbie when it comes to making complex things as games
 on my own.
 
 To-do list:
