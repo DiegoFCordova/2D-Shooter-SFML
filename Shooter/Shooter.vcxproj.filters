@@ -90,12 +90,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon1.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Sprites\Ship.png">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="Sprites\Ship.ico">
       <Filter>Resource Files</Filter>
     </Image>

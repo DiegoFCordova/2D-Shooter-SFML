@@ -14,8 +14,8 @@ void Player::initVariables()
 	cooldown = false;
 	frame = 0;
 	aniSpeed = 25;
-	invulDur = 250;
-	invulCounter = 0;
+	shieldDur = 250;
+	shieldCounter = 0;
 	status = Status::Alive;
 	lives = 3;
 	velocity = 15;
@@ -145,7 +145,7 @@ void Player::setLives(short l)
  */
 void Player::revive()
 {
-	status = Status::Invul;
+	status = Status::Shield;
 	hp = maxHP;
 	shotRate = (shotRate == 1) ? 1 : shotRate / 2;
 	shotSpeed *= 2;
@@ -168,8 +168,8 @@ void Player::resetMob()
 	cooldown = false;
 	frame = 0;
 	aniSpeed = 25;
-	invulDur = 250;
-	invulCounter = 0;
+	shieldDur = 250;
+	shieldCounter = 0;
 	lives = 3;
 	status = Status::Alive;
 	velocity = 15;
@@ -218,6 +218,24 @@ void Player::attackTo(float dstX, float dstY)
 }
 
 /*
+ * Makes Player invulnerable
+ * to play for fun.
+ */
+void Player::toggleInvul()
+{
+	if (status == Player::Status::Alive)
+	{
+		status = Player::Status::Invul;
+		sprite.setColor(sf::Color(255, 255, 255, 125));
+	}
+	else if (status == Player::Status::Invul)
+	{
+		status = Player::Status::Alive;
+		sprite.setColor(sf::Color(255, 255, 255));
+	}
+}
+
+/*
  * Update animations.
  * Also loops player if he goes outside screen.
  */
@@ -239,25 +257,25 @@ void Player::update(sf::RenderTarget& target)
 	if(cooldown && cooldownCounter < shotRate + 3)
 		cooldownCounter = cooldownCounter + (1 * DT::dt * DT::mult);
 
-	if (status == Status::Invul)
+	if (status == Status::Shield)
 	{
-		if (invulCounter < invulDur)
+		if (shieldCounter < shieldDur)
 		{
-			invulCounter = invulCounter + (1 * DT::dt * DT::mult);
-			if (invulCounter < invulDur - 70)
+			shieldCounter = shieldCounter + (1 * DT::dt * DT::mult);
+			if (shieldCounter < shieldDur - 70)
 				sprite.setColor(sf::Color(
-					((int)invulCounter * 5 % 155) + 100, 
-					((int)invulCounter * 5 % 255), 
-					((int)invulCounter * 2 % 200) + 55, 255));
+					((int)shieldCounter * 5 % 155) + 100,
+					((int)shieldCounter * 5 % 255),
+					((int)shieldCounter * 2 % 200) + 55, 255));
 			else
-				sprite.setColor(sf::Color(255, 255, 255, 45 + 3 * (invulCounter + 70 % (int)invulDur)));
+				sprite.setColor(sf::Color(255, 255, 255, 45 + 3 * (shieldCounter + 70 % (int)shieldDur)));
 		}
 
 		else
 		{
 			status = Status::Alive;
 			sprite.setColor(sf::Color(255, 255, 255, 255));
-			invulCounter = 0;
+			shieldCounter = 0;
 
 			shotRate = (shotRate == 1) ? 1 : shotRate * 2;
 			shotSpeed /= 2;

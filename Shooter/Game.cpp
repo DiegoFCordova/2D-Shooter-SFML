@@ -469,6 +469,8 @@ void Game::pollEvents()
 			//Reset all Mobs (Same as when you Go Back to Main Menu).
 			else if (ev.key.code == sf::Keyboard::L)
 				resetMobs();
+			else if (ev.key.code == sf::Keyboard::V)
+				player->toggleInvul();
 		}
 	}
 }
@@ -539,7 +541,8 @@ void Game::updateMobs()
 				if (!enemies[e]->getBullets()[k]->isActive())
 					deleteBulletOf(enemies[e], k);
 
-				else if (player->isActive() && player->bounds().intersects(enemies[e]->getBullets()[k]->bounds()))
+				else if (player->getStatus() != Player::Status::Invul && 
+					player->isActive() && player->bounds().intersects(enemies[e]->getBullets()[k]->bounds()))
 				{
 					if (player->getStatus() == Player::Status::Alive)
 					{
@@ -754,7 +757,7 @@ void Game::updateDebug()
 		<< "\nTileSize: " << tileSize
 		<< "\nPlayer hp: " << player->getCurrentHP() << ", alive: " << player->isActive()
 		<< "\nPlayer lives left: " << player->getLives()
-		<< "\nRevive Ticks (x): " << reviveTicks
+		<< "\nRevive Ticks: " << reviveTicks
 		//<< "\nInvul Counter: " << player->invulCounter
 		//<< "\nInvul Dur: " << player->invulDur
 		<< "\nSway: " << player->getSway()

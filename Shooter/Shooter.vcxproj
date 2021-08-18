@@ -176,9 +176,7 @@
     <ResourceCompile Include="Shooter.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon1.ico" />
     <Image Include="Sprites\Ship.ico" />
-    <Image Include="Sprites\Ship.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

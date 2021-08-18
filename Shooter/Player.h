@@ -13,13 +13,13 @@ class Player : public Mob
 public:
 	enum class Status
 	{
-		Alive, Dead, Invul
+		Alive, Dead, Shield, Invul
 	};
 
 private:
 	sf::RectangleShape hitbox;
 	Status status;
-	float invulDur, invulCounter;
+	float shieldDur, shieldCounter;
 	short lives;
 
 	void initVariables();  
@@ -46,6 +46,7 @@ public:
 	void resetMob() override;
 	void takeDamage(float dmg) override;
 	void attackTo(float dstX, float dstY) override;
+	void toggleInvul();
 
 	//-Draw Components
 	void update(sf::RenderTarget& target) override;
